@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+*.log
+
+# Build outputs
+dist/
+build/
+dist-cli/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.vitepress/cache/
+.vitepress/dist/
+
+# Documentation build
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+
+# Test results
+test-results/
+playwright-report/
+
+# Local Netlify folder
+.netlify
+
+# Development tools
+.cursor
+.cursorrules
+.claude

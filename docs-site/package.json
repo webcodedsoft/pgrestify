@@ -1,0 +1,20 @@
+{
+  "name": "pgrestify-docs",
+  "version": "1.0.0",
+  "description": "PGRestify Documentation Website",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
+    "netlify:build": "pnpm install && pnpm docs:build"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vitepress": "^1.0.0"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0",
+    "typescript": "^5.3.0"
+  },
+  "type": "module"
+}

@@ -1,0 +1,154 @@
+# PGRestify Development Environment
+# Complete stack with PostgreSQL + PostgREST + PGRestify
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: pgrestify-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pgrestify_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./docker/postgres/schema.sql:/docker-entrypoint-initdb.d/02-schema.sql
+      - ./docker/postgres/seed.sql:/docker-entrypoint-initdb.d/03-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgREST API Server
+  postgrest:
+    image: postgrest/postgrest:latest
+    container_name: pgrestify-postgrest
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@postgres:5432/pgrestify_dev
+      PGRST_DB_SCHEMAS: public,auth
+      PGRST_DB_ANON_ROLE: anonymous
+      PGRST_DB_POOL: 10
+      PGRST_DB_POOL_TIMEOUT: 10
+      PGRST_JWT_SECRET: your-jwt-secret-key-here-make-it-long-and-secure
+      PGRST_JWT_SECRET_IS_BASE64: false
+      PGRST_SERVER_HOST: 0.0.0.0
+      PGRST_SERVER_PORT: 3000
+      PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PGRestify Development Server
+  pgrestify-dev:
+    build:
+      context: .
+      target: dev
+    container_name: pgrestify-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      POSTGREST_URL: http://postgrest:3000
+      POSTGREST_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbnltb3VzIn0.example
+    ports:
+      - "5173:5173" # Vite dev server
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    depends_on:
+      - postgrest
+    command: ["pnpm", "dev"]
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: pgrestify-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Nginx reverse proxy (production-like setup)
+  nginx:
+    image: nginx:alpine
+    container_name: pgrestify-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - postgrest
+      - pgrestify-dev
+    profiles:
+      - production
+
+  # PGAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgrestify-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgrestify.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    profiles:
+      - tools
+
+  # Example Next.js application using PGRestify
+  example-app:
+    build:
+      context: ./examples/nextjs-app
+      dockerfile: Dockerfile
+    container_name: pgrestify-example-nextjs
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_POSTGREST_URL: http://localhost:3000
+      NODE_ENV: development
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgrest
+    profiles:
+      - examples
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  node_modules:
+    driver: local
+
+networks:
+  default:
+    name: pgrestify-network
