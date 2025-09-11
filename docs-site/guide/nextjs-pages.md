@@ -539,13 +539,13 @@ const client = createNextJSClient({
 
 ## Examples
 
-- [Basic CRUD Operations](/examples/nextjs-crud)
-- [Authentication Flow](/examples/nextjs-auth)
-- [Real-time Chat](/examples/nextjs-realtime)
-- [E-commerce Store](/examples/nextjs-ecommerce)
+- [Basic Usage](/examples/basic-usage)
+- [Authentication](/examples/authentication)
+- [Real-time Features](/examples/realtime)
+- [Advanced Queries](/examples/advanced-queries)
 
 ## API Reference
 
-- [Pages Router API](/api/nextjs-pages)
-- [Authentication](/api/nextjs-auth)
-- [Middleware](/api/nextjs-middleware)
+- [Client API](/api/client)
+- [Authentication](/api/auth)
+- [Query Builder](/api/query-builder)

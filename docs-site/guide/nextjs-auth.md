@@ -739,7 +739,7 @@ describe('Authentication', () => {
 
 ## Next Steps
 
-- [Server Actions](/guide/nextjs-server-actions)
-- [Middleware](/guide/nextjs-middleware)
-- [Session Management](/guide/nextjs-sessions)
-- [Security Best Practices](/guide/security)
+- [Server Components](/guide/nextjs-server-components)
+- [API Routes](/guide/nextjs-api)
+- [Caching](/guide/nextjs-caching)
+- [Production Deployment](/guide/production)

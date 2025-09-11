@@ -721,7 +721,6 @@ const result = await client.from('data').select('*').execute({
 
 ## Next Steps
 
-- [Performance Optimization](/guide/nextjs-performance)
+- [Performance Optimization](/guide/nextjs-caching)
 - [Real-time Updates](/guide/realtime)
 - [Production Deployment](/guide/production)
-- [Monitoring](/guide/monitoring)

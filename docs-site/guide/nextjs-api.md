@@ -784,6 +784,5 @@ Use caching strategies to improve performance and reduce database load.
 ## Next Steps
 
 - [Authentication](/guide/nextjs-auth)
-- [Server Actions](/guide/nextjs-server-actions)
-- [Middleware](/guide/nextjs-middleware)
-- [Testing](/guide/testing)
+- [Server Components](/guide/nextjs-server-components)
+- [Caching](/guide/nextjs-caching)

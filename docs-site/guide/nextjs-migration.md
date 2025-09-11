@@ -728,7 +728,7 @@ const client = createNextJSClient({
 
 ## Next Steps
 
-- [Performance Optimization](/guide/performance)
-- [Testing Strategies](/guide/testing)
+- [Performance Optimization](/guide/nextjs-caching)
+- [Authentication](/guide/nextjs-auth)
 - [Production Deployment](/guide/production)
-- [Monitoring & Debugging](/guide/monitoring)
+- [Real-time Features](/guide/realtime)

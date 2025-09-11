@@ -675,13 +675,12 @@ Choose your path based on your setup:
 - **[Authentication](./authentication)** - Add user authentication
 
 ### ⚙️ If you used Manual Setup:
-- **[Core Library Guide](./core)** - Learn the core PGRestify API
+- **[Core Library Guide](./client-creation)** - Learn the core PGRestify API
 - **[Query Builder](./query-builder)** - Master query building
 - **[Client Configuration](./configuration)** - Advanced client options
 
 ### ⚛️ Framework Integration (All Setups):
 - **[React Guide](./react)** - React hooks and components  
 - **[Next.js Guide](./nextjs)** - SSR, API routes, and deployment
-- **[Vue Guide](./vue)** - Vue composables and components
 
 **🎉 Happy coding with PGRestify!**

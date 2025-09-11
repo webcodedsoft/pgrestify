@@ -495,7 +495,7 @@ export function ClientComponent({ data }) {
 
 ## Next Steps
 
-- [Server Actions](/guide/nextjs-server-actions)
+- [API Routes](/guide/nextjs-api)
 - [Caching Strategies](/guide/nextjs-caching)
-- [Streaming & Suspense](/guide/nextjs-streaming)
-- [Performance Optimization](/guide/nextjs-performance)
+- [Authentication](/guide/nextjs-auth)
+- [Production Deployment](/guide/production)
