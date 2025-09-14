@@ -739,7 +739,7 @@ describe('Authentication', () => {
 
 ## Next Steps
 
-- [Server Components](/guide/nextjs-server-components)
-- [API Routes](/guide/nextjs-api)
-- [Caching](/guide/nextjs-caching)
-- [Production Deployment](/guide/production)
+- [Server Components](./server-components.md)
+- [API Routes](./api-routes.md)
+- [Caching](./caching.md)
+- [Production Deployment](../production/deployment.md)

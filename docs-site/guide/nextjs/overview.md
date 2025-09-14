@@ -707,9 +707,9 @@ export default async function PostsPage() {
 
 ## Next Steps
 
-- [App Router Guide](./nextjs-app-router) - Deep dive into App Router integration
-- [Pages Router Guide](./nextjs-pages-router) - Pages Router best practices  
-- [API Routes](./nextjs-api-routes) - Building type-safe API endpoints
-- [Static Generation](./nextjs-ssg) - Pre-rendering with ISR
-- [Server-Side Rendering](./nextjs-ssr) - Advanced SSR patterns
-- [Authentication Flow](./nextjs-auth) - Complete auth implementation
+- [App Router Guide](./app-router.md) - Deep dive into App Router integration
+- [Pages Router Guide](./pages-router.md) - Pages Router best practices  
+- [API Routes](./api-routes.md) - Building type-safe API endpoints
+- [Static Generation](./ssg.md) - Pre-rendering with ISR
+- [Server-Side Rendering](./ssr.md) - Advanced SSR patterns
+- [Authentication Flow](./auth.md) - Complete auth implementation

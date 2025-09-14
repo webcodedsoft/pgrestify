@@ -1047,7 +1047,5 @@ function LoadingStates({ isLoading, isFetchingNextPage, hasNextPage, posts }: an
 
 ## Next Steps
 
-- [Performance Optimization](./performance) - Advanced performance techniques
-- [Real-time Integration](./realtime) - Real-time updates with infinite queries
-- [State Management](./react-state) - Managing complex state with infinite data
-- [Error Handling](./error-handling) - Comprehensive error handling strategies
+- [Real-time Integration](../advanced-features/realtime.md) - Real-time updates with infinite queries
+- [State Management](./state.md) - Managing complex state with infinite data

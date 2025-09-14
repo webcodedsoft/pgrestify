@@ -987,8 +987,8 @@ npm run start
 
 ## Next Steps
 
-- [Pages Router](./nextjs-pages-router) - Legacy Pages Router integration
-- [API Routes](./nextjs-api-routes) - Building robust API endpoints
-- [Server-Side Rendering](./nextjs-ssr) - Advanced SSR patterns
-- [Static Generation](./nextjs-ssg) - Pre-rendering and ISR
-- [Authentication](./nextjs-auth) - Complete auth implementation
+- [Pages Router](./pages-router.md) - Legacy Pages Router integration
+- [API Routes](./api-routes.md) - Building robust API endpoints
+- [Server-Side Rendering](./ssr.md) - Advanced SSR patterns
+- [Static Generation](./ssg.md) - Pre-rendering and ISR
+- [Authentication](./auth.md) - Complete auth implementation

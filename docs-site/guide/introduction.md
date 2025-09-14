@@ -161,11 +161,11 @@ Ready to get started? Here's what to do next:
 
 Or dive deeper into specific features:
 
-- **[Complete Features Guide](./complete-features)** - Every feature PGRestify offers
-- **[CLI Tool](./cli)** - Comprehensive CLI command reference
-- **[Query Builder](./query-builder)** - Learn the powerful query building API
-- **[Authentication](./authentication)** - Implement secure authentication
-- **[Real-time](./realtime)** - Add live data updates to your app
-- **[Table-Based Structure](./table-folders)** - Modern SQL organization
+- **[Complete Features Guide](./complete-features.md)** - Every feature PGRestify offers
+- **[CLI Tool](./cli.md)** - Comprehensive CLI command reference
+- **[Query Builder](./query-builder.md)** - Learn the powerful query building API
+- **[Authentication](./advanced-features/authentication.md)** - Implement secure authentication
+- **[Real-time](./advanced-features/realtime.md)** - Add live data updates to your app
+- **[Table-Based Structure](./table-folders.md)** - Modern SQL organization
 
 Welcome to the future of PostgREST development! 🚀

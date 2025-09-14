@@ -1022,7 +1022,5 @@ class OptimisticErrorBoundary extends React.Component {
 
 ## Next Steps
 
-- [Infinite Queries](./react-infinite) - Handle paginated data optimistically  
-- [Real-time Integration](./realtime) - Combine with real-time updates
-- [Error Handling](./error-handling) - Advanced error handling patterns
-- [Performance Optimization](./performance) - Optimize optimistic update performance
+- [Infinite Queries](./infinite.md) - Handle paginated data optimistically  
+- [Real-time Integration](../advanced-features/realtime.md) - Combine with real-time updates

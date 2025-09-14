@@ -402,8 +402,8 @@ pgrestify api schema restructure --help
 
 After successful migration:
 
-- **[Table-Based Folder Structure](./table-folders)** - Understanding the new structure
-- **[CLI Complete Reference](./cli)** - All available commands
-- **[Complete Features](./complete-features)** - Full library capabilities
+- **[Table-Based Folder Structure](../table-folders.md)** - Understanding the new structure
+- **[CLI Complete Reference](../cli.md)** - All available commands
+- **[Complete Features](../complete-features.md)** - Full library capabilities
 
 The table-based structure will make your PGRestify project more maintainable and team-friendly!

@@ -802,7 +802,6 @@ function Dashboard({ userId }: { userId: string }) {
 
 ## Next Steps
 
-- [Server State Sync](./react-server-state) - Advanced server state synchronization
-- [Optimistic Updates](./react-optimistic) - Implement optimistic UI updates
-- [Real-time Integration](./realtime) - Real-time state updates
-- [Performance Optimization](./performance) - Optimize state management performance
+- [Server State Sync](./server-state.md) - Advanced server state synchronization
+- [Optimistic Updates](./optimistic.md) - Implement optimistic UI updates
+- [Real-time Integration](../advanced-features/realtime.md) - Real-time state updates

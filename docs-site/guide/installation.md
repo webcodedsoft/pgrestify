@@ -665,22 +665,22 @@ pgrestify generate types
 Choose your path based on your setup:
 
 ### 🐳 If you used Docker Setup:
-- **[Quick Start Guide](./getting-started)** - Build your first app
-- **[CLI Tool Guide](./cli)** - Master the development tools
-- **[Query Builder](./query-builder)** - Learn advanced queries
+- **[Quick Start Guide](./getting-started.md)** - Build your first app
+- **[CLI Tool Guide](./cli.md)** - Master the development tools
+- **[Query Builder](./query-builder.md)** - Learn advanced queries
 
 ### 🔧 If you used Non-Docker CLI Setup:
-- **[CLI Tool Guide](./cli)** - Explore more CLI commands
-- **[Query Builder](./query-builder)** - Build complex queries
-- **[Authentication](./authentication)** - Add user authentication
+- **[CLI Tool Guide](./cli.md)** - Explore more CLI commands
+- **[Query Builder](./query-builder.md)** - Build complex queries
+- **[Authentication](./advanced-features/authentication.md)** - Add user authentication
 
 ### ⚙️ If you used Manual Setup:
-- **[Core Library Guide](./client-creation)** - Learn the core PGRestify API
-- **[Query Builder](./query-builder)** - Master query building
-- **[Client Configuration](./configuration)** - Advanced client options
+- **[Core Library Guide](./core/client-creation.md)** - Learn the core PGRestify API
+- **[Query Builder](./query-builder.md)** - Master query building
+- **[Client Configuration](./configuration.md)** - Advanced client options
 
 ### ⚛️ Framework Integration (All Setups):
-- **[React Guide](./react)** - React hooks and components  
-- **[Next.js Guide](./nextjs)** - SSR, API routes, and deployment
+- **[React Guide](./react.md)** - React hooks and components  
+- **[Next.js Guide](./nextjs/overview.md)** - SSR, API routes, and deployment
 
 **🎉 Happy coding with PGRestify!**

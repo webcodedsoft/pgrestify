@@ -522,7 +522,5 @@ DROP SCHEMA schema_c CASCADE;
 
 ## Next Steps
 
-- [Database Roles](./database-roles) - Configure role-based access control
-- [Row Level Security](./rls-policies) - Implement fine-grained security
-- [CLI Schema Management](./cli-schema) - Advanced CLI schema operations
-- [Authentication](./authentication) - Set up schema-aware authentication
+- [Database Roles](./database-roles.md) - Configure role-based access control
+- [Authentication](./authentication.md) - Set up schema-aware authentication

@@ -879,10 +879,10 @@ pgrestify api schema rls fix-anonymous         # Fix permissions
 
 ## Next Steps
 
-- **[Getting Started](./getting-started)** - Complete walkthrough
-- **[Authentication](./authentication)** - JWT setup and RLS
-- **[React Integration](./react)** - Using with React
-- **[Next.js Integration](./nextjs)** - Full Next.js setup
-- **[Production Deployment](./production)** - Deployment guide
+- **[Getting Started](./getting-started.md)** - Complete walkthrough
+- **[Authentication](./advanced-features/authentication.md)** - JWT setup and RLS
+- **[React Integration](./react.md)** - Using with React
+- **[Next.js Integration](./nextjs/overview.md)** - Full Next.js setup
+- **[Production Deployment](./production/deployment.md)** - Deployment guide
 
 **🚀 Ready to build with PGRestify's powerful CLI!**

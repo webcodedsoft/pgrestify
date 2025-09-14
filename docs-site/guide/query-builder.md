@@ -2,7 +2,7 @@
 
 PGRestify's query builder provides a fluent, type-safe API for constructing complex database queries. It supports all PostgREST operators and features while maintaining full TypeScript type safety.
 
-For detailed API documentation, see our comprehensive [Query Building Guide](./query-building.md).
+For detailed API documentation, see our comprehensive [Query Building Guide](./core/query-building.md).
 
 ## Basic Query Building
 

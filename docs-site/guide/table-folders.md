@@ -454,9 +454,9 @@ sql/schemas/_setup/table.sql
 
 ## Next Steps
 
-- **[CLI Complete Reference](./cli)** - All available commands
-- **[Migration Guide](./migration)** - Migrating existing projects  
-- **[Complete Features](./complete-features)** - All library capabilities
-- **[Getting Started](./getting-started)** - Setup walkthrough
+- **[CLI Complete Reference](./cli.md)** - All available commands
+- **[Migration Guide](./troubleshooting/migration-guides.md)** - Migrating existing projects  
+- **[Complete Features](./complete-features.md)** - All library capabilities
+- **[Getting Started](./getting-started.md)** - Setup walkthrough
 
 The table-based folder structure makes PGRestify projects more maintainable, collaborative, and scalable. All new projects use this structure by default, and existing projects can be easily migrated.

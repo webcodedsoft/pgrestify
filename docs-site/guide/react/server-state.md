@@ -790,7 +790,6 @@ function useBoundedSync(userId: string) {
 
 ## Next Steps
 
-- [Optimistic Updates](./react-optimistic) - Implement optimistic UI patterns
-- [Infinite Queries](./react-infinite) - Handle large datasets with pagination
-- [Real-time Integration](./realtime) - Deep dive into real-time features
-- [Performance Optimization](./performance) - Optimize sync performance
+- [Optimistic Updates](./optimistic.md) - Implement optimistic UI patterns
+- [Infinite Queries](./infinite.md) - Handle large datasets with pagination
+- [Real-time Integration](../advanced-features/realtime.md) - Deep dive into real-time features

@@ -392,4 +392,4 @@ See the [Getting Started guide](./getting-started.md) for how to use PGRestify i
 - Ensure frontend origin is allowed
 - Check for mixed HTTP/HTTPS content
 
-For more detailed troubleshooting, see the [Troubleshooting guide](./troubleshooting.md).
+For more detailed troubleshooting, see the [Troubleshooting guide](./troubleshooting/common-issues.md).

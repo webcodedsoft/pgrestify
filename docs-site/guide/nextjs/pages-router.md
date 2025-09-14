@@ -1131,8 +1131,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
 ## Next Steps
 
-- [App Router](./nextjs-app-router) - Modern App Router integration
-- [API Routes](./nextjs-api-routes) - Building robust API endpoints
-- [Static Generation](./nextjs-ssg) - Advanced SSG patterns
-- [Server-Side Rendering](./nextjs-ssr) - SSR optimization techniques
-- [Authentication](./nextjs-auth) - Complete auth implementation
+- [App Router](./app-router.md) - Modern App Router integration
+- [API Routes](./api-routes.md) - Building robust API endpoints
+- [Static Generation](./ssg.md) - Advanced SSG patterns
+- [Server-Side Rendering](./ssr.md) - SSR optimization techniques
+- [Authentication](./auth.md) - Complete auth implementation

@@ -384,7 +384,5 @@ WHERE grantee IN ('web_anon', 'authenticated', 'web_admin');
 
 ## Next Steps
 
-- [Row Level Security](./rls-policies) - Implement fine-grained access control
-- [Authentication](./authentication) - Set up JWT authentication
-- [Custom Schemas](./custom-schemas) - Configure multi-schema applications
-- [Policy Generation](./policy-generation) - Automate RLS policy creation
+- [Authentication](./authentication.md) - Set up JWT authentication
+- [Custom Schemas](./custom-schemas.md) - Configure multi-schema applications

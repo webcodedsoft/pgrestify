@@ -1225,7 +1225,7 @@ export function withSecurityHeaders(handler: Function) {
 
 ## Next Steps
 
-- [Server-Side Rendering](./nextjs-ssr) - SSR patterns and optimization
-- [Static Generation](./nextjs-ssg) - ISR and pre-rendering strategies
-- [Authentication](./nextjs-auth) - Complete auth implementation
-- [Deployment](./deployment) - Production deployment guides
+- [Server-Side Rendering](./ssr.md) - SSR patterns and optimization
+- [Static Generation](./ssg.md) - ISR and pre-rendering strategies
+- [Authentication](./auth.md) - Complete auth implementation
+- [Deployment](../production/deployment.md) - Production deployment guides

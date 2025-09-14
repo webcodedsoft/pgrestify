@@ -453,21 +453,21 @@ curl http://localhost:3000
 Now that you have PGRestify running, explore these features:
 
 ### 🔥 Essential Features
-- **[Query Builder](./query-builder)** - Master advanced queries
-- **[Authentication](./authentication)** - Secure your app
-- **[Configuration](./configuration)** - Customize your setup
+- **[Query Builder](./query-builder.md)** - Master advanced queries
+- **[Authentication](./advanced-features/authentication.md)** - Secure your app
+- **[Configuration](./configuration.md)** - Customize your setup
 
 ### ⚛️ React Integration  
-- **[React Hooks](./react)** - Use `useQuery`, `useMutation`
-- **[TanStack Query](./tanstack-query)** - Advanced data fetching
+- **[React Hooks](./react.md)** - Use `useQuery`, `useMutation`
+- **[TanStack Query](./tanstack-query.md)** - Advanced data fetching
 
 ### ▲ Next.js Integration
-- **[Next.js Guide](./nextjs)** - SSR, API routes, middleware
-- **[Server Components](./nextjs-server-components)** - Latest Next.js features
+- **[Next.js Guide](./nextjs/overview.md)** - SSR, API routes, middleware
+- **[Server Components](./nextjs/server-components.md)** - Latest Next.js features
 
 ### 🚀 Production
-- **[Docker Guide](./docker)** - Deploy with containers
-- **[Production Tips](./production)** - Performance and scaling
+- **[Docker Guide](./production/docker-setup.md)** - Deploy with containers
+- **[Production Tips](./production/deployment.md)** - Performance and scaling
 
 ---
 

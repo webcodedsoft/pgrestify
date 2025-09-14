@@ -822,7 +822,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 ## Next Steps
 
-- [Next.js Caching Strategies](/guide/nextjs-caching)
-- [Authentication with Next.js](/guide/nextjs-auth)
-- [Performance Optimization](/guide/nextjs-performance)
-- [Testing SSR Applications](/guide/nextjs-testing)
+- [Next.js Caching Strategies](./caching.md)
+- [Authentication with Next.js](./auth.md)

@@ -2,7 +2,7 @@
 
 PGRestify provides powerful React hooks and components for seamless integration with React applications.
 
-> **Note**: For comprehensive React integration including TanStack Query support, see our [React Guide](./react-hooks.md) and [TanStack Query Integration](./tanstack-query.md).
+> **Note**: For comprehensive React integration including TanStack Query support, see our [React Guide](./react/hooks.md) and [TanStack Query Integration](./tanstack-query.md).
 
 ## Installation
 
@@ -123,25 +123,25 @@ For more advanced React patterns and features, see our comprehensive guides:
 
 ### 📖 Detailed React Documentation
 
-- **[React Hooks Guide](./react-hooks.md)** - Complete React hooks reference with all available hooks and options
-- **[React Data Fetching](./react-fetching.md)** - Advanced data fetching patterns and best practices  
-- **[React Mutations](./react-mutations.md)** - Comprehensive guide to mutations, form handling, and optimistic updates
+- **[React Hooks Guide](./react/hooks.md)** - Complete React hooks reference with all available hooks and options
+- **[React Data Fetching](./react/fetching.md)** - Advanced data fetching patterns and best practices  
+- **[React Mutations](./react/mutations.md)** - Comprehensive guide to mutations, form handling, and optimistic updates
 
 ### 🚀 TanStack Query Integration
 
 For the most powerful React experience, use our TanStack Query integration:
 
 - **[TanStack Query Guide](./tanstack-query.md)** - Full TanStack Query integration with factories and utilities
-- **[Advanced Caching](./caching.md)** - Intelligent caching strategies and invalidation patterns
-- **[Real-time Updates](./realtime.md)** - Live data synchronization with PostgreSQL NOTIFY
+- **[Advanced Caching](./advanced-features/caching.md)** - Intelligent caching strategies and invalidation patterns
+- **[Real-time Updates](./advanced-features/realtime.md)** - Live data synchronization with PostgreSQL NOTIFY
 
 ### 🎯 Next.js Integration
 
 For Next.js applications, see our specialized guides:
 
-- **[Next.js Pages Router](./nextjs-pages.md)** - Integration with Pages Router
-- **[Next.js App Router](./nextjs-app.md)** - Modern App Router patterns
-- **[Next.js Server Components](./nextjs-server-components.md)** - Server-side rendering with React Server Components
+- **[Next.js Pages Router](./nextjs/pages-router.md)** - Integration with Pages Router
+- **[Next.js App Router](./nextjs/app-router.md)** - Modern App Router patterns
+- **[Next.js Server Components](./nextjs/server-components.md)** - Server-side rendering with React Server Components
 
 ## Quick Example
 

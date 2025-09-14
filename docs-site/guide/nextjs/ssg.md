@@ -1448,7 +1448,6 @@ module.exports = {
 
 ## Next Steps
 
-- [Server-Side Rendering](./nextjs-ssr) - Advanced SSR patterns
-- [API Routes](./nextjs-api-routes) - Building robust API endpoints  
-- [Authentication](./nextjs-auth) - Auth integration with SSG
-- [Performance](./performance) - Advanced optimization techniques
+- [Server-Side Rendering](./ssr.md) - Advanced SSR patterns
+- [API Routes](./api-routes.md) - Building robust API endpoints  
+- [Authentication](./auth.md) - Auth integration with SSG
