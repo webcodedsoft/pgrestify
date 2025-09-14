@@ -21,189 +21,167 @@ export default defineConfig({
     logo: '/logo.png',
     
     nav: [
-      { text: '🚀 Get Started', link: '/guide/getting-started' },
-      { text: '📚 Guide', link: '/guide/introduction' },
-      { text: '🔧 API', link: '/api/client' },
-      { text: '💡 Examples', link: '/examples/overview' },
-      { text: '🍳 Recipes', link: '/recipes/overview' },
+      { text: 'Get Started', link: '/guide/getting-started' },
+      { text: 'Guide', link: '/guide/introduction' },
+      { text: 'API', link: '/api/client' },
+      { text: 'Examples', link: '/examples/overview' },
+      { text: 'Recipes', link: '/recipes/overview' },
       { text: 'GitHub', link: 'https://github.com/webcodedsoft/pgrestify' }
     ],
 
     sidebar: {
       '/guide/': [
         {
-          text: '🚀 Getting Started',
+          text: 'Getting Started',
           items: [
-            { text: '👋 Introduction', link: '/guide/introduction' },
-            { text: '⚡ Quick Start', link: '/guide/getting-started' },
-            { text: '📋 Prerequisites', link: '/guide/prerequisites' },
-            { text: '💾 Installation', link: '/guide/installation' },
-            { text: '⚙️ Configuration', link: '/guide/configuration' }
+            { text: 'Introduction', link: '/guide/introduction' },
+            { text: 'Quick Start', link: '/guide/getting-started' },
+            { text: 'Prerequisites', link: '/guide/prerequisites' },
+            { text: 'Installation', link: '/guide/installation' },
+            { text: 'Configuration', link: '/guide/configuration' }
           ]
         },
         {
-          text: '🏗️ Core Concepts',
+          text: 'Core Concepts',
           items: [
-            { text: 'Client Creation', link: '/guide/client-creation' },
-            { text: 'Query Building', link: '/guide/query-building' },
-            { text: 'Data Fetching', link: '/guide/data-fetching' },
-            { text: 'Mutations', link: '/guide/mutations' },
-            { text: 'Error Handling', link: '/guide/error-handling' },
-            { text: 'TypeScript Integration', link: '/guide/typescript' }
+            { text: 'Client Creation', link: '/guide/core/client-creation' },
+            { text: 'Query Building', link: '/guide/core/query-building' },
+            { text: 'Data Fetching', link: '/guide/core/data-fetching' },
+            { text: 'Mutations', link: '/guide/core/mutations' },
+            { text: 'Error Handling', link: '/guide/core/error-handling' },
+            { text: 'TypeScript Integration', link: '/guide/core/typescript' },
+            { text: 'React Query Integration', link: '/guide/tanstack-query/overview' }
           ]
         },
         {
-          text: '🔍 Querying Data',
+          text: 'Repository Patterns',
           items: [
-            { text: 'Basic Queries', link: '/guide/basic-queries' },
-            { text: 'Filtering & Operators', link: '/guide/filtering' },
-            { text: 'Sorting & Ordering', link: '/guide/sorting' },
-            { text: 'Pagination', link: '/guide/pagination' },
-            { text: 'Relationships & Joins', link: '/guide/relationships' },
-            { text: 'Aggregation & Functions', link: '/guide/aggregation' },
-            { text: 'Full-Text Search', link: '/guide/full-text-search' },
-            { text: 'Raw Queries', link: '/guide/raw-queries' }
-          ]
-        },
-        {
-          text: '✏️ Data Modification',
-          items: [
+            { text: 'Repository Pattern', link: '/guide/typeorm-style/repository-pattern' },
+            { text: 'Data Manager', link: '/guide/typeorm-style/data-manager' },
+            { text: 'Custom Repositories', link: '/guide/typeorm-style/custom-repositories' },
             { text: 'Creating Records', link: '/guide/creating-records' },
             { text: 'Updating Records', link: '/guide/updating-records' },
             { text: 'Deleting Records', link: '/guide/deleting-records' },
+            { text: 'Soft Deletes', link: '/guide/typeorm-style/soft-deletes' },
             { text: 'Bulk Operations', link: '/guide/bulk-operations' },
             { text: 'Upsert Operations', link: '/guide/upsert' },
-            { text: 'Transaction Patterns', link: '/guide/transactions' }
+            { text: 'Transaction Patterns', link: '/guide/transactions' },
+            { text: 'Advanced Transactions', link: '/guide/typeorm-style/transactions' },
+            { text: 'Mutation Patterns', link: '/guide/tanstack-query/mutations' }
           ]
         },
         {
-          text: '🔄 Advanced Features',
+          text: 'Querying Data',
           items: [
-            { text: 'Column Transformation', link: '/guide/column-transformation' },
-            { text: 'Caching Strategies', link: '/guide/caching' },
-            { text: 'Real-time Subscriptions', link: '/guide/realtime' },
-            { text: 'Authentication', link: '/guide/authentication' },
-            { text: 'Database Roles', link: '/guide/database-roles' },
-            { text: 'Custom Schemas', link: '/guide/custom-schemas' }
+            { text: 'Basic Queries', link: '/guide/queries/basic-queries' },
+            { text: 'Filtering & Operators', link: '/guide/queries/filtering' },
+            { text: 'Sorting & Ordering', link: '/guide/queries/sorting' },
+            { text: 'Pagination', link: '/guide/queries/pagination' },
+            { text: 'Column Aliasing', link: '/guide/queries/aliasing' },
+            { text: 'Table Joining', link: '/guide/queries/joining' },
+            { text: 'Relationships & Joins', link: '/guide/queries/relationships' },
+            { text: 'Repository Query Methods', link: '/guide/typeorm-style/query-methods' },
+            { text: 'Advanced Relationships', link: '/guide/typeorm-style/relationships' },
+            { text: 'Aggregate Functions', link: '/guide/queries/aggregates' },
+            { text: 'Aggregation & Functions', link: '/guide/aggregation' },
+            { text: 'Search', link: '/guide/queries/search' },
+            { text: 'Full-Text Search', link: '/guide/queries/full-text-search' },
+            { text: 'Raw Queries', link: '/guide/queries/raw-queries' },
+            { text: 'Query Factories', link: '/guide/tanstack-query/query-factories' },
+            { text: 'Advanced Query Patterns', link: '/guide/tanstack-query/advanced-queries' },
+            { text: 'Cache Management', link: '/guide/tanstack-query/cache-management' },
+            { text: 'RPC Functions', link: '/guide/tanstack-query/rpc-functions' },
+            { text: 'Query TypeScript Integration', link: '/guide/tanstack-query/typescript' }
           ]
         },
         {
-          text: '⚛️ React Integration',
+          text: 'Advanced Features',
           items: [
-            { text: 'React Hooks Overview', link: '/guide/react-hooks' },
-            { text: 'Data Fetching Hooks', link: '/guide/react-fetching' },
-            { text: 'Mutation Hooks', link: '/guide/react-mutations' },
-            { text: 'State Management', link: '/guide/react-state' },
-            { text: 'Server State Sync', link: '/guide/react-server-state' },
-            { text: 'Optimistic Updates', link: '/guide/react-optimistic' },
-            { text: 'Infinite Queries', link: '/guide/react-infinite' }
+            { text: 'Column Transformation', link: '/guide/advanced-features/column-transformation' },
+            { text: 'CORS Configuration', link: '/guide/advanced-features/cors' },
+            { text: 'Caching Strategies', link: '/guide/advanced-features/caching' },
+            { text: 'Real-time Subscriptions', link: '/guide/advanced-features/realtime' },
+            { text: 'Authentication', link: '/guide/advanced-features/authentication' },
+            { text: 'PostgreSQL Roles', link: '/guide/advanced-features/roles' },
+            { text: 'Database Roles', link: '/guide/advanced-features/database-roles' },
+            { text: 'Custom Schemas', link: '/guide/advanced-features/custom-schemas' }
           ]
         },
         {
-          text: '▲ Next.js Integration',
+          text: 'React Integration',
           items: [
-            { text: 'Next.js Overview', link: '/guide/nextjs-overview' },
-            { text: 'App Router', link: '/guide/nextjs-app-router' },
-            { text: 'Pages Router', link: '/guide/nextjs-pages-router' },
-            { text: 'Server Components', link: '/guide/nextjs-server-components' },
-            { text: 'API Routes', link: '/guide/nextjs-api-routes' },
-            { text: 'Static Generation', link: '/guide/nextjs-ssg' },
-            { text: 'Server-Side Rendering', link: '/guide/nextjs-ssr' },
-            { text: 'Authentication Flow', link: '/guide/nextjs-auth' }
+            { text: 'React Hooks Overview', link: '/guide/react/hooks' },
+            { text: 'Data Fetching Hooks', link: '/guide/react/fetching' },
+            { text: 'Mutation Hooks', link: '/guide/react/mutations' },
+            { text: 'State Management', link: '/guide/react/state' },
+            { text: 'Server State Sync', link: '/guide/react/server-state' },
+            { text: 'Optimistic Updates', link: '/guide/react/optimistic' },
+            { text: 'Infinite Queries', link: '/guide/react/infinite' }
           ]
         },
         {
-          text: '🛠️ CLI & Tooling',
+          text: 'Next.js Integration',
           items: [
-            { text: 'CLI Overview', link: '/guide/cli-overview' },
-            { text: 'Project Generation', link: '/guide/cli-project-generation' },
-            { text: 'Schema Management', link: '/guide/cli-schema' },
-            { text: 'Migration Tools', link: '/guide/cli-migrations' },
-            { text: 'Type Generation', link: '/guide/cli-types' },
-            { text: 'Development Workflow', link: '/guide/cli-workflow' }
+            { text: 'Next.js Overview', link: '/guide/nextjs/overview' },
+            { text: 'App Router', link: '/guide/nextjs/app-router' },
+            { text: 'Pages Router', link: '/guide/nextjs/pages-router' },
+            { text: 'Server Components', link: '/guide/nextjs/server-components' },
+            { text: 'API Routes', link: '/guide/nextjs/api-routes' },
+            { text: 'Static Generation', link: '/guide/nextjs/ssg' },
+            { text: 'Server-Side Rendering', link: '/guide/nextjs/ssr' },
+            { text: 'Authentication Flow', link: '/guide/nextjs/auth' },
+            { text: 'Caching Strategies', link: '/guide/nextjs/caching' },
+            { text: 'Migration Guide', link: '/guide/nextjs/migration' }
           ]
         },
         {
-          text: '🚀 Production',
+          text: 'CLI & Tooling',
           items: [
-            { text: 'Deployment Guide', link: '/guide/deployment' },
-            { text: 'Docker Setup', link: '/guide/docker-setup' },
-            { text: 'Environment Configuration', link: '/guide/environment' },
-            { text: 'Performance Optimization', link: '/guide/performance' },
-            { text: 'Security Best Practices', link: '/guide/security' },
-            { text: 'Monitoring & Logging', link: '/guide/monitoring' }
+            { text: 'CLI Overview', link: '/guide/cli/overview' },
+            { text: 'Project Initialization', link: '/guide/cli/project-init' },
+            { text: 'Schema Management', link: '/guide/cli/schema-management' },
+            { text: 'Migration Tools', link: '/guide/cli/migrations' },
+            { text: 'Advanced Migration Patterns', link: '/guide/typeorm-style/migrations' },
+            { text: 'Functions Management', link: '/guide/cli/functions' },
+            { text: 'Features & Extensions', link: '/guide/cli/features' },
+            { text: 'Configuration', link: '/guide/cli/configuration' },
+            { text: 'Security & Roles', link: '/guide/cli/security' },
+            { text: 'Project Templates', link: '/guide/cli/templates' }
           ]
         },
         {
-          text: '🔧 Troubleshooting',
+          text: 'Production',
           items: [
-            { text: 'Common Issues', link: '/guide/troubleshooting' },
-            { text: 'Migration Guides', link: '/guide/migration-guides' },
-            { text: 'Performance Debugging', link: '/guide/debugging' },
-            { text: 'Error Reference', link: '/guide/error-reference' }
+            { text: 'Deployment Guide', link: '/guide/production/deployment' },
+            { text: 'Docker Setup', link: '/guide/production/docker-setup' },
+            { text: 'Environment Configuration', link: '/guide/production/environment' }
+          ]
+        },
+        {
+          text: 'Troubleshooting',
+          items: [
+            { text: 'Common Issues', link: '/guide/troubleshooting/common-issues' },
+            { text: 'Migration Guides', link: '/guide/troubleshooting/migration-guides' }
           ]
         }
       ],
       '/api/': [
         {
-          text: '🏗️ Core API',
+          text: 'API Reference',
           items: [
-            { text: 'Client', link: '/api/client' },
+            { text: 'Client API', link: '/api/client' },
             { text: 'Query Builder', link: '/api/query-builder' },
             { text: 'Repository Pattern', link: '/api/repository' },
-            { text: 'Error Handling', link: '/api/errors' }
-          ]
-        },
-        {
-          text: '🔍 Query Methods',
-          items: [
-            { text: 'Find Methods', link: '/api/find-methods' },
-            { text: 'Filtering', link: '/api/filtering' },
-            { text: 'Sorting & Pagination', link: '/api/sorting-pagination' },
-            { text: 'Aggregation', link: '/api/aggregation' },
-            { text: 'Joins & Relations', link: '/api/joins' }
-          ]
-        },
-        {
-          text: '✏️ Mutation Methods',
-          items: [
-            { text: 'Insert', link: '/api/insert' },
-            { text: 'Update', link: '/api/update' },
-            { text: 'Delete', link: '/api/delete' },
-            { text: 'Upsert', link: '/api/upsert' },
-            { text: 'Bulk Operations', link: '/api/bulk' }
-          ]
-        },
-        {
-          text: '⚛️ React Hooks',
-          items: [
-            { text: 'Query Hooks', link: '/api/react-query-hooks' },
-            { text: 'Mutation Hooks', link: '/api/react-mutation-hooks' },
-            { text: 'State Hooks', link: '/api/react-state-hooks' },
-            { text: 'Infinite Query', link: '/api/react-infinite' }
-          ]
-        },
-        {
-          text: '🔄 Advanced Features',
-          items: [
             { text: 'Authentication', link: '/api/auth' },
             { text: 'Real-time', link: '/api/realtime' },
-            { text: 'Caching', link: '/api/caching' },
-            { text: 'Column Transform', link: '/api/column-transform' }
-          ]
-        },
-        {
-          text: '📝 TypeScript',
-          items: [
             { text: 'Type Definitions', link: '/api/types' },
-            { text: 'Generic Constraints', link: '/api/generics' },
-            { text: 'Utility Types', link: '/api/utility-types' }
+            { text: 'Entity Types', link: '/api/entities' }
           ]
         }
       ],
       '/examples/': [
         {
-          text: '🚀 Getting Started',
+          text: 'Getting Started',
           items: [
             { text: 'Overview', link: '/examples/overview' },
             { text: 'Basic Usage', link: '/examples/basic-usage' },
@@ -212,7 +190,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🏗️ Query Examples',
+          text: 'Query Examples',
           items: [
             { text: 'Simple Queries', link: '/examples/simple-queries' },
             { text: 'Advanced Filtering', link: '/examples/advanced-filtering' },
@@ -223,7 +201,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '✏️ Mutation Examples',
+          text: 'Mutation Examples',
           items: [
             { text: 'Creating Data', link: '/examples/creating-data' },
             { text: 'Updating Data', link: '/examples/updating-data' },
@@ -233,7 +211,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '⚛️ React Examples',
+          text: 'React Examples',
           items: [
             { text: 'React Hooks', link: '/examples/react-hooks' },
             { text: 'Data Fetching', link: '/examples/react-data-fetching' },
@@ -244,7 +222,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '▲ Next.js Examples',
+          text: 'Next.js Examples',
           items: [
             { text: 'App Router Setup', link: '/examples/nextjs-app-router' },
             { text: 'Server Components', link: '/examples/nextjs-server-components' },
@@ -254,7 +232,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🏢 Enterprise Examples',
+          text: 'Enterprise Examples',
           items: [
             { text: 'Multi-tenant Applications', link: '/examples/multi-tenant' },
             { text: 'Role-based Access', link: '/examples/rbac' },
@@ -265,7 +243,7 @@ export default defineConfig({
       ],
       '/recipes/': [
         {
-          text: '🍳 Recipe Categories',
+          text: 'Recipe Categories',
           items: [
             { text: 'Overview', link: '/recipes/overview' },
             { text: 'Common Patterns', link: '/recipes/common-patterns' },
@@ -273,7 +251,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🏗️ Architecture Recipes',
+          text: 'Architecture Recipes',
           items: [
             { text: 'Repository Pattern', link: '/recipes/repository-pattern' },
             { text: 'Service Layer', link: '/recipes/service-layer' },
@@ -282,7 +260,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🔍 Query Recipes',
+          text: 'Query Recipes',
           items: [
             { text: 'Complex Filtering', link: '/recipes/complex-filtering' },
             { text: 'Dynamic Queries', link: '/recipes/dynamic-queries' },
@@ -291,7 +269,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🔄 State Management',
+          text: 'State Management',
           items: [
             { text: 'Server State Sync', link: '/recipes/server-state-sync' },
             { text: 'Optimistic Updates', link: '/recipes/optimistic-updates' },
@@ -300,7 +278,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🔐 Security Recipes',
+          text: 'Security Recipes',
           items: [
             { text: 'Row Level Security', link: '/recipes/row-level-security' },
             { text: 'JWT Authentication', link: '/recipes/jwt-auth' },
@@ -309,7 +287,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '⚡ Performance Recipes',
+          text: 'Performance Recipes',
           items: [
             { text: 'Query Optimization', link: '/recipes/query-optimization' },
             { text: 'Caching Patterns', link: '/recipes/caching-patterns' },
@@ -318,7 +296,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🧪 Testing Recipes',
+          text: 'Testing Recipes',
           items: [
             { text: 'Unit Testing', link: '/recipes/unit-testing' },
             { text: 'Integration Testing', link: '/recipes/integration-testing' },

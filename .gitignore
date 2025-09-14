@@ -47,4 +47,7 @@ playwright-report/
 # Development tools
 .cursor
 .cursorrules
-.claude
+CLAUDE.md
+PRD.md
+CHANGELOG.md
+ARCHITECTURE.md
