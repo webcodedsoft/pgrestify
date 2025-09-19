@@ -9,7 +9,7 @@ PGRestify provides powerful mutation hooks for data modification operations in R
 The `useMutation` hook provides a flexible interface for any mutation operation:
 
 ```tsx
-import { useMutation, MutationOperation } from 'pgrestify/react';
+import { useMutation, MutationOperation } from '@webcoded/pgrestify/react';
 
 interface User {
   id: string;

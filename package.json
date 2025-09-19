@@ -15,10 +15,10 @@
   "homepage": "https://pgrestify.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pgrestify/pgrestify.git"
+    "url": "https://github.com/codebrain/pgrestify-v1.git"
   },
   "bugs": {
-    "url": "https://github.com/pgrestify/pgrestify/issues"
+    "url": "https://github.com/codebrain/pgrestify-v1/issues"
   },
   "author": "PGRestify Team",
   "license": "MIT",

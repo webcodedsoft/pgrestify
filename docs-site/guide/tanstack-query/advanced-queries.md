@@ -21,7 +21,7 @@ Select only the columns you need to reduce payload size:
 
 ```tsx
 import { useQuery } from '@tanstack/react-query';
-import { createPostgRESTQueries } from 'pgrestify/tanstack-query';
+import { createPostgRESTQueries } from '@webcoded/pgrestify/tanstack-query';
 
 const userQueries = createPostgRESTQueries<User>(client, 'users');
 

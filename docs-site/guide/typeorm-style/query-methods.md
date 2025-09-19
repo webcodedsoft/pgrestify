@@ -18,7 +18,7 @@ Query methods in PGRestify repositories include:
 ### Basic Find Operations
 
 ```tsx
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -656,7 +656,7 @@ async function cachingStrategies() {
 ### Query Error Patterns
 
 ```tsx
-import { PostgRESTError } from 'pgrestify';
+import { PostgRESTError } from '@webcoded/pgrestify';
 
 async function errorHandling() {
   try {

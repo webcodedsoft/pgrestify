@@ -5,7 +5,7 @@ Comprehensive guide to authentication mechanisms in PGRestify.
 ## Basic Email/Password Authentication
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Create client
 const client = createClient('http://localhost:3000');

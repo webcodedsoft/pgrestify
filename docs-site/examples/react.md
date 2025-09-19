@@ -6,7 +6,7 @@ Comprehensive guide to integrating PGRestify with React applications.
 
 ```tsx
 import React from 'react';
-import { createClient, PGRestifyProvider } from 'pgrestify/react';
+import { createClient, PGRestifyProvider } from '@webcoded/pgrestify/react';
 
 // Create PGRestify client
 const client = createClient('http://localhost:3000');
@@ -24,7 +24,7 @@ function App() {
 ## Query Hook
 
 ```tsx
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 
 // Define type for user
 interface User {
@@ -59,7 +59,7 @@ function UserList() {
 ## Mutation Hook
 
 ```tsx
-import { useMutation } from 'pgrestify/react';
+import { useMutation } from '@webcoded/pgrestify/react';
 
 function CreateUserForm() {
   const { 
@@ -97,7 +97,7 @@ function CreateUserForm() {
 ## Pagination Hook
 
 ```tsx
-import { usePaginatedQuery } from 'pgrestify/react';
+import { usePaginatedQuery } from '@webcoded/pgrestify/react';
 
 function PaginatedUserList() {
   const { 
@@ -139,7 +139,7 @@ function PaginatedUserList() {
 ## Real-time Subscription Hook
 
 ```tsx
-import { useRealtimeSubscription } from 'pgrestify/react';
+import { useRealtimeSubscription } from '@webcoded/pgrestify/react';
 
 function LiveUserUpdates() {
   const { 
@@ -281,7 +281,7 @@ function OptimisticUpdateExample() {
 ## Authentication Integration
 
 ```tsx
-import { useAuth } from 'pgrestify/react';
+import { useAuth } from '@webcoded/pgrestify/react';
 
 function AuthenticatedUserProfile() {
   const { 

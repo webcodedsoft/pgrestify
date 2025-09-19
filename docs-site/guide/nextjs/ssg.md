@@ -21,7 +21,7 @@ PGRestify SSG features:
 ```typescript
 // pages/posts/index.tsx
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
-import { createGetStaticProps } from 'pgrestify/nextjs';
+import { createGetStaticProps } from '@webcoded/pgrestify/nextjs';
 import Link from 'next/link';
 import Head from 'next/head';
 
@@ -242,7 +242,7 @@ export const getStaticProps: GetStaticProps<StaticPostsPageProps> = createGetSta
 ```typescript
 // pages/posts/[slug].tsx
 import { GetStaticProps, GetStaticPaths, InferGetStaticPropsType } from 'next';
-import { createGetStaticProps } from 'pgrestify/nextjs';
+import { createGetStaticProps } from '@webcoded/pgrestify/nextjs';
 import Head from 'next/head';
 
 interface StaticPostPageProps {
@@ -593,7 +593,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 ```typescript
 // pages/dashboard/stats.tsx
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
-import { createGetStaticProps } from 'pgrestify/nextjs';
+import { createGetStaticProps } from '@webcoded/pgrestify/nextjs';
 
 interface StatsPageProps {
   stats: {
@@ -747,7 +747,7 @@ export const getStaticProps: GetStaticProps<StatsPageProps> = createGetStaticPro
 ```typescript
 // pages/api/revalidate.ts
 import { NextApiRequest, NextApiResponse } from 'next/server';
-import { createRouteHandler } from 'pgrestify/nextjs';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
 
 export default createRouteHandler({
   POST: async ({ req, res }) => {
@@ -884,7 +884,7 @@ export default createRouteHandler({
 
 ```typescript
 // app/posts/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import { Metadata } from 'next';
 
 // Enable static generation
@@ -993,7 +993,7 @@ export default async function PostsPage() {
 
 ```typescript
 // app/posts/[slug]/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -1105,7 +1105,7 @@ export async function generateStaticParams() {
 
 ```typescript
 // lib/static-data.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 // Cache frequently accessed data at build time
 export async function getStaticSiteData() {
@@ -1195,7 +1195,7 @@ export async function generateSitemapData() {
 
 ```typescript
 // app/feed.xml/route.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export const dynamic = 'force-static';
 export const revalidate = 3600;
@@ -1269,7 +1269,7 @@ export async function GET() {
 
 ```typescript
 // app/sitemap.xml/route.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export const dynamic = 'force-static';
 export const revalidate = 86400; // 24 hours

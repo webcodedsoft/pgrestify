@@ -9,7 +9,7 @@ PGRestify provides comprehensive JWT-based authentication with session managemen
 Configure authentication when creating your client:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000',
@@ -255,7 +255,7 @@ function ProtectedComponent() {
 ### Authentication Hooks
 
 ```typescript
-import { useAuth } from 'pgrestify/react';
+import { useAuth } from '@webcoded/pgrestify/react';
 
 function LoginForm() {
   const { signIn, signUp, loading, error } = useAuth();

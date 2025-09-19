@@ -20,9 +20,9 @@ App Router features supported by PGRestify:
 ### Install Dependencies
 
 ```bash
-npm install pgrestify next@latest react@latest react-dom@latest
+npm install @webcoded/pgrestify next@latest react@latest react-dom@latest
 # or
-pnpm add pgrestify next@latest react@latest react-dom@latest
+pnpm add @webcoded/pgrestify next@latest react@latest react-dom@latest
 ```
 
 ### Directory Structure
@@ -67,7 +67,7 @@ lib/
 
 ```typescript
 // app/layout.tsx
-import { PGRestifyProvider } from 'pgrestify/nextjs';
+import { PGRestifyProvider } from '@webcoded/pgrestify/nextjs';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
@@ -108,7 +108,7 @@ export default function RootLayout({
 
 ```typescript
 // app/posts/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import Link from 'next/link';
 
 // This page will be cached and regenerated in the background
@@ -195,7 +195,7 @@ export async function generateMetadata() {
 
 ```typescript
 // app/posts/[slug]/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -369,8 +369,8 @@ export async function generateStaticParams() {
 'use client';
 
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from 'pgrestify/nextjs';
-import { useSession } from 'pgrestify/nextjs';
+import { useQuery, useMutation, useQueryClient } from '@webcoded/pgrestify/nextjs';
+import { useSession } from '@webcoded/pgrestify/nextjs';
 
 interface CommentsProps {
   postId: string;
@@ -538,7 +538,7 @@ export default function Dashboard() {
 }
 
 // app/dashboard/user-stats.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export async function UserStats() {
   const client = createServerClient();
@@ -581,7 +581,7 @@ export async function UserStats() {
 
 ```typescript
 // app/posts/create/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 
@@ -717,7 +717,7 @@ export default function DashboardLayout({
 }
 
 // app/dashboard/@analytics/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export default async function Analytics() {
   const client = createServerClient();
@@ -738,7 +738,7 @@ export default async function Analytics() {
 }
 
 // app/dashboard/@notifications/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export default async function Notifications() {
   const client = createServerClient();
@@ -768,7 +768,7 @@ export default async function Notifications() {
 
 ```typescript
 // app/api/posts/route.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 
@@ -860,7 +860,7 @@ const getCachedPosts = unstable_cache(
 
 ```typescript
 // app/api/search/route.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export const runtime = 'edge';
 

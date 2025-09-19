@@ -76,7 +76,7 @@ interface Post {
 ### Soft Deleting Records
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({ url: 'http://localhost:3000' });
 const dataManager = client.dataManager;

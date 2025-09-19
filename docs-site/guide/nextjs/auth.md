@@ -18,7 +18,7 @@ PGRestify provides built-in authentication support for Next.js applications with
 
 ```typescript
 // lib/auth-client.ts
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 
 export const authClient = createNextJSClient({
   url: process.env.NEXT_PUBLIC_POSTGREST_URL!,

@@ -362,7 +362,7 @@ export PGRST_DB_POOL="10"
 
 Once your PostgREST API is running and accessible:
 
-1. Install PGRestify in your application: `npm install pgrestify`
+1. Install PGRestify in your application: `npm install @webcoded/pgrestify`
 2. Configure PGRestify client with your PostgREST URL
 3. Start building your application with type-safe database operations
 

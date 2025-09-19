@@ -50,7 +50,7 @@ async function getPostsWithAuthors() {
 
 ```typescript
 // After: PGRestify client
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 
 const client = createNextJSClient({
   url: process.env.POSTGREST_URL!,
@@ -113,7 +113,7 @@ const { data: { session } } = await supabase.auth.getSession()
 
 ```typescript
 // After: PGRestify Auth
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 
 const client = createNextJSClient({
   url: process.env.POSTGREST_URL!,
@@ -341,7 +341,7 @@ const [user, post] = await prisma.$transaction([
 
 ```typescript
 // After: PGRestify Queries
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 
 const client = createNextJSClient({ url: process.env.POSTGREST_URL! })
 
@@ -424,7 +424,7 @@ class UserRepository {
 
 ```typescript
 // After: PGRestify Repository Pattern
-import { Repository } from 'pgrestify'
+import { Repository } from '@webcoded/pgrestify'
 
 class UserRepository extends Repository<User> {
   constructor(client: PostgRESTClient) {
@@ -694,9 +694,9 @@ const client = createNextJSClient({
 2. **Optimize Bundle Size**
 ```typescript
 // Import only what you need
-import { createClient } from 'pgrestify/core'
+import { createClient } from '@webcoded/pgrestify/core'
 // Instead of
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 ```
 
 3. **Use Connection Pooling**

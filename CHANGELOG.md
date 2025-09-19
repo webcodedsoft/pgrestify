@@ -58,10 +58,10 @@ PGRestify is a comprehensive TypeScript library and CLI tool that provides type-
 
 ### 📦 Package Exports
 
-- `pgrestify` - Main library with client and types
-- `pgrestify/react` - React hooks and components
-- `pgrestify/tanstack-query` - TanStack Query integration
-- `pgrestify/nextjs` - Next.js utilities and middleware
+- `@webcoded/pgrestify` - Main library with client and types
+- `@webcoded/pgrestify/react` - React hooks and components
+- `@webcoded/pgrestify/tanstack-query` - TanStack Query integration
+- `@webcoded/pgrestify/nextjs` - Next.js utilities and middleware
 
 ### 🛠️ CLI Commands
 
@@ -81,7 +81,7 @@ PGRestify is a comprehensive TypeScript library and CLI tool that provides type-
 
 - Documentation: https://pgrestify.dev
 - GitHub: https://github.com/pgrestify/pgrestify
-- npm: https://www.npmjs.com/package/pgrestify
+- npm: https://www.npmjs.com/package/@webcoded/pgrestify
 
 ---
 

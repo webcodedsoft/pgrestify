@@ -22,7 +22,7 @@ PGRestify API Routes features:
 ```typescript
 // pages/api/posts/index.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createRouteHandler } from 'pgrestify/nextjs';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
 
 export default createRouteHandler({
   GET: async ({ client, req, res }) => {
@@ -157,7 +157,7 @@ export default createRouteHandler({
 ```typescript
 // pages/api/posts/[id].ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createRouteHandler, withAuth } from 'pgrestify/nextjs';
+import { createRouteHandler, withAuth } from '@webcoded/pgrestify/nextjs';
 
 export default withAuth(createRouteHandler({
   GET: async ({ client, req, res }) => {
@@ -307,7 +307,7 @@ export default withAuth(createRouteHandler({
 
 ```typescript
 // pages/api/posts/[id]/comments.ts
-import { createRouteHandler, withAuth } from 'pgrestify/nextjs';
+import { createRouteHandler, withAuth } from '@webcoded/pgrestify/nextjs';
 
 export default createRouteHandler({
   GET: async ({ client, req, res }) => {
@@ -424,7 +424,7 @@ export default createRouteHandler({
 
 ```typescript
 // app/api/posts/route.ts
-import { createRouteHandler } from 'pgrestify/nextjs';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
 import { NextRequest } from 'next/server';
 
 export const { GET, POST } = createRouteHandler({
@@ -530,7 +530,7 @@ export const { GET, POST } = createRouteHandler({
 
 ```typescript
 // app/api/posts/[id]/route.ts
-import { createRouteHandler, withAuth } from 'pgrestify/nextjs';
+import { createRouteHandler, withAuth } from '@webcoded/pgrestify/nextjs';
 import { NextRequest } from 'next/server';
 
 interface RouteContext {
@@ -674,7 +674,7 @@ export const { GET, PUT, DELETE } = createRouteHandler({
 ```typescript
 // middleware/auth.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createAuthMiddleware } from 'pgrestify/nextjs';
+import { createAuthMiddleware } from '@webcoded/pgrestify/nextjs';
 
 export const authMiddleware = createAuthMiddleware({
   protectedPaths: ['/api/posts', '/api/users'],
@@ -826,7 +826,7 @@ export const POST = withValidation(createPostSchema)(
 
 ```typescript
 // app/api/upload/route.ts
-import { createRouteHandler, withAuth } from 'pgrestify/nextjs';
+import { createRouteHandler, withAuth } from '@webcoded/pgrestify/nextjs';
 import { NextRequest } from 'next/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
@@ -1173,7 +1173,7 @@ export function withCache(ttl: number = 300000) { // 5 minutes default
 
 ```typescript
 // lib/db-pool.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 let cachedClient: any = null;
 

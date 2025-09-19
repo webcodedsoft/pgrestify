@@ -13,7 +13,7 @@ Basic queries form the foundation of data retrieval in PGRestify. This guide cov
 The simplest query retrieves all records from a table:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'

@@ -13,7 +13,7 @@ Robust error handling is essential for building reliable applications. PGRestify
 The primary error type for all PGRestify operations:
 
 ```typescript
-import { PGRestifyError } from 'pgrestify';
+import { PGRestifyError } from '@webcoded/pgrestify';
 
 try {
   const user = await client

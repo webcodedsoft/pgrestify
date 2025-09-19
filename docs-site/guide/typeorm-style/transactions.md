@@ -59,7 +59,7 @@ const result = await dataManager.transaction(async (manager) => {
 The DataManager provides a transaction method that coordinates operations:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -419,7 +419,7 @@ const userResult = await createUserWithPostsTransactional(
 ### Comprehensive Error Handling
 
 ```typescript
-import { PostgRESTError } from 'pgrestify';
+import { PostgRESTError } from '@webcoded/pgrestify';
 
 async function robustTransactionPattern<T>(
   operation: () => Promise<T>

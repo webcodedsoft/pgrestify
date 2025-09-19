@@ -9,11 +9,11 @@ PGRestify provides comprehensive React hooks for seamless integration with React
 Install the React adapter with your preferred package manager:
 
 ```bash
-npm install pgrestify react
+npm install @webcoded/pgrestify react
 # or
-pnpm add pgrestify react
+pnpm add @webcoded/pgrestify react
 # or
-yarn add pgrestify react
+yarn add @webcoded/pgrestify react
 ```
 
 ### Provider Setup
@@ -22,8 +22,8 @@ Wrap your app with the PGRestifyProvider:
 
 ```tsx
 import React from 'react';
-import { createClient } from 'pgrestify';
-import { PGRestifyProvider } from 'pgrestify/react';
+import { createClient } from '@webcoded/pgrestify';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
 import App from './App';
 
 // Create the client instance
@@ -84,7 +84,7 @@ interface Profile {
 Modern query hook with object configuration:
 
 ```tsx
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 
 function UserList() {
   const { data: users, loading, error, refetch } = useQuery<User>({
@@ -189,7 +189,7 @@ function InfinitePostList() {
 Generic mutation hook with operation specification:
 
 ```tsx
-import { useMutation, MutationOperation } from 'pgrestify/react';
+import { useMutation, MutationOperation } from '@webcoded/pgrestify/react';
 
 function CreateUser() {
   const { mutate: createUser, loading, error } = useMutation<User>('users', {
@@ -366,7 +366,7 @@ function UserSettings({ userId }: { userId: string }) {
 Authentication state management:
 
 ```tsx
-import { useAuth } from 'pgrestify/react';
+import { useAuth } from '@webcoded/pgrestify/react';
 
 function AuthStatus() {
   const { user, loading, signIn, signOut, session } = useAuth();

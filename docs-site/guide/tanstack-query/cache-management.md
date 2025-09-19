@@ -19,7 +19,7 @@ Cache management in PGRestify includes:
 PGRestify uses a hierarchical cache key structure:
 
 ```tsx
-import { createQueryKeys } from 'pgrestify/tanstack-query';
+import { createQueryKeys } from '@webcoded/pgrestify/tanstack-query';
 
 const keys = createQueryKeys();
 
@@ -53,7 +53,7 @@ Use invalidation helpers for targeted cache clearing:
 
 ```tsx
 import { useQueryClient } from '@tanstack/react-query';
-import { createInvalidationHelpers } from 'pgrestify/tanstack-query';
+import { createInvalidationHelpers } from '@webcoded/pgrestify/tanstack-query';
 
 function UserManagement() {
   const queryClient = useQueryClient();
@@ -103,7 +103,7 @@ Automatically invalidate related caches after mutations:
 
 ```tsx
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPostgRESTMutations, createInvalidationHelpers } from 'pgrestify/tanstack-query';
+import { createPostgRESTMutations, createInvalidationHelpers } from '@webcoded/pgrestify/tanstack-query';
 
 function UserForm() {
   const queryClient = useQueryClient();
@@ -171,7 +171,7 @@ function UserForm() {
 Use cache helpers to update the cache immediately for better UX:
 
 ```tsx
-import { createCacheHelpers } from 'pgrestify/tanstack-query';
+import { createCacheHelpers } from '@webcoded/pgrestify/tanstack-query';
 
 function UserList() {
   const queryClient = useQueryClient();
@@ -311,7 +311,7 @@ Keep data synchronized across different components:
 ```tsx
 // hooks/useUserSync.ts
 import { useQueryClient } from '@tanstack/react-query';
-import { createCacheHelpers } from 'pgrestify/tanstack-query';
+import { createCacheHelpers } from '@webcoded/pgrestify/tanstack-query';
 
 export function useUserSync() {
   const queryClient = useQueryClient();

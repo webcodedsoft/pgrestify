@@ -20,7 +20,7 @@ PGRestify provides automatic bidirectional column name transformation, similar t
 ### Basic Example
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Enable transformation globally
 const client = createClient({
@@ -108,7 +108,7 @@ const query2 = client
 Use transformation with React hooks:
 
 ```typescript
-import { useQuery, useInfiniteQuery } from 'pgrestify/react';
+import { useQuery, useInfiniteQuery } from '@webcoded/pgrestify/react';
 
 // Modern useQuery with config object
 const { data, isLoading } = useQuery<User>({
@@ -356,7 +356,7 @@ import {
   useQueryBuilder,
   useInsert, 
   useUpdate 
-} from 'pgrestify/react';
+} from '@webcoded/pgrestify/react';
 
 function UserList() {
   // Modern useQuery with transformation

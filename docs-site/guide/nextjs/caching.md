@@ -35,7 +35,7 @@ Database Query
 
 ```typescript
 // lib/cached-client.ts
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 import { unstable_cache } from 'next/cache'
 
 export const client = createNextJSClient({
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
 
 ```typescript
 // pages/products.tsx
-import { createGetStaticProps } from 'pgrestify/nextjs'
+import { createGetStaticProps } from '@webcoded/pgrestify/nextjs'
 
 export const getStaticProps = createGetStaticProps(
   async (client) => {
@@ -174,7 +174,7 @@ export const getStaticProps = createGetStaticProps(
 
 ```typescript
 // pages/dashboard.tsx
-import { createGetServerSideProps } from 'pgrestify/nextjs'
+import { createGetServerSideProps } from '@webcoded/pgrestify/nextjs'
 
 export const getServerSideProps = createGetServerSideProps(
   async (client, context) => {
@@ -203,7 +203,7 @@ export const getServerSideProps = createGetServerSideProps(
 
 ```typescript
 // lib/query-cache.ts
-import { MemoryQueryCache } from 'pgrestify'
+import { MemoryQueryCache } from '@webcoded/pgrestify'
 
 // Create a shared cache instance
 export const queryCache = new MemoryQueryCache({
@@ -223,7 +223,7 @@ const client = createNextJSClient({
 
 ```typescript
 // lib/cache-keys.ts
-import { CacheKeyBuilder } from 'pgrestify'
+import { CacheKeyBuilder } from '@webcoded/pgrestify'
 
 export function getUserCacheKey(userId: string, filters?: any) {
   return new CacheKeyBuilder('users')

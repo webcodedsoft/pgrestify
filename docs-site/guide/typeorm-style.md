@@ -9,7 +9,7 @@ PGRestify provides a familiar, TypeORM-inspired API that makes database interact
 The repository pattern allows you to interact with database tables using a consistent, object-oriented approach.
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Define your type
 interface User {
@@ -178,7 +178,7 @@ import {
   Index,
   Unique,
   Check
-} from 'pgrestify/schema';
+} from '@webcoded/pgrestify/schema';
 
 @Entity({ 
   name: 'users',

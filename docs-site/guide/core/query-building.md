@@ -13,7 +13,7 @@ PGRestify provides a fluent, chainable query builder that maps directly to Postg
 The most basic query selects all columns from a table:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'
@@ -757,7 +757,7 @@ const cursorPagination = async (lastCreatedAt?: string, limit = 10) => {
 ### Basic Error Handling
 
 ```typescript
-import { PGRestifyError } from 'pgrestify';
+import { PGRestifyError } from '@webcoded/pgrestify';
 
 try {
   const users = await client

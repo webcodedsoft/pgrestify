@@ -7,7 +7,7 @@ Transactions ensure data consistency by grouping multiple operations into atomic
 PostgREST operates on single-request transactions. Each HTTP request to PostgREST runs in its own database transaction, which commits automatically upon successful completion or rolls back on error.
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;

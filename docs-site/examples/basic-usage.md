@@ -7,7 +7,7 @@ This example demonstrates the core functionality of PGRestify with a typical use
 First, install PGRestify:
 
 ```bash
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ## Define Your Types
@@ -34,7 +34,7 @@ interface Post {
 ## Create a Client
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Create a simple client
 const client = createClient('http://localhost:3000');

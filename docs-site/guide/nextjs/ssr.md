@@ -6,7 +6,7 @@ Server-Side Rendering generates pages on each request, ensuring fresh data and o
 
 ```typescript
 // lib/client.ts
-import { createServerClient } from 'pgrestify/nextjs'
+import { createServerClient } from '@webcoded/pgrestify/nextjs'
 
 export const serverClient = createServerClient({
   url: process.env.POSTGREST_URL!,
@@ -622,7 +622,7 @@ export default function DashboardPage() {
 'use client'
 
 import { useEffect } from 'react'
-import { PostgRESTError } from 'pgrestify'
+import { PostgRESTError } from '@webcoded/pgrestify'
 
 export default function Error({
   error,

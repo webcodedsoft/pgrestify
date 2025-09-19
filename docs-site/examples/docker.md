@@ -98,7 +98,7 @@ volumes:
 ## PGRestify Client Configuration
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Docker-aware client configuration
 const client = createClient(
@@ -205,7 +205,7 @@ spec:
 
 ```typescript
 import express from 'express';
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const app = express();
 const client = createClient(process.env.POSTGREST_URL);

@@ -9,7 +9,7 @@ PGRestify's React hooks provide powerful data fetching capabilities with built-i
 The `useQuery` hook is the primary tool for fetching data:
 
 ```tsx
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 
 interface User {
   id: string;

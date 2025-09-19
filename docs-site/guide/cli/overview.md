@@ -8,7 +8,7 @@ Install PGRestify CLI globally or as a project dependency:
 
 ```bash
 # Global installation (recommended for CLI usage)
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 
 # Or as a project dependency
 npm install --save-dev pgrestify

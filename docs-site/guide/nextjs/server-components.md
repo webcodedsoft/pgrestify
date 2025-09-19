@@ -42,7 +42,7 @@ export async function UserList() {
 ```typescript
 // app/components/PostList.tsx
 import { client } from '../../lib/client'
-import { PostgRESTError } from 'pgrestify'
+import { PostgRESTError } from '@webcoded/pgrestify'
 
 export async function PostList() {
   try {
@@ -291,7 +291,7 @@ export async function CommentList({ postId }: { postId: number }) {
 
 ```typescript
 // lib/client.ts
-import { createNextJSClient } from 'pgrestify/nextjs'
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs'
 import { cache } from 'react'
 
 // Create a cached client for request deduplication
@@ -359,7 +359,7 @@ export default async function ProductPage({
 'use client'
 
 import { useEffect } from 'react'
-import { PostgRESTError } from 'pgrestify'
+import { PostgRESTError } from '@webcoded/pgrestify'
 
 export default function Error({
   error,

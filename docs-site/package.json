@@ -1,5 +1,5 @@
 {
-  "name": "pgrestify-docs",
+  "name": "@webcoded/pgrestify-docs",
   "version": "1.0.0",
   "description": "PGRestify Documentation Website",
   "scripts": {

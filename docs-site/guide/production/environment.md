@@ -14,7 +14,7 @@ PGRESTIFY_ROLE=authenticated
 ## Client Initialization with Environment Variables
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: process.env.PGRESTIFY_URL,

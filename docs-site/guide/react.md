@@ -7,7 +7,7 @@ PGRestify provides powerful React hooks and components for seamless integration 
 ## Installation
 
 ```bash
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ## Provider Setup
@@ -16,8 +16,8 @@ First, set up the PGRestify provider to make your client available throughout yo
 
 ```typescript
 import React from 'react';
-import { PGRestifyProvider } from 'pgrestify/react';
-import { createClient } from 'pgrestify';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'
@@ -35,8 +35,8 @@ function App() {
 ## Basic Query Hook
 
 ```typescript
-import { useQuery } from 'pgrestify/react';
-import { usePGRestify } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
+import { usePGRestify } from '@webcoded/pgrestify/react';
 
 interface User {
   id: number;
@@ -74,7 +74,7 @@ function UserList() {
 ## Mutation Hook
 
 ```typescript
-import { useMutation, usePGRestify } from 'pgrestify/react';
+import { useMutation, usePGRestify } from '@webcoded/pgrestify/react';
 
 function CreateUserForm() {
   const client = usePGRestify();
@@ -148,8 +148,8 @@ For Next.js applications, see our specialized guides:
 ```typescript
 // Complete example with provider, hooks, and error handling
 import React from 'react';
-import { PGRestifyProvider, useQuery, usePGRestify } from 'pgrestify/react';
-import { createClient } from 'pgrestify';
+import { PGRestifyProvider, useQuery, usePGRestify } from '@webcoded/pgrestify/react';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({ url: 'http://localhost:3000' });
 

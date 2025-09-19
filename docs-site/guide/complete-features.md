@@ -9,7 +9,7 @@ This document provides comprehensive details of everything PGRestify can do, fro
 **Full PostgREST Operator Support:**
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000',
@@ -415,7 +415,7 @@ export async function getServerSideProps({ req }) {
 **Context Provider:**
 ```typescript
 // === React Context Setup ===
-import { PGRestifyProvider } from 'pgrestify/react';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
 
 function App() {
   return (
@@ -442,7 +442,7 @@ import {
   usePGRestifyMutation,
   useAuth,
   useRealtime 
-} from 'pgrestify/react';
+} from '@webcoded/pgrestify/react';
 
 // Basic data fetching
 function UsersList() {
@@ -534,7 +534,7 @@ function LiveNotifications() {
 
 ```typescript
 // === Advanced Caching with TanStack Query ===
-import { usePGRestifyQuery, usePGRestifyInfiniteQuery } from 'pgrestify/tanstack-query';
+import { usePGRestifyQuery, usePGRestifyInfiniteQuery } from '@webcoded/pgrestify/tanstack-query';
 
 // Standard query with TanStack Query features
 function PostsList() {
@@ -622,7 +622,7 @@ function useCreatePost() {
 ```typescript
 // === Complete Next.js Integration ===
 // App Router support (app/layout.tsx)
-import { NextPGRestifyProvider } from 'pgrestify/nextjs';
+import { NextPGRestifyProvider } from '@webcoded/pgrestify/nextjs';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -640,7 +640,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 // Server Components (app/users/page.tsx)
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export default async function UsersPage() {
   const client = createServerClient();
@@ -661,7 +661,7 @@ export default async function UsersPage() {
 }
 
 // API Routes (app/api/users/route.ts)
-import { createRouteHandlerClient } from 'pgrestify/nextjs';
+import { createRouteHandlerClient } from '@webcoded/pgrestify/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -689,7 +689,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Middleware with authentication (middleware.ts)
-import { createMiddlewareClient } from 'pgrestify/nextjs';
+import { createMiddlewareClient } from '@webcoded/pgrestify/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -706,8 +706,8 @@ export async function middleware(request: NextRequest) {
 }
 
 // Pages Router support (pages/_app.tsx)
-import { PGRestifyProvider } from 'pgrestify/react';
-import { createPagesBrowserClient } from 'pgrestify/nextjs';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
+import { createPagesBrowserClient } from '@webcoded/pgrestify/nextjs';
 import { useState } from 'react';
 
 export default function App({ Component, pageProps }: any) {
@@ -721,7 +721,7 @@ export default function App({ Component, pageProps }: any) {
 }
 
 // Server-side props (pages/posts/[id].tsx)
-import { createPagesServerClient } from 'pgrestify/nextjs';
+import { createPagesServerClient } from '@webcoded/pgrestify/nextjs';
 
 export async function getServerSideProps({ params, req, res }: any) {
   const client = createPagesServerClient({ req, res });
@@ -1894,7 +1894,7 @@ import {
   AuthError, 
   ValidationError,
   DatabaseError 
-} from 'pgrestify';
+} from '@webcoded/pgrestify';
 
 try {
   const users = await client.from('users').select('*').execute();

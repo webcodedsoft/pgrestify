@@ -20,9 +20,9 @@ Pages Router features supported by PGRestify:
 ### Install Dependencies
 
 ```bash
-npm install pgrestify next@latest react@latest react-dom@latest
+npm install @webcoded/pgrestify next@latest react@latest react-dom@latest
 # or
-pnpm add pgrestify next@latest react@latest react-dom@latest
+pnpm add @webcoded/pgrestify next@latest react@latest react-dom@latest
 ```
 
 ### Directory Structure
@@ -68,7 +68,7 @@ styles/
 ```typescript
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
-import { PGRestifyProvider } from 'pgrestify/nextjs';
+import { PGRestifyProvider } from '@webcoded/pgrestify/nextjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
@@ -127,7 +127,7 @@ export default function Document() {
 ```typescript
 // pages/posts/index.tsx
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { createGetServerSideProps } from 'pgrestify/nextjs';
+import { createGetServerSideProps } from '@webcoded/pgrestify/nextjs';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -303,11 +303,11 @@ export const getServerSideProps: GetServerSideProps<PostsPageProps> = createGetS
 ```typescript
 // pages/posts/[slug].tsx
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { createGetServerSideProps } from 'pgrestify/nextjs';
+import { createGetServerSideProps } from '@webcoded/pgrestify/nextjs';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from 'pgrestify/react';
+import { useQuery, useMutation, useQueryClient } from '@webcoded/pgrestify/react';
 
 interface PostPageProps {
   post: {
@@ -574,7 +574,7 @@ export const getServerSideProps: GetServerSideProps = createGetServerSideProps(
 ```typescript
 // pages/categories/[slug].tsx
 import { GetStaticProps, GetStaticPaths, InferGetStaticPropsType } from 'next';
-import { createGetStaticProps } from 'pgrestify/nextjs';
+import { createGetStaticProps } from '@webcoded/pgrestify/nextjs';
 
 interface CategoryPageProps {
   category: {
@@ -706,7 +706,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 // pages/search.tsx
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 
 export default function SearchPage() {
   const router = useRouter();
@@ -805,7 +805,7 @@ export default function SearchPage() {
 ```typescript
 // pages/api/posts/index.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createRouteHandler } from 'pgrestify/nextjs';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
 
 export default createRouteHandler({
   GET: async ({ client, req, res }) => {
@@ -872,7 +872,7 @@ export default createRouteHandler({
 
 // pages/api/posts/[id].ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createRouteHandler } from 'pgrestify/nextjs';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
 
 export default createRouteHandler({
   GET: async ({ client, req, res }) => {
@@ -936,7 +936,7 @@ export default createRouteHandler({
 
 ```typescript
 // lib/ssr-helpers.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export async function getPostsWithCache(page: number = 1, limit: number = 10) {
   const client = createServerClient();

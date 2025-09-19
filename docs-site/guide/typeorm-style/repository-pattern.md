@@ -19,7 +19,7 @@ The Repository pattern in PGRestify offers:
 The simplest way to use repositories is through the DataManager:
 
 ```tsx
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -351,7 +351,7 @@ async function paginatedQuery() {
 ### Repository Error Patterns
 
 ```tsx
-import { PostgRESTError } from 'pgrestify';
+import { PostgRESTError } from '@webcoded/pgrestify';
 
 async function errorHandling() {
   const userRepository = dataManager.getRepository<User>('users');

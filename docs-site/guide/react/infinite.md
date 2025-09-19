@@ -18,7 +18,7 @@ Infinite queries in PGRestify handle:
 ### Simple Infinite Scrolling
 
 ```typescript
-import { useInfiniteQuery } from 'pgrestify/react';
+import { useInfiniteQuery } from '@webcoded/pgrestify/react';
 
 function InfinitePostsList() {
   const {
@@ -78,7 +78,7 @@ function InfinitePostsList() {
 Add automatic loading when scrolling near the bottom:
 
 ```typescript
-import { useInfiniteQuery } from 'pgrestify/react';
+import { useInfiniteQuery } from '@webcoded/pgrestify/react';
 import { useIntersection } from './hooks/useIntersection'; // Custom hook for intersection observer
 
 function AutoInfinitePostsList() {

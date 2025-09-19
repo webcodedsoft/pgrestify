@@ -23,7 +23,7 @@ TanStack Query is a peer dependency that must be installed alongside PGRestify:
 npm install @tanstack/react-query
 
 # PGRestify automatically detects and integrates
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ## Basic Setup
@@ -35,7 +35,7 @@ Set up TanStack Query with PGRestify integration:
 ```tsx
 // app.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Create PGRestify client
 const pgrestClient = createClient({
@@ -73,8 +73,8 @@ function App() {
 ```tsx
 // components/UserList.tsx
 import { useQuery } from '@tanstack/react-query';
-import { createPostgRESTQueries } from 'pgrestify/tanstack-query';
-import { createClient } from 'pgrestify';
+import { createPostgRESTQueries } from '@webcoded/pgrestify/tanstack-query';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -123,7 +123,7 @@ Select specific columns and use aliases for better data structures:
 ```tsx
 // components/UserProfile.tsx
 import { useQuery } from '@tanstack/react-query';
-import { createPostgRESTQueries } from 'pgrestify/tanstack-query';
+import { createPostgRESTQueries } from '@webcoded/pgrestify/tanstack-query';
 
 const userQueries = createPostgRESTQueries<User>(client, 'users');
 
@@ -243,7 +243,7 @@ Create comprehensive query and mutation factories:
 
 ```tsx
 // utils/queries.ts
-import { createTableQueries } from 'pgrestify/tanstack-query';
+import { createTableQueries } from '@webcoded/pgrestify/tanstack-query';
 
 // Complete integration for users table
 export const userTable = createTableQueries<User>(client, 'users');
@@ -263,7 +263,7 @@ export const userTable = createTableQueries<User>(client, 'users');
 ```tsx
 // components/UserForm.tsx
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPostgRESTMutations } from 'pgrestify/tanstack-query';
+import { createPostgRESTMutations } from '@webcoded/pgrestify/tanstack-query';
 
 const userMutations = createPostgRESTMutations<User>(client, 'users');
 
@@ -335,7 +335,7 @@ function UserForm() {
 PGRestify provides structured query key management:
 
 ```tsx
-import { createQueryKeys } from 'pgrestify/tanstack-query';
+import { createQueryKeys } from '@webcoded/pgrestify/tanstack-query';
 
 const queryKeys = createQueryKeys();
 
@@ -353,7 +353,7 @@ queryKeys.rpc('get_user_stats', { userId: '1' }) // ['pgrestify', 'rpc', 'get_us
 ```tsx
 // components/UserActions.tsx
 import { useQueryClient } from '@tanstack/react-query';
-import { createInvalidationHelpers } from 'pgrestify/tanstack-query';
+import { createInvalidationHelpers } from '@webcoded/pgrestify/tanstack-query';
 
 function UserActions() {
   const queryClient = useQueryClient();
@@ -469,7 +469,7 @@ Create reusable data fetching hooks:
 ```tsx
 // hooks/useUsers.ts
 import { useQuery } from '@tanstack/react-query';
-import { createPostgRESTQueries } from 'pgrestify/tanstack-query';
+import { createPostgRESTQueries } from '@webcoded/pgrestify/tanstack-query';
 
 const userQueries = createPostgRESTQueries<User>(client, 'users');
 

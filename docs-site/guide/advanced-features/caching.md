@@ -9,7 +9,7 @@ PGRestify provides intelligent caching mechanisms to optimize performance and re
 Configure caching when creating your client:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000',

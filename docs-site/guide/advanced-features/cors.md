@@ -5,7 +5,7 @@ PGRestify provides comprehensive Cross-Origin Resource Sharing (CORS) configurat
 ## Basic CORS Setup
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient('http://localhost:3000', {
   cors: {

@@ -99,7 +99,7 @@ Comprehensive troubleshooting guide for common issues with PGRestify.
 
 3. **Network Connectivity**
    ```typescript
-   import { createClient } from 'pgrestify';
+   import { createClient } from '@webcoded/pgrestify';
 
    async function testConnection() {
      try {
@@ -122,7 +122,7 @@ Comprehensive troubleshooting guide for common issues with PGRestify.
 **Troubleshooting:**
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient('http://localhost:3000', {
   // Enable detailed token logging

@@ -411,7 +411,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install PGRestify CLI
-        run: npm install -g pgrestify
+        run: npm install -g @webcoded/pgrestify
       - name: Security Validation
         run: pgrestify validate --security --report security-report.json
       - name: Upload Security Report

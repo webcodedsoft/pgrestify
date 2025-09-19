@@ -70,8 +70,8 @@ Use your table types to create strongly-typed query factories:
 
 ```tsx
 // hooks/queries.ts
-import { createPostgRESTQueries, createTableQueries } from 'pgrestify/tanstack-query';
-import { createClient } from 'pgrestify';
+import { createPostgRESTQueries, createTableQueries } from '@webcoded/pgrestify/tanstack-query';
+import { createClient } from '@webcoded/pgrestify';
 import type { User, Post, Category } from '../types/database';
 
 const client = createClient({ url: 'http://localhost:3000' });
@@ -96,7 +96,7 @@ Create reusable, generic query hooks:
 // hooks/useTypedQuery.ts
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
-import type { QueryResponse } from 'pgrestify';
+import type { QueryResponse } from '@webcoded/pgrestify';
 
 // Generic typed query hook
 export function useTypedQuery<
@@ -138,7 +138,7 @@ Use TypeScript's conditional types for advanced query patterns:
 
 ```tsx
 // types/queries.ts
-import type { QueryResponse, SingleQueryResponse } from 'pgrestify';
+import type { QueryResponse, SingleQueryResponse } from '@webcoded/pgrestify';
 
 // Conditional type for single vs multiple results
 export type QueryResult<T, Single extends boolean = false> = Single extends true
@@ -373,7 +373,7 @@ Create type-safe cache key management:
 
 ```tsx
 // types/cache.ts
-import { createQueryKeys } from 'pgrestify/tanstack-query';
+import { createQueryKeys } from '@webcoded/pgrestify/tanstack-query';
 
 // Extend query keys with table-specific methods
 export function createTypedQueryKeys<T extends Record<string, unknown>>(

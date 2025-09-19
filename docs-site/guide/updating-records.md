@@ -11,7 +11,7 @@ Updating records in PGRestify provides flexible and safe data modification capab
 ### Single Record Update
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'

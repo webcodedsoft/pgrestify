@@ -107,7 +107,7 @@ const client = createClient({
 Create a client with full database typing:
 
 ```typescript
-import { createClient, PostgRESTClient } from 'pgrestify';
+import { createClient, PostgRESTClient } from '@webcoded/pgrestify';
 import type { Database } from './types/database';
 
 // Create typed client
@@ -127,7 +127,7 @@ Create reusable typed client factories:
 
 ```typescript
 // utils/client.ts
-import { createClient, PostgRESTClient } from 'pgrestify';
+import { createClient, PostgRESTClient } from '@webcoded/pgrestify';
 import type { Database } from '../types/database';
 
 export function createTypedClient(url: string): PostgRESTClient<Database> {
@@ -668,7 +668,7 @@ Generate types from your database schema:
 
 ```typescript
 // scripts/generate-types.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 async function generateTypes() {
   const client = createClient({

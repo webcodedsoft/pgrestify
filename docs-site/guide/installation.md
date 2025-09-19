@@ -14,7 +14,7 @@ Perfect for developers who want everything configured automatically. Docker hand
 
 ```bash
 # Install globally (recommended)
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 
 # Verify installation
 pgrestify --version
@@ -101,15 +101,15 @@ For developers who have existing PostgreSQL installations but want CLI assistanc
 ::: code-group
 
 ```bash [npm]
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 ```
 
 ```bash [yarn]  
-yarn global add pgrestify
+yarn global add @webcoded/pgrestify
 ```
 
 ```bash [pnpm]
-pnpm add -g pgrestify
+pnpm add -g @webcoded/pgrestify
 ```
 
 :::
@@ -235,19 +235,19 @@ For developers who prefer complete control and want to configure everything manu
 ::: code-group
 
 ```bash [npm]
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ```bash [yarn]
-yarn add pgrestify
+yarn add @webcoded/pgrestify
 ```
 
 ```bash [pnpm]
-pnpm add pgrestify
+pnpm add @webcoded/pgrestify
 ```
 
 ```bash [bun]
-bun add pgrestify
+bun add @webcoded/pgrestify
 ```
 
 :::
@@ -323,7 +323,7 @@ Create your client configuration:
 
 ```typescript
 // src/lib/client.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 export const client = createClient({
   url: 'http://localhost:3000',
@@ -386,7 +386,7 @@ mkdir -p src/components src/hooks
 ```tsx
 // src/App.tsx
 import React from 'react';
-import { PGRestifyProvider } from 'pgrestify/react';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
 import { client } from './lib/client';
 import { UserList } from './components/UserList';
 
@@ -409,7 +409,7 @@ export default App;
 ```tsx
 // src/components/UserList.tsx
 import React from 'react';
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 import { client } from '../lib/client';
 
 export function UserList() {
@@ -447,8 +447,8 @@ npm install next react react-dom pgrestify
 ```tsx
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
-import { PGRestifyProvider } from 'pgrestify/react';
-import { createClient } from 'pgrestify';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: process.env.NEXT_PUBLIC_POSTGREST_URL || 'http://localhost:3000'
@@ -615,7 +615,7 @@ tail -f postgrest.log
 #### "Cannot find module 'pgrestify'"
 ```bash
 # Make sure you've installed the package
-npm install pgrestify
+npm install @webcoded/pgrestify
 
 # Check package.json
 cat package.json | grep pgrestify
@@ -624,7 +624,7 @@ cat package.json | grep pgrestify
 #### "Client connection issues"
 ```typescript
 // Verify your client configuration
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000', // Make sure PostgREST is running here

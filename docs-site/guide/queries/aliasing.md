@@ -5,7 +5,7 @@ PGRestify provides flexible column aliasing capabilities, allowing you to rename
 ## Basic Column Aliasing
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient('http://localhost:3000');
 

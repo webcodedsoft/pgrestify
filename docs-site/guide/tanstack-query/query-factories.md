@@ -20,8 +20,8 @@ Query factories provide:
 Create a query factory for any table:
 
 ```tsx
-import { createPostgRESTQueries } from 'pgrestify/tanstack-query';
-import { createClient } from 'pgrestify';
+import { createPostgRESTQueries } from '@webcoded/pgrestify/tanstack-query';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -520,7 +520,7 @@ function Component2() {
 Use the complete table factory for comprehensive integration:
 
 ```tsx
-import { createTableQueries } from 'pgrestify/tanstack-query';
+import { createTableQueries } from '@webcoded/pgrestify/tanstack-query';
 
 const userTable = createTableQueries<User>(client, 'users');
 

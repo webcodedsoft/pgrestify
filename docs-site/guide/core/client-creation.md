@@ -13,7 +13,7 @@ PGRestify provides multiple client creation methods to fit different architectur
 The most straightforward way to create a client:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'
@@ -28,7 +28,7 @@ const users = await client.from('users').select('*').execute();
 Add configuration options for production use:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'https://api.yourapp.com',
@@ -133,7 +133,7 @@ Create different clients for different environments:
 
 ```typescript
 // config/clients.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const createEnvironmentClient = () => {
   const baseConfig = {
@@ -180,7 +180,7 @@ Handle multiple tenants or databases:
 
 ```typescript
 // services/ClientManager.ts
-import { createClient, PostgRESTClient } from 'pgrestify';
+import { createClient, PostgRESTClient } from '@webcoded/pgrestify';
 
 class ClientManager {
   private clients = new Map<string, PostgRESTClient>();
@@ -219,7 +219,7 @@ Ensure single client instance across your app:
 
 ```typescript
 // lib/client.ts
-import { createClient, PostgRESTClient } from 'pgrestify';
+import { createClient, PostgRESTClient } from '@webcoded/pgrestify';
 
 class PGRestifyClient {
   private static instance: PostgRESTClient;
@@ -254,7 +254,7 @@ Set up client with React context:
 ```typescript
 // context/PGRestifyContext.tsx
 import React, { createContext, useContext } from 'react';
-import { createClient, PostgRESTClient } from 'pgrestify';
+import { createClient, PostgRESTClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: process.env.REACT_APP_PGRESTIFY_URL!,
@@ -289,7 +289,7 @@ export const usePGRestifyClient = () => {
 
 ```typescript
 // lib/pgrestify.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 export const client = createClient({
   url: process.env.NEXT_PUBLIC_PGRESTIFY_URL!,
@@ -312,7 +312,7 @@ export const serverClient = createClient({
 
 ```typescript
 // lib/pgrestify.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const isServer = typeof window === 'undefined';
 
@@ -334,7 +334,7 @@ Server-side client setup:
 
 ```typescript
 // lib/database.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 export const dbClient = createClient({
   url: process.env.PGRESTIFY_URL!,
@@ -373,7 +373,7 @@ export const checkDatabaseHealth = async (): Promise<boolean> => {
 Use your own fetch implementation:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Custom fetch with retry logic
 const fetchWithRetry = async (url: string, options: RequestInit = {}) => {
@@ -406,7 +406,7 @@ const client = createClient({
 Implement your own storage for tokens:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 class CustomStorage implements Storage {
   private data = new Map<string, string>();
@@ -450,7 +450,7 @@ const client = createClient({
 Implement your own caching strategy:
 
 ```typescript
-import { createClient, QueryCache } from 'pgrestify';
+import { createClient, QueryCache } from '@webcoded/pgrestify';
 
 class RedisCache implements QueryCache {
   constructor(private redis: any) {} // Redis client
@@ -502,7 +502,7 @@ const client = createClient({
 Handle connection and configuration errors:
 
 ```typescript
-import { createClient, PGRestifyError } from 'pgrestify';
+import { createClient, PGRestifyError } from '@webcoded/pgrestify';
 
 const createRobustClient = async () => {
   try {
@@ -586,7 +586,7 @@ export const client = createClient(config.pgrestify);
 
 ```typescript
 // lib/client.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Validate required environment variables
 const requiredEnvVars = ['NEXT_PUBLIC_PGRESTIFY_URL'];
@@ -626,7 +626,7 @@ export interface Database {
 }
 
 // lib/typed-client.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 import type { Database } from '../types/database';
 
 export const typedClient = createClient({
@@ -645,7 +645,7 @@ export const getPostsTable = () => typedClient.from<Database['posts']>('posts');
 
 ```typescript
 // __tests__/utils/mock-client.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 export const createMockClient = () => {
   return createClient({

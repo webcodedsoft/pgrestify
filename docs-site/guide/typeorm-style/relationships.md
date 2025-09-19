@@ -682,7 +682,7 @@ async function relationshipCaching() {
 ### Relationship Error Patterns
 
 ```tsx
-import { PostgRESTError } from 'pgrestify';
+import { PostgRESTError } from '@webcoded/pgrestify';
 
 async function relationshipErrorHandling() {
   const postRepository = dataManager.getRepository<Post>('posts');

@@ -93,7 +93,7 @@ networks:
 ### Basic Docker Usage
 
 ```typescript
-import { createSimpleClient } from 'pgrestify';
+import { createSimpleClient } from '@webcoded/pgrestify';
 
 // PGRestify automatically detects Docker and optimizes itself!
 const client = createSimpleClient('http://postgrest:3000');
@@ -178,7 +178,7 @@ volumes:
 
 **Your Application (app.ts)**
 ```typescript
-import { createSimpleClient } from 'pgrestify';
+import { createSimpleClient } from '@webcoded/pgrestify';
 
 // Configuration from environment variables
 const client = createSimpleClient(process.env.POSTGREST_URL!, {
@@ -422,7 +422,7 @@ function readDockerSecret(secretName: string): string | null {
 }
 
 // app.ts
-import { createSimpleClient } from 'pgrestify';
+import { createSimpleClient } from '@webcoded/pgrestify';
 import { readDockerSecret } from './utils/secrets';
 
 const client = createSimpleClient(process.env.POSTGREST_URL!, {
@@ -537,7 +537,7 @@ export const productionConfig = {
 };
 
 // app.ts
-import { createClientWithAuth } from 'pgrestify';
+import { createClientWithAuth } from '@webcoded/pgrestify';
 import { productionConfig } from './config/production';
 
 const client = createClientWithAuth(productionConfig.postgrest.url, {
@@ -591,7 +591,7 @@ const client = createClientWithAuth(productionConfig.postgrest.url, {
 ### Structured Logging
 
 ```typescript
-import { createSimpleClient } from 'pgrestify';
+import { createSimpleClient } from '@webcoded/pgrestify';
 
 const client = createSimpleClient(process.env.POSTGREST_URL!, {
   onRequest: (config) => {

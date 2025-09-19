@@ -11,7 +11,7 @@ Deleting records in PGRestify provides safe and efficient data removal capabilit
 ### Single Record Delete
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'

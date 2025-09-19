@@ -142,7 +142,7 @@ type UserWithoutTimestamp = Omit<User, 'created_at'>;
 
 ```typescript
 // Generate types from database schema
-import { generateTypesFromSchema } from 'pgrestify/schema';
+import { generateTypesFromSchema } from '@webcoded/pgrestify/schema';
 
 async function syncTypes() {
   const types = await generateTypesFromSchema({

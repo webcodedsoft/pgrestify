@@ -21,8 +21,8 @@ Call a PostgreSQL function without arguments:
 
 ```tsx
 import { useQuery } from '@tanstack/react-query';
-import { createRPCQuery } from 'pgrestify/tanstack-query';
-import { createClient } from 'pgrestify';
+import { createRPCQuery } from '@webcoded/pgrestify/tanstack-query';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({ url: 'http://localhost:3000' });
 
@@ -461,7 +461,7 @@ function BulkUserEditor({ selectedUsers }: { selectedUsers: User[] }) {
 ### RPC-Specific Cache Management
 
 ```tsx
-import { createQueryKeys } from 'pgrestify/tanstack-query';
+import { createQueryKeys } from '@webcoded/pgrestify/tanstack-query';
 
 const keys = createQueryKeys();
 

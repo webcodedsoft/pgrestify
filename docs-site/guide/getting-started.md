@@ -10,7 +10,7 @@ The PGRestify CLI sets up everything for you: database, PostgREST, and your proj
 
 ```bash
 # Install globally for new projects
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 
 # Verify installation
 pgrestify --version
@@ -76,19 +76,19 @@ If you already have PostgREST running, just install the library:
 ::: code-group
 
 ```bash [npm]
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ```bash [yarn]
-yarn add pgrestify
+yarn add @webcoded/pgrestify
 ```
 
 ```bash [pnpm]
-pnpm add pgrestify
+pnpm add @webcoded/pgrestify
 ```
 
 ```bash [bun]
-bun add pgrestify
+bun add @webcoded/pgrestify
 ```
 
 :::
@@ -96,7 +96,7 @@ bun add pgrestify
 ### Step 2: Create a Client
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Connect to your existing PostgREST API
 const client = createClient({
@@ -310,7 +310,7 @@ Edit `src/components/BlogPosts.tsx`:
 
 ```typescript
 import React, { useEffect, useState } from 'react';
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: process.env.REACT_APP_POSTGREST_URL || 'http://localhost:3000'
@@ -417,7 +417,7 @@ pgrestify docker status        # Check status
 ### "pgrestify command not found"
 ```bash
 # Install globally
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 
 # Or use without installing
 npx pgrestify init my-app

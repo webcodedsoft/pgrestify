@@ -5,7 +5,7 @@ PGRestify offers comprehensive configuration options to customize your client's 
 ## Basic Configuration
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   // Required: PostgREST URL

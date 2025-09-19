@@ -13,7 +13,7 @@ PGRestify supports three primary role types:
 ## Creating Clients with Specific Roles
 
 ```typescript
-import { createClient, PostgrestRole } from 'pgrestify';
+import { createClient, PostgrestRole } from '@webcoded/pgrestify';
 
 // Anonymous client (default)
 const anonymousClient = createClient({

@@ -5,7 +5,7 @@ Comprehensive guide to advanced querying techniques in PGRestify.
 ## Complex Filtering and Joins
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Define interfaces for type safety
 interface User {

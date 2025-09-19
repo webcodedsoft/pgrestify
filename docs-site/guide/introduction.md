@@ -19,9 +19,9 @@ PGRestify bridges the gap between your TypeScript application and PostgREST APIs
 Unlike other PostgREST clients that require API keys and complex setup, PGRestify works immediately:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
-// That's it! No API keys needed
+// That's it!
 const client = createClient({ url: 'http://localhost:3000' });
 ```
 

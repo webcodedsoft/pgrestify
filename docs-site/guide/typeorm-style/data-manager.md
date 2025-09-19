@@ -19,7 +19,7 @@ The DataManager provides:
 The DataManager is available through the main client:
 
 ```tsx
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -205,7 +205,7 @@ async function bulkOperationsAcrossTables() {
 DataManager can work with custom repository classes:
 
 ```tsx
-import { Repository } from 'pgrestify';
+import { Repository } from '@webcoded/pgrestify';
 
 // Custom User Repository
 class UserRepository extends Repository<User> {
@@ -445,7 +445,7 @@ async function cacheManagement() {
 ### Comprehensive Error Handling
 
 ```tsx
-import { PostgRESTError } from 'pgrestify';
+import { PostgRESTError } from '@webcoded/pgrestify';
 
 async function robustDataOperations() {
   const userRepository = dataManager.getRepository<User>('users');

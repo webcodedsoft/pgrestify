@@ -21,8 +21,8 @@ Create mutation factories for any table:
 
 ```tsx
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPostgRESTMutations } from 'pgrestify/tanstack-query';
-import { createClient } from 'pgrestify';
+import { createPostgRESTMutations } from '@webcoded/pgrestify/tanstack-query';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -663,7 +663,7 @@ function ResilientUserMutation() {
 Use cache helper utilities for advanced cache management:
 
 ```tsx
-import { createCacheHelpers } from 'pgrestify/tanstack-query';
+import { createCacheHelpers } from '@webcoded/pgrestify/tanstack-query';
 
 function AdvancedUserMutations() {
   const queryClient = useQueryClient();

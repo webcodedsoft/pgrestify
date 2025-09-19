@@ -5,15 +5,15 @@ PGRestify provides comprehensive TanStack Query integration with pre-built query
 ## Quick Start
 
 ```bash
-npm install pgrestify @tanstack/react-query
+npm install @webcoded/pgrestify @tanstack/react-query
 ```
 
 ## Basic Usage
 
 ```typescript
 import { useQuery } from '@tanstack/react-query';
-import { createPostgRESTQueries } from 'pgrestify/tanstack-query';
-import { createClient } from 'pgrestify';
+import { createPostgRESTQueries } from '@webcoded/pgrestify/tanstack-query';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({ url: 'http://localhost:3000' });
 const userQueries = createPostgRESTQueries<User>(client, 'users');
@@ -40,7 +40,7 @@ function UserList() {
 
 ```typescript
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPostgRESTMutations } from 'pgrestify/tanstack-query';
+import { createPostgRESTMutations } from '@webcoded/pgrestify/tanstack-query';
 
 function CreateUserForm() {
   const queryClient = useQueryClient();
@@ -171,7 +171,7 @@ function InfiniteUserList() {
 
 ```typescript
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { PGRestifyProvider } from 'pgrestify/react';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
 
 const queryClient = new QueryClient({
   defaultOptions: {

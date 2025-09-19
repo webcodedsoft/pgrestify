@@ -20,7 +20,7 @@ Bulk operations in PGRestify provide efficient processing of large datasets whil
 ### Basic Bulk Insert
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'
@@ -55,7 +55,7 @@ console.log(`Total processed: ${result.count}`);
 ### Advanced Bulk Insert with Options
 
 ```typescript
-import { BulkInsertOptions } from 'pgrestify';
+import { BulkInsertOptions } from '@webcoded/pgrestify';
 
 const bulkInsertOptions: BulkInsertOptions = {
   batchSize: 100,              // Process 100 records at a time

@@ -5,7 +5,7 @@ Comprehensive guide to real-time subscriptions in PGRestify.
 ## Basic Real-time Subscription
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 // Define interfaces for type safety
 interface User {

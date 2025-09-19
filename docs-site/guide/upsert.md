@@ -7,7 +7,7 @@ Upsert operations combine INSERT and UPDATE functionality, inserting new records
 ### Single Record Upsert
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;

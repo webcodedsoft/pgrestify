@@ -19,7 +19,7 @@ Server state synchronization in PGRestify ensures that your client-side state re
 PGRestify automatically manages query synchronization:
 
 ```typescript
-import { useQuery, useQueryClient } from 'pgrestify/react';
+import { useQuery, useQueryClient } from '@webcoded/pgrestify/react';
 
 function PostsList() {
   // Query automatically syncs with server state
@@ -62,7 +62,7 @@ function PostsList() {
 Manually trigger synchronization when needed:
 
 ```typescript
-import { useMutation, useQueryClient } from 'pgrestify/react';
+import { useMutation, useQueryClient } from '@webcoded/pgrestify/react';
 
 function CreatePostForm() {
   const queryClient = useQueryClient();
@@ -143,8 +143,8 @@ function useOptimizedPostMutation() {
 Listen to database changes with real-time subscriptions:
 
 ```typescript
-import { useQuery, useQueryClient } from 'pgrestify/react';
-import { useRealtime } from 'pgrestify/react';
+import { useQuery, useQueryClient } from '@webcoded/pgrestify/react';
+import { useRealtime } from '@webcoded/pgrestify/react';
 
 function useRealtimePosts() {
   const queryClient = useQueryClient();

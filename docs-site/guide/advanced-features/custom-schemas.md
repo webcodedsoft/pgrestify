@@ -141,7 +141,7 @@ db-schema = "api"
 ### Client Usage with Multiple Schemas
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'

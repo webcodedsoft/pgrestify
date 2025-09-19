@@ -7,7 +7,7 @@ PGRestify provides comprehensive support for Server-Side Rendering across variou
 ### Basic SSR Setup
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 import { GetServerSideProps } from 'next';
 
 // Server-side client creation
@@ -50,7 +50,7 @@ export default UserListPage;
 ### Data Hydration
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 import { GetServerSideProps } from 'next';
 
 function UserDetailPage({ user, initialData }) {
@@ -90,7 +90,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 ```typescript
 // plugins/pgrestify.ts
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 export default defineNuxtPlugin((nuxtApp) => {
   const client = createClient('http://localhost:3000', {
@@ -125,7 +125,7 @@ const { data: users } = await useAsyncData('users', () =>
 import express from 'express';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const app = express();
 

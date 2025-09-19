@@ -24,10 +24,10 @@ The CLI is included with the PGRestify package:
 
 ```bash
 # Install PGRestify (includes CLI)
-npm install pgrestify
+npm install @webcoded/pgrestify
 
 # Or install globally for system-wide access
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 ```
 
 ## Quick Start
@@ -35,7 +35,7 @@ npm install -g pgrestify
 ```bash
 # Create a new project
 mkdir my-app && cd my-app
-npx pgrestify init
+npx @webcoded/pgrestify init
 
 # Start development servers
 npm run dev

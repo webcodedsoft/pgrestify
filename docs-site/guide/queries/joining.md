@@ -5,7 +5,7 @@ PGRestify provides powerful and intuitive table joining capabilities, leveraging
 ## Basic Joins
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient('http://localhost:3000');
 

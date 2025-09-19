@@ -13,7 +13,7 @@ Mutations in PGRestify handle all data modification operations including inserti
 Create new records using the `insert()` method:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'
@@ -434,7 +434,7 @@ const updateWithVersionControl = async (recordId: number, updates: any, currentV
 Handle database constraint errors gracefully:
 
 ```typescript
-import { PGRestifyError } from 'pgrestify';
+import { PGRestifyError } from '@webcoded/pgrestify';
 
 const createUserWithValidation = async (userData: any) => {
   try {

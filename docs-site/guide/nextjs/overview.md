@@ -22,7 +22,7 @@ Modern React Server Components architecture with streaming and concurrent featur
 
 ```typescript
 // app/layout.tsx
-import { PGRestifyProvider } from 'pgrestify/nextjs';
+import { PGRestifyProvider } from '@webcoded/pgrestify/nextjs';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 // app/posts/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export default async function PostsPage() {
   const client = createServerClient();
@@ -66,7 +66,7 @@ Traditional Next.js architecture with proven stability:
 
 ```typescript
 // pages/_app.tsx
-import { PGRestifyProvider } from 'pgrestify/nextjs';
+import { PGRestifyProvider } from '@webcoded/pgrestify/nextjs';
 import { AppProps } from 'next/app';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -78,7 +78,7 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 
 // pages/posts.tsx
-import { createGetServerSideProps } from 'pgrestify/nextjs';
+import { createGetServerSideProps } from '@webcoded/pgrestify/nextjs';
 
 export default function PostsPage({ posts }: { posts: Post[] }) {
   return (
@@ -114,7 +114,7 @@ PGRestify automatically detects your Next.js environment and optimizes according
 
 ```typescript
 // lib/client.ts
-import { createNextJSClient } from 'pgrestify/nextjs';
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs';
 
 export const client = createNextJSClient({
   url: process.env.NEXT_PUBLIC_POSTGREST_URL!,
@@ -136,7 +136,7 @@ Separate configurations for server and client environments:
 
 ```typescript
 // lib/server-client.ts
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export const serverClient = createServerClient({
   url: process.env.POSTGREST_URL!, // Internal URL, no CORS needed
@@ -151,7 +151,7 @@ export const serverClient = createServerClient({
 });
 
 // lib/client-client.ts  
-import { createClientClient } from 'pgrestify/nextjs';
+import { createClientClient } from '@webcoded/pgrestify/nextjs';
 
 export const browserClient = createClientClient({
   url: process.env.NEXT_PUBLIC_POSTGREST_URL!, // Public URL
@@ -175,7 +175,7 @@ Fetch data directly in React Server Components:
 
 ```typescript
 // app/users/[id]/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 import { notFound } from 'next/navigation';
 
 interface UserPageProps {
@@ -241,7 +241,7 @@ Interactive components with client-side data fetching:
 ```typescript
 'use client';
 
-import { useQuery, useMutation } from 'pgrestify/nextjs';
+import { useQuery, useMutation } from '@webcoded/pgrestify/nextjs';
 import { useState } from 'react';
 
 export default function PostForm() {
@@ -328,7 +328,7 @@ const client = createNextJSClient({
 });
 
 // Manual cache control
-import { revalidateTag } from 'pgrestify/nextjs';
+import { revalidateTag } from '@webcoded/pgrestify/nextjs';
 
 // In a Server Action or API route
 export async function updatePost(id: string, data: Partial<Post>) {
@@ -355,7 +355,7 @@ Compatible with Vercel Edge Runtime for global performance:
 
 ```typescript
 // middleware.ts
-import { createAuthMiddleware } from 'pgrestify/nextjs';
+import { createAuthMiddleware } from '@webcoded/pgrestify/nextjs';
 
 export const middleware = createAuthMiddleware({
   protectedPaths: ['/dashboard', '/profile'],
@@ -369,7 +369,7 @@ export const config = {
 
 // Edge API route
 // app/api/posts/route.ts
-import { createRouteHandler } from 'pgrestify/nextjs';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
 
 export const runtime = 'edge';
 
@@ -415,7 +415,7 @@ Seamless authentication with Next.js auth patterns:
 
 ```typescript
 // lib/auth.ts
-import { createAuthClient } from 'pgrestify/nextjs';
+import { createAuthClient } from '@webcoded/pgrestify/nextjs';
 
 export const auth = createAuthClient({
   url: process.env.NEXT_PUBLIC_POSTGREST_URL!,
@@ -430,7 +430,7 @@ export const auth = createAuthClient({
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useSession } from 'pgrestify/nextjs';
+import { useSession } from '@webcoded/pgrestify/nextjs';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -470,7 +470,7 @@ Implement route protection with middleware:
 
 ```typescript
 // middleware.ts
-import { createAuthMiddleware } from 'pgrestify/nextjs';
+import { createAuthMiddleware } from '@webcoded/pgrestify/nextjs';
 
 export const middleware = createAuthMiddleware({
   protectedPaths: ['/dashboard/:path*', '/profile/:path*'],

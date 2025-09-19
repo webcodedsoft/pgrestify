@@ -11,7 +11,7 @@ Creating records in PGRestify is straightforward and type-safe. You can insert s
 ### Single Record Insert
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'

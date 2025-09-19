@@ -20,7 +20,7 @@ Custom repositories in PGRestify provide:
 Extend the base Repository class with custom methods:
 
 ```typescript
-import { Repository, DataManager } from 'pgrestify';
+import { Repository, DataManager } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -524,7 +524,7 @@ class CommentRepository extends Repository<Comment> {
 Use the EntityRepository decorator for cleaner syntax:
 
 ```typescript
-import { EntityRepository, Repository } from 'pgrestify';
+import { EntityRepository, Repository } from '@webcoded/pgrestify';
 
 @EntityRepository<User>('users')
 class DecoratedUserRepository extends Repository<User> {

@@ -13,7 +13,7 @@ Data fetching in PGRestify involves executing queries built with the query build
 The `execute()` method is the primary way to run queries and retrieve data:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'
@@ -105,7 +105,7 @@ if (userResponse.data) {
 ### Error Handling for Single Records
 
 ```typescript
-import { PGRestifyError } from 'pgrestify';
+import { PGRestifyError } from '@webcoded/pgrestify';
 
 try {
   const user = await client
@@ -251,7 +251,7 @@ const fetchDashboardData = async (userId: number) => {
 ### Comprehensive Error Handling
 
 ```typescript
-import { PGRestifyError } from 'pgrestify';
+import { PGRestifyError } from '@webcoded/pgrestify';
 
 const fetchWithErrorHandling = async (table: string, filters: any) => {
   try {

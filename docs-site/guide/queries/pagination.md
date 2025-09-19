@@ -11,7 +11,7 @@ PGRestify provides comprehensive pagination support through PostgREST's built-in
 ### Page-Based Pagination
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000'

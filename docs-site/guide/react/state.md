@@ -18,7 +18,7 @@ State management in PGRestify React applications involves several layers:
 PGRestify hooks automatically manage query state:
 
 ```typescript
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 
 function UserList() {
   const { 
@@ -56,7 +56,7 @@ function UserList() {
 Mutations provide comprehensive state tracking:
 
 ```typescript
-import { useMutation, useQueryClient } from 'pgrestify/react';
+import { useMutation, useQueryClient } from '@webcoded/pgrestify/react';
 
 function CreateUserForm() {
   const queryClient = useQueryClient();
@@ -184,7 +184,7 @@ Integrate server state with global client state:
 
 ```typescript
 // hooks/useUserWithPreferences.ts
-import { useQuery } from 'pgrestify/react';
+import { useQuery } from '@webcoded/pgrestify/react';
 import { useAppState } from '../contexts/AppStateContext';
 
 export function useUserWithPreferences(userId: string) {
@@ -231,8 +231,8 @@ Sync state with real-time database changes:
 
 ```typescript
 // hooks/useRealtimeState.ts
-import { useQuery, useQueryClient } from 'pgrestify/react';
-import { useRealtime } from 'pgrestify/react';
+import { useQuery, useQueryClient } from '@webcoded/pgrestify/react';
+import { useRealtime } from '@webcoded/pgrestify/react';
 
 export function useRealtimeUserList() {
   const queryClient = useQueryClient();
@@ -276,7 +276,7 @@ Share state between components using custom hooks:
 
 ```typescript
 // hooks/useSharedFilters.ts
-import { useQueryClient } from 'pgrestify/react';
+import { useQueryClient } from '@webcoded/pgrestify/react';
 import { useAppState } from '../contexts/AppStateContext';
 
 export function useSharedFilters() {
@@ -361,7 +361,7 @@ function FilteredList() {
 ```typescript
 // hooks/useFormState.ts
 import { useState, useCallback } from 'react';
-import { useMutation, useQueryClient } from 'pgrestify/react';
+import { useMutation, useQueryClient } from '@webcoded/pgrestify/react';
 
 interface UseFormStateOptions<T> {
   initialValues: T;

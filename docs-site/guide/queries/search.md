@@ -5,7 +5,7 @@ PGRestify provides comprehensive full-text search capabilities leveraging Postgr
 ## Basic Full-Text Search
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient('http://localhost:3000');
 

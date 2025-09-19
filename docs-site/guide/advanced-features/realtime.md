@@ -9,7 +9,7 @@ PGRestify provides comprehensive real-time capabilities through WebSocket connec
 Configure real-time connections when creating your client:
 
 ```typescript
-import { createClient } from 'pgrestify';
+import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
   url: 'http://localhost:3000',
@@ -129,7 +129,7 @@ client.realtime
 
 ```typescript
 import { useEffect, useState } from 'react';
-import { useRealtimeSubscription } from 'pgrestify/react';
+import { useRealtimeSubscription } from '@webcoded/pgrestify/react';
 
 function LivePostList() {
   const [posts, setPosts] = useState<Post[]>([]);

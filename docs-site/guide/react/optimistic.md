@@ -17,7 +17,7 @@ Optimistic updates enhance user experience by:
 ### Simple Optimistic Mutation
 
 ```typescript
-import { useMutation, useQueryClient } from 'pgrestify/react';
+import { useMutation, useQueryClient } from '@webcoded/pgrestify/react';
 
 function useOptimisticPostUpdate() {
   const queryClient = useQueryClient();

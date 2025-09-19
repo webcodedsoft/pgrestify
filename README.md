@@ -1,9 +1,9 @@
 # PGRestify
 
-[![npm version](https://badge.fury.io/js/pgrestify.svg)](https://badge.fury.io/js/pgrestify)
+[![npm version](https://badge.fury.io/js/%40webcoded%2Fpgrestify.svg)](https://badge.fury.io/js/%40webcoded%2Fpgrestify)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![Bundle Size](https://img.shields.io/bundlephobia/minzip/pgrestify)](https://bundlephobia.com/package/pgrestify)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/%40webcoded%2Fpgrestify)](https://bundlephobia.com/package/@webcoded/pgrestify)
 
 The **definitive TypeScript client library** for PostgREST APIs. No API keys required, TypeORM-inspired queries, PostgreSQL role-based security, and enterprise-grade features with zero-config setup.
 
@@ -44,7 +44,7 @@ pnpm add @webcoded/pgrestify
 
 ```bash
 # Install CLI globally
-npm install -g pgrestify
+npm install -g @webcoded/pgrestify
 
 # Create a new project
 pgrestify init my-app
@@ -90,7 +90,7 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed development guide.
 ```typescript
 import { createSimpleClient } from '@webcoded/pgrestify';
 
-// That's it! No API keys needed
+// That's it!
 const client = createSimpleClient('http://localhost:3000');
 
 // Define your schema
@@ -127,7 +127,7 @@ await userRepo.save({
 ### 3. PostgreSQL Role-Based Access
 
 ```typescript
-import { createClientWithRole, PostgrestRole } from 'pgrestify';
+import { createClientWithRole, PostgrestRole } from '@webcoded/pgrestify';
 
 // Anonymous access (default)
 const anonymousClient = createClientWithRole(
@@ -219,7 +219,7 @@ npm install @webcoded/pgrestify
 ```
 
 ```typescript
-import { useQuery, useMutation } from 'pgrestify/react';
+import { useQuery, useMutation } from '@webcoded/pgrestify/react';
 
 function UserList() {
   const { data: users, loading, error } = useQuery('users', query => 
@@ -249,7 +249,7 @@ npm install @webcoded/pgrestify
 
 ```typescript
 // lib/client.ts
-import { createNextJSClient } from 'pgrestify/nextjs';
+import { createNextJSClient } from '@webcoded/pgrestify/nextjs';
 
 export const client = createNextJSClient({
   url: process.env.NEXT_PUBLIC_POSTGREST_URL!,
@@ -260,7 +260,7 @@ export const client = createNextJSClient({
 });
 
 // Pages Router - pages/users.tsx
-import { createGetServerSideProps } from 'pgrestify/nextjs';
+import { createGetServerSideProps } from '@webcoded/pgrestify/nextjs';
 
 export default function UsersPage({ users }) {
   return (
@@ -278,7 +278,7 @@ export const getServerSideProps = createGetServerSideProps(async ({ client }) =>
 });
 
 // App Router - app/users/page.tsx
-import { createServerClient } from 'pgrestify/nextjs';
+import { createServerClient } from '@webcoded/pgrestify/nextjs';
 
 export default async function UsersPage() {
   const client = createServerClient();
@@ -297,7 +297,7 @@ export default async function UsersPage() {
 ### Vue 3
 
 ```typescript
-import { useQuery } from 'pgrestify/vue';
+import { useQuery } from '@webcoded/pgrestify/vue';
 
 export default {
   setup() {
@@ -314,7 +314,7 @@ export default {
 
 ```typescript
 import { useQuery } from '@tanstack/react-query';
-import { createPostgRESTQuery } from 'pgrestify/tanstack-query';
+import { createPostgRESTQuery } from '@webcoded/pgrestify/tanstack-query';
 
 const postgrestQuery = createPostgRESTQuery();
 
@@ -1057,7 +1057,7 @@ services:
 The library includes comprehensive testing utilities:
 
 ```typescript
-import { createMockClient } from 'pgrestify/testing';
+import { createMockClient } from '@webcoded/pgrestify/testing';
 
 const mockClient = createMockClient();
 
@@ -1074,7 +1074,6 @@ expect(users.data).toHaveLength(1);
 ## 🚧 What Makes PGRestify Different?
 
 ### 🎯 Zero Configuration Required
-- **No API keys needed** - just provide your PostgREST URL
 - **Instant setup** - `createSimpleClient('http://localhost:3000')` and you're done
 - **Smart defaults** - works out of the box with sensible configurations
 
