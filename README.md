@@ -31,13 +31,13 @@ The **definitive TypeScript client library** for PostgREST APIs. No API keys req
 
 ```bash
 # npm
-npm install pgrestify
+npm install @webcoded/pgrestify
 
 # yarn
-yarn add pgrestify
+yarn add @webcoded/pgrestify
 
 # pnpm
-pnpm add pgrestify
+pnpm add @webcoded/pgrestify
 ```
 
 ### 🚀 Quick Setup with CLI
@@ -88,7 +88,7 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed development guide.
 ### 1. Zero-Config Setup (No API Keys!)
 
 ```typescript
-import { createSimpleClient } from 'pgrestify';
+import { createSimpleClient } from '@webcoded/pgrestify';
 
 // That's it! No API keys needed
 const client = createSimpleClient('http://localhost:3000');
@@ -215,7 +215,7 @@ const authorStats = await client
 ### React
 
 ```bash
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ```typescript
@@ -244,7 +244,7 @@ function UserList() {
 ### Next.js
 
 ```bash
-npm install pgrestify
+npm install @webcoded/pgrestify
 ```
 
 ```typescript
@@ -1006,7 +1006,7 @@ PGRestify is **fully Docker-compatible** and optimized for containerized applica
 
 ```typescript
 // PGRestify automatically detects Docker environments
-import { createSimpleClient } from 'pgrestify';
+import { createSimpleClient } from '@webcoded/pgrestify';
 
 // Use Docker service names (automatic detection)
 const client = createSimpleClient('http://postgrest:3000');
