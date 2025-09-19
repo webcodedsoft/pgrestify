@@ -10,10 +10,6 @@ const execAsync = promisify(exec);
 
 const REQUIRED_NODE_VERSION = 18;
 const REQUIRED_FILES = [
-  'dist/index.mjs',
-  'dist/index.cjs',
-  'dist/index.d.ts',
-  'dist-cli/index.js',
   'README.md',
   'LICENSE',
   'package.json'

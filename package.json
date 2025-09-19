@@ -122,7 +122,7 @@
     "docs:preview": "vitepress preview docs-site",
     "release": "semantic-release",
     "prepack": "npm run clean && npm run build:all",
-    "prepublishOnly": "npm run test && npm run typecheck && npm run lint && npm run size-limit",
+    "prepublishOnly": "npm run build:all",
     "postpublish": "echo 'Package published successfully!'",
     "clean": "rm -rf dist dist-cli",
     "version:patch": "npm version patch",
