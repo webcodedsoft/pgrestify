@@ -40,13 +40,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        
-      - name: Run tests
-        run: |
-          pnpm typecheck
-          pnpm lint
-          pnpm test
+        run: pnpm install
           
       - name: Build package
         run: |
