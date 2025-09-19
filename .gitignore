@@ -49,5 +49,5 @@ playwright-report/
 .cursorrules
 CLAUDE.md
 PRD.md
-CHANGELOG.md
 ARCHITECTURE.md
+DEPLOYMENT.md

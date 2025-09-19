@@ -1,0 +1,137 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - 'examples/**'
+      - '.gitignore'
+      - '.eslintrc.*'
+      - '.prettierrc.*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run type checking
+        run: pnpm typecheck
+        
+      - name: Run linting
+        run: pnpm lint
+        
+      - name: Run tests
+        run: pnpm test
+        
+      - name: Build package
+        run: |
+          pnpm build
+          pnpm build:cli
+        
+      - name: Check package size
+        run: pnpm size-limit
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build package
+        run: |
+          pnpm build
+          pnpm build:cli
+          
+      - name: Check if version changed
+        id: version-check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          NPM_VERSION=$(npm view pgrestify version 2>/dev/null || echo "0.0.0")
+          
+          echo "Current version: $CURRENT_VERSION"
+          echo "NPM version: $NPM_VERSION"
+          
+          if [ "$CURRENT_VERSION" != "$NPM_VERSION" ]; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+            echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Publish to npm
+        if: steps.version-check.outputs.version_changed == 'true'
+        run: |
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Create GitHub Release
+        if: steps.version-check.outputs.version_changed == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version-check.outputs.current_version }}
+          name: Release v${{ steps.version-check.outputs.current_version }}
+          body: |
+            ## What's Changed
+            
+            View the [full changelog](https://github.com/${{ github.repository }}/compare/v${{ steps.version-check.outputs.previous_version }}...v${{ steps.version-check.outputs.current_version }})
+            
+            ## Installation
+            
+            ```bash
+            # npm
+            npm install pgrestify@${{ steps.version-check.outputs.current_version }}
+            
+            # yarn
+            yarn add pgrestify@${{ steps.version-check.outputs.current_version }}
+            
+            # pnpm
+            pnpm add pgrestify@${{ steps.version-check.outputs.current_version }}
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
