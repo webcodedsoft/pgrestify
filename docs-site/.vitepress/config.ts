@@ -50,24 +50,22 @@ export default defineConfig({
             { text: 'Mutations', link: '/guide/core/mutations' },
             { text: 'Error Handling', link: '/guide/core/error-handling' },
             { text: 'TypeScript Integration', link: '/guide/core/typescript' },
-            { text: 'React Query Integration', link: '/guide/tanstack-query/overview' }
           ]
         },
         {
           text: 'Repository Patterns',
           items: [
-            { text: 'Repository Pattern', link: '/guide/typeorm-style/repository-pattern' },
-            { text: 'Data Manager', link: '/guide/typeorm-style/data-manager' },
-            { text: 'Custom Repositories', link: '/guide/typeorm-style/custom-repositories' },
+            { text: 'Repository Pattern', link: '/guide/orm/repository-pattern' },
+            { text: 'Data Manager', link: '/guide/orm/data-manager' },
+            { text: 'Custom Repositories', link: '/guide/orm/custom-repositories' },
             { text: 'Creating Records', link: '/guide/creating-records' },
             { text: 'Updating Records', link: '/guide/updating-records' },
             { text: 'Deleting Records', link: '/guide/deleting-records' },
-            { text: 'Soft Deletes', link: '/guide/typeorm-style/soft-deletes' },
+            { text: 'Soft Deletes', link: '/guide/orm/soft-deletes' },
             { text: 'Bulk Operations', link: '/guide/bulk-operations' },
             { text: 'Upsert Operations', link: '/guide/upsert' },
             { text: 'Transaction Patterns', link: '/guide/transactions' },
-            { text: 'Advanced Transactions', link: '/guide/typeorm-style/transactions' },
-            { text: 'Mutation Patterns', link: '/guide/tanstack-query/mutations' }
+            { text: 'Advanced Transactions', link: '/guide/orm/transactions' },
           ]
         },
         {
@@ -80,18 +78,13 @@ export default defineConfig({
             { text: 'Column Aliasing', link: '/guide/queries/aliasing' },
             { text: 'Table Joining', link: '/guide/queries/joining' },
             { text: 'Relationships & Joins', link: '/guide/queries/relationships' },
-            { text: 'Repository Query Methods', link: '/guide/typeorm-style/query-methods' },
-            { text: 'Advanced Relationships', link: '/guide/typeorm-style/relationships' },
+            { text: 'Repository Query Methods', link: '/guide/orm/query-methods' },
+            { text: 'Advanced Relationships', link: '/guide/orm/relationships' },
             { text: 'Aggregate Functions', link: '/guide/queries/aggregates' },
             { text: 'Aggregation & Functions', link: '/guide/aggregation' },
             { text: 'Search', link: '/guide/queries/search' },
             { text: 'Full-Text Search', link: '/guide/queries/full-text-search' },
             { text: 'Raw Queries', link: '/guide/queries/raw-queries' },
-            { text: 'Query Factories', link: '/guide/tanstack-query/query-factories' },
-            { text: 'Advanced Query Patterns', link: '/guide/tanstack-query/advanced-queries' },
-            { text: 'Cache Management', link: '/guide/tanstack-query/cache-management' },
-            { text: 'RPC Functions', link: '/guide/tanstack-query/rpc-functions' },
-            { text: 'Query TypeScript Integration', link: '/guide/tanstack-query/typescript' }
           ]
         },
         {
@@ -141,7 +134,7 @@ export default defineConfig({
             { text: 'Project Initialization', link: '/guide/cli/project-init' },
             { text: 'Schema Management', link: '/guide/cli/schema-management' },
             { text: 'Migration Tools', link: '/guide/cli/migrations' },
-            { text: 'Advanced Migration Patterns', link: '/guide/typeorm-style/migrations' },
+            { text: 'Advanced Migration Patterns', link: '/guide/orm/migrations' },
             { text: 'Functions Management', link: '/guide/cli/functions' },
             { text: 'Features & Extensions', link: '/guide/cli/features' },
             { text: 'Configuration', link: '/guide/cli/configuration' },

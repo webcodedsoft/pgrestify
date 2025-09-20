@@ -1,22 +1,22 @@
-# DataManager (EntityManager-Style)
+# Repository Management (EntityManager-Style)
 
-The DataManager in PGRestify serves the same role as TypeORM's EntityManager, providing a centralized interface for managing repositories and coordinating database operations across multiple tables. It acts as a factory for repositories and provides transaction-like functionality within PostgREST's limitations.
+PGRestify's client provides EntityManager-like functionality through its repository factory methods, offering a centralized interface for managing repositories and coordinating database operations across multiple tables.
 
 ## Overview
 
-The DataManager provides:
+The client's repository management provides:
 
-- **Repository Factory**: Create and manage repository instances
-- **Custom Repository Support**: Register and retrieve custom repository classes
+- **Repository Factory**: Create and manage repository instances via `getRepository()`
+- **Custom Repository Support**: Register and retrieve custom repository classes via `getCustomRepository()`
 - **Cache Management**: Centralized cache control across all repositories
 - **Transaction Coordination**: Coordinate operations across multiple tables
 - **Type Safety**: Full TypeScript support with generic repository creation
 
 ## Basic DataManager Usage
 
-### Getting DataManager Instance
+### Getting Repository Instances
 
-The DataManager is available through the main client:
+Repositories are available directly through the main client:
 
 ```tsx
 import { createClient } from '@webcoded/pgrestify';
@@ -42,30 +42,23 @@ interface Post {
 // Create client
 const client = createClient({ url: 'http://localhost:3000' });
 
-// Get DataManager instance
-const dataManager = client.dataManager;
-
-// Get repositories for different tables
-const userRepository = dataManager.getRepository<User>('users');
-const postRepository = dataManager.getRepository<Post>('posts');
+// Get repositories directly from client
+const userRepository = client.getRepository<User>('users');
+const postRepository = client.getRepository<Post>('posts');
 ```
 
 ### Repository Management
 
-DataManager creates and caches repository instances automatically:
+The client creates and manages repository instances:
 
 ```tsx
 async function repositoryManagement() {
-  // Get repositories (created and cached automatically)
-  const userRepo1 = dataManager.getRepository<User>('users');
-  const userRepo2 = dataManager.getRepository<User>('users');
-  
-  // Both variables reference the same repository instance
-  console.log(userRepo1 === userRepo2); // true
+  // Get repositories via client
+  const userRepo1 = client.getRepository<User>('users');
+  const userRepo2 = client.getRepository<User>('users');
   
   // Different tables get different repositories
-  const postRepo = dataManager.getRepository<Post>('posts');
-  console.log(userRepo1 === postRepo); // false
+  const postRepo = client.getRepository<Post>('posts');
   
   // Use repositories for operations
   const users = await userRepo1.find();
@@ -83,8 +76,8 @@ Coordinate operations across multiple tables:
 
 ```tsx
 async function multiTableOperations() {
-  const userRepository = dataManager.getRepository<User>('users');
-  const postRepository = dataManager.getRepository<Post>('posts');
+  const userRepository = client.getRepository<User>('users');
+  const postRepository = client.getRepository<Post>('posts');
   
   // Create user and their first post
   const createUserWithPost = async (userData: Partial<User>, postData: Partial<Post>) => {
@@ -141,8 +134,8 @@ async function multiTableOperations() {
 
 ```tsx
 async function bulkOperationsAcrossTables() {
-  const userRepository = dataManager.getRepository<User>('users');
-  const postRepository = dataManager.getRepository<Post>('posts');
+  const userRepository = client.getRepository<User>('users');
+  const postRepository = client.getRepository<Post>('posts');
   
   // Get users and their post counts
   const getUsersWithPostCounts = async () => {
@@ -169,16 +162,16 @@ async function bulkOperationsAcrossTables() {
     try {
       // Update users
       const updatedUsers = await userRepository
-        .getQueryBuilder()
+        .createQueryBuilder()
+        .where('id IN (:...ids)', { ids: userIds })
         .update({ active: false })
-        .in('id', userIds)
         .execute();
       
-      // Update their posts
+      // Update their posts 
       const updatedPosts = await postRepository
-        .getQueryBuilder()
+        .createQueryBuilder()
+        .where('author_id IN (:...ids)', { ids: userIds })
         .update({ published: false })
-        .in('author_id', userIds)
         .execute();
       
       return {
@@ -200,15 +193,15 @@ async function bulkOperationsAcrossTables() {
 
 ## Custom Repository Support
 
-### Registering Custom Repositories
+### Using Custom Repositories
 
-DataManager can work with custom repository classes:
+The client can work with custom repository classes:
 
 ```tsx
-import { Repository } from '@webcoded/pgrestify';
+import { CustomRepositoryBase } from '@webcoded/pgrestify';
 
 // Custom User Repository
-class UserRepository extends Repository<User> {
+class UserRepository extends CustomRepositoryBase<User> {
   async findActiveUsers(): Promise<User[]> {
     return this.findBy({ active: true });
   }
@@ -218,24 +211,22 @@ class UserRepository extends Repository<User> {
   }
   
   async findUsersCreatedAfter(date: string): Promise<User[]> {
-    return this.getQueryBuilder()
-      .gte('created_at', date)
-      .order('created_at', { ascending: false })
-      .execute()
-      .then(result => result.data || []);
+    return this.createQueryBuilder()
+      .where('created_at >= :date', { date })
+      .orderBy('created_at', 'DESC')
+      .getMany();
   }
   
   async getUserStats(userId: string) {
-    const postRepository = dataManager.getRepository<Post>('posts');
+    const postRepository = client.getRepository<Post>('posts');
     
-    const user = await this.findById(userId);
+    const user = await this.findOne({ id: userId });
     if (!user) return null;
     
-    const postCount = await postRepository.count({ author_id: userId });
-    const publishedCount = await postRepository.count({ 
-      author_id: userId, 
-      published: true 
-    });
+    const [postCount, publishedCount] = await Promise.all([
+      postRepository.createQueryBuilder().where('author_id = :userId', { userId }).getCount(),
+      postRepository.createQueryBuilder().where('author_id = :userId AND published = :published', { userId, published: true }).getCount()
+    ]);
     
     return {
       user,
@@ -248,8 +239,8 @@ class UserRepository extends Repository<User> {
   }
 }
 
-// Custom Post Repository
-class PostRepository extends Repository<Post> {
+// Custom Post Repository  
+class PostRepository extends CustomRepositoryBase<Post> {
   async findPublishedPosts(): Promise<Post[]> {
     return this.findBy({ published: true });
   }
@@ -259,29 +250,28 @@ class PostRepository extends Repository<Post> {
   }
   
   async findRecentPosts(limit: number = 10): Promise<Post[]> {
-    return this.getQueryBuilder()
-      .eq('published', true)
-      .order('created_at', { ascending: false })
+    return this.createQueryBuilder()
+      .where('published = :published', { published: true })
+      .orderBy('created_at', 'DESC')
       .limit(limit)
-      .execute()
-      .then(result => result.data || []);
+      .getMany();
   }
   
   async searchPosts(query: string): Promise<Post[]> {
-    return this.getQueryBuilder()
-      .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
-      .eq('published', true)
-      .order('created_at', { ascending: false })
-      .execute()
-      .then(result => result.data || []);
+    return this.createQueryBuilder()
+      .where('title ILIKE :query', { query: `%${query}%` })
+      .orWhere('content ILIKE :query', { query: `%${query}%` })
+      .andWhere('published = :published', { published: true })
+      .orderBy('created_at', 'DESC')
+      .getMany();
   }
 }
 
 // Using custom repositories
 async function useCustomRepositories() {
   // Get custom repository instances
-  const userRepo = dataManager.getCustomRepository(UserRepository, 'users');
-  const postRepo = dataManager.getCustomRepository(PostRepository, 'posts');
+  const userRepo = client.getCustomRepository(UserRepository, 'users');
+  const postRepo = client.getCustomRepository(PostRepository, 'posts');
   
   // Use custom methods
   const activeUsers = await userRepo.findActiveUsers();
@@ -302,18 +292,17 @@ async function useCustomRepositories() {
 
 ```tsx
 // Base repository with common functionality
-abstract class BaseRepository<T extends Record<string, unknown>> extends Repository<T> {
+abstract class BaseRepository<T extends Record<string, unknown>> extends CustomRepositoryBase<T> {
   async findActive(): Promise<T[]> {
     return this.findBy({ active: true } as Partial<T>);
   }
   
   async findCreatedBetween(startDate: string, endDate: string): Promise<T[]> {
-    return this.getQueryBuilder()
-      .gte('created_at', startDate)
-      .lte('created_at', endDate)
-      .order('created_at', { ascending: false })
-      .execute()
-      .then(result => result.data || []);
+    return this.createQueryBuilder()
+      .where('created_at >= :start', { start: startDate })
+      .andWhere('created_at <= :end', { end: endDate })
+      .orderBy('created_at', 'DESC')
+      .getMany();
   }
   
   async softDeleteWithTimestamp(where: Partial<T>): Promise<T[]> {
@@ -337,8 +326,8 @@ class EnhancedPostRepository extends BaseRepository<Post> {
 }
 
 // Usage
-const enhancedUserRepo = dataManager.getCustomRepository(EnhancedUserRepository, 'users');
-const enhancedPostRepo = dataManager.getCustomRepository(EnhancedPostRepository, 'posts');
+const enhancedUserRepo = client.getCustomRepository(EnhancedUserRepository, 'users');
+const enhancedPostRepo = client.getCustomRepository(EnhancedPostRepository, 'posts');
 
 const activeUsers = await enhancedUserRepo.findActive();
 const adminUsers = await enhancedUserRepo.findAdmins();
@@ -347,17 +336,17 @@ const featuredPosts = await enhancedPostRepo.findFeaturedPosts();
 
 ## Transaction-Like Operations
 
-While PostgREST doesn't support traditional database transactions, DataManager provides coordination mechanisms:
+While PostgREST doesn't support traditional database transactions, the client provides coordination mechanisms:
 
 ```tsx
 async function transactionLikeOperations() {
   // Pseudo-transaction: coordinate multiple operations
   const executeAsTransaction = async <T>(
-    operations: (manager: typeof dataManager) => Promise<T>
+    operations: (client: typeof client) => Promise<T>
   ): Promise<T> => {
     try {
       // Execute operations
-      const result = await operations(dataManager);
+      const result = await operations(client);
       
       // If we get here, all operations succeeded
       console.log('All operations completed successfully');
@@ -375,9 +364,9 @@ async function transactionLikeOperations() {
   };
   
   // Use the pseudo-transaction
-  const result = await executeAsTransaction(async (manager) => {
-    const userRepo = manager.getRepository<User>('users');
-    const postRepo = manager.getRepository<Post>('posts');
+  const result = await executeAsTransaction(async (client) => {
+    const userRepo = client.getRepository<User>('users');
+    const postRepo = client.getRepository<Post>('posts');
     
     // Create user
     const users = await userRepo.insert({
@@ -414,16 +403,16 @@ async function transactionLikeOperations() {
 
 ## Cache Management
 
-DataManager provides centralized cache control:
+The client provides centralized cache control:
 
 ```tsx
 async function cacheManagement() {
-  // Clear all caches managed by DataManager
-  dataManager.clearCache();
+  // Clear all caches managed by client
+  client.clearCache();
   
   // Get repositories after cache clear
-  const userRepository = dataManager.getRepository<User>('users');
-  const postRepository = dataManager.getRepository<Post>('posts');
+  const userRepository = client.getRepository<User>('users');
+  const postRepository = client.getRepository<Post>('posts');
   
   // Perform operations (will not use cached data)
   const users = await userRepository.find();
@@ -432,9 +421,9 @@ async function cacheManagement() {
   console.log(`Fresh data: ${users.length} users, ${posts.length} posts`);
   
   // Repository-specific cache operations would use the underlying query builder's cache
-  const cachedUsers = await userRepository.getQueryBuilder()
-    .select('id, email, first_name, last_name')
-    .execute();
+  const cachedUsers = await userRepository.createQueryBuilder()
+    .select(['id', 'email', 'first_name', 'last_name'])
+    .getMany();
   
   // The underlying cache handles individual query caching
 }
@@ -448,8 +437,8 @@ async function cacheManagement() {
 import { PostgRESTError } from '@webcoded/pgrestify';
 
 async function robustDataOperations() {
-  const userRepository = dataManager.getRepository<User>('users');
-  const postRepository = dataManager.getRepository<Post>('posts');
+  const userRepository = client.getRepository<User>('users');
+  const postRepository = client.getRepository<Post>('posts');
   
   try {
     // Validate input
@@ -522,21 +511,23 @@ async function robustDataOperations() {
 
 ```tsx
 async function optimizedOperations() {
-  const userRepository = dataManager.getRepository<User>('users');
-  const postRepository = dataManager.getRepository<Post>('posts');
+  const userRepository = client.getRepository<User>('users');
+  const postRepository = client.getRepository<Post>('posts');
   
   // Batch operations instead of loops
   const userIds = ['id1', 'id2', 'id3', 'id4', 'id5'];
   
   // Efficient: single query
-  const users = await userRepository.findByIds(userIds);
+  const users = await userRepository.createQueryBuilder()
+    .whereIn('id', userIds)
+    .getMany();
   
   // Efficient: single query with joins
   const postsWithAuthors = await postRepository
-    .getQueryBuilder()
-    .select('*, author:users!author_id(id, first_name, last_name)')
-    .in('author_id', userIds)
-    .execute();
+    .createQueryBuilder()
+    .leftJoinAndSelect('users', 'author')
+    .whereIn('author_id', userIds)
+    .getMany();
   
   // Group posts by author
   const postsByAuthor = (postsWithAuthors.data || []).reduce((acc, post) => {
@@ -553,14 +544,14 @@ async function optimizedOperations() {
 
 ## DataManager vs Direct Repository Usage
 
-### When to Use DataManager
+### When to Use Repository Management
 
 ```tsx
 // Good: Complex operations across multiple tables
 async function complexBusinessLogic() {
-  const userRepo = dataManager.getRepository<User>('users');
-  const postRepo = dataManager.getRepository<Post>('posts');
-  const commentRepo = dataManager.getRepository('comments');
+  const userRepo = client.getRepository<User>('users');
+  const postRepo = client.getRepository<Post>('posts');
+  const commentRepo = client.getRepository('comments');
   
   // Coordinate operations across tables
   return { userRepo, postRepo, commentRepo };
@@ -568,7 +559,7 @@ async function complexBusinessLogic() {
 
 // Good: Custom repository management
 async function customRepositoryUsage() {
-  const customUserRepo = dataManager.getCustomRepository(UserRepository, 'users');
+  const customUserRepo = client.getCustomRepository(UserRepository, 'users');
   return customUserRepo.findActiveUsers();
 }
 ```
@@ -581,21 +572,21 @@ async function simpleUserOperation() {
   // Could create repository directly if you prefer
   const client = createClient({ url: 'http://localhost:3000' });
   
-  // But DataManager is still recommended for consistency
-  const userRepo = client.dataManager.getRepository<User>('users');
+  // Repository management is built into the client
+  const userRepo = client.getRepository<User>('users');
   return userRepo.find();
 }
 ```
 
 ## Summary
 
-The DataManager provides:
+PGRestify's repository management provides:
 
-- **Centralized Repository Management**: Factory pattern for repository creation and caching
-- **Custom Repository Support**: Register and use domain-specific repository classes
+- **Centralized Repository Management**: Factory pattern for repository creation via `getRepository()`
+- **Custom Repository Support**: Register and use domain-specific repository classes via `getCustomRepository()`
 - **Multi-Table Coordination**: Orchestrate operations across multiple tables
 - **Cache Management**: Centralized control over caching behavior
 - **Type Safety**: Full TypeScript support with generic repository creation
 - **Error Handling**: Consistent error handling patterns across repositories
 
-The DataManager is the recommended way to work with multiple repositories and coordinate complex operations in PGRestify, providing a familiar EntityManager-like interface for developers coming from TypeORM.
+The client's repository management is the recommended way to work with multiple repositories and coordinate complex operations in PGRestify, providing a familiar EntityManager-like interface for developers coming from ORM.

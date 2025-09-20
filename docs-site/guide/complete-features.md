@@ -530,13 +530,13 @@ function LiveNotifications() {
 }
 ```
 
-### TanStack Query Integration
+### query libraries Integration
 
 ```typescript
-// === Advanced Caching with TanStack Query ===
-import { usePGRestifyQuery, usePGRestifyInfiniteQuery } from '@webcoded/pgrestify/tanstack-query';
+// === Advanced Caching with query libraries ===
+import { usePGRestifyQuery, usePGRestifyInfiniteQuery } from '@webcoded/pgrestify/query-libraries';
 
-// Standard query with TanStack Query features
+// Standard query with query libraries features
 function PostsList() {
   const {
     data: posts,
@@ -747,11 +747,8 @@ export async function getServerSideProps({ params, req, res }: any) {
 # React project with TypeScript
 pgrestify frontend init my-react-app --framework react --typescript
 
-# Vue.js project
-pgrestify frontend init my-vue-app --framework vue
-
-# Vanilla JavaScript project
-pgrestify frontend init my-js-app --framework vanilla
+# Next.js project
+pgrestify frontend init my-nextjs-app --framework nextjs
 
 # Connect to existing API
 pgrestify frontend init --api-url https://api.example.com
@@ -1360,16 +1357,12 @@ pgrestify api schema migrate --from v1 --to v2 --name "add_user_preferences"
 - Authentication: Session management, protected routes
 - Caching: Built-in Next.js cache integration
 
-**TanStack Query:**
+**query libraries:**
 - Advanced caching strategies
 - Infinite queries
 - Optimistic updates
 - Background refetching
 
-**Vue.js (Planned):**
-- Composables: `usePGRestify`, `useAuth`
-- Plugin integration
-- Nuxt.js support
 
 ### Database Integration
 
@@ -1598,7 +1591,7 @@ pgrestify api analyze --performance
 |---------|---------|---------|---------|
 | `frontend init [api-url]` | Initialize frontend project | `--framework`, `--typescript`, `--skip-prompts` | `pgrestify frontend init --framework react` |
 | `frontend types` | Generate TypeScript types | `--api-url`, `--output`, `--schema` | `pgrestify frontend types --output src/db.ts` |
-| `frontend hooks` | Generate React/Vue hooks | `--tables`, `--output` | `pgrestify frontend hooks --tables users,posts` |
+| `frontend hooks` | Generate React hooks | `--tables`, `--output` | `pgrestify frontend hooks --tables users,posts` |
 | `frontend components` | Generate framework components | `--framework`, `--template` | `pgrestify frontend components --framework react` |
 
 ### API/Backend Commands (PostgREST & Database)
@@ -1701,8 +1694,8 @@ pgrestify frontend components --framework react --template list
 pgrestify frontend components --framework react --template form
 pgrestify frontend components --framework react --template detail
 
-# Vue components
-pgrestify frontend components --framework vue --template table
+# Next.js components
+pgrestify frontend components --framework nextjs --template table
 ```
 
 **Hook Generators:**
@@ -2035,7 +2028,7 @@ PGRestify provides:
 
 ### ✅ Library Features
 - **Type-safe queries** with full PostgREST operator support
-- **Framework adapters** for React, Next.js, TanStack Query
+- **Framework adapters** for React, Next.js, query libraries
 - **Authentication system** with JWT and RLS integration
 - **Real-time subscriptions** via PostgreSQL LISTEN/NOTIFY
 - **Intelligent caching** with multiple backend options

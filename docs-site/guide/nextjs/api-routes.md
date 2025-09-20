@@ -6,7 +6,7 @@ Next.js API routes provide a powerful way to build server-side API endpoints wit
 
 PGRestify API Routes features:
 
-- **Type-Safe Operations**: Fully typed database queries and mutations
+- **Type-Safe Operations**: Fully typed database queries and mutations with both PostgREST syntax and repository patterns
 - **Automatic Error Handling**: Built-in error responses and logging
 - **Authentication Integration**: Session management and JWT validation
 - **Validation Middleware**: Input validation and sanitization
@@ -15,11 +15,15 @@ PGRestify API Routes features:
 - **Edge Runtime**: Compatible with Vercel Edge Runtime
 - **OpenAPI Integration**: Auto-generated API documentation
 
+Both PostgREST native syntax and ORM-style repository patterns are fully supported in API routes.
+
 ## Pages Router API Routes
 
 ### Basic API Route Structure
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // pages/api/posts/index.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
@@ -59,7 +63,7 @@ export default createRouteHandler({
       query = query.eq('category_id', category);
     }
     
-    const { data: posts, error, count } = await query;
+    const { data: posts, error, count } = await query.execute();
     
     if (error) {
       return res.status(500).json({ 
@@ -108,7 +112,8 @@ export default createRouteHandler({
       .from('posts')
       .select('id')
       .eq('slug', slug)
-      .single();
+      .single()
+      .execute();
     
     if (existingPost) {
       return res.status(409).json({
@@ -135,7 +140,8 @@ export default createRouteHandler({
         author:users(id, name, avatar_url),
         category:categories(id, name, color)
       `)
-      .single();
+      .single()
+      .execute();
     
     if (error) {
       return res.status(500).json({ 
@@ -145,6 +151,168 @@ export default createRouteHandler({
     }
     
     res.status(201).json({
+      data: post,
+      message: 'Post created successfully'
+    });
+  }
+});
+```
+
+```typescript [Repository Pattern]
+// pages/api/posts/index.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { createRouteHandler } from '@webcoded/pgrestify/nextjs';
+
+export default createRouteHandler({
+  GET: async ({ client, req, res }) => {
+    const { page = '1', limit = '10', search, category } = req.query;
+    
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const offset = (pageNum - 1) * limitNum;
+    
+    const postRepo = client.getRepository<Post>('posts');
+    
+    try {
+      // Build query conditions
+      const whereConditions: any = { published: true };
+      
+      if (category) {
+        whereConditions.category_id = parseInt(category as string);
+      }
+      
+      // Use repository find method with relations
+      const posts = await postRepo.find({
+        where: whereConditions,
+        relations: ['author', 'category', 'comments'],
+        select: [
+          'id', 'title', 'excerpt', 'slug', 
+          'created_at', 'updated_at', 'published', 'view_count',
+          'author.id', 'author.name', 'author.avatar_url',
+          'category.id', 'category.name', 'category.color'
+        ],
+        order: { created_at: 'DESC' },
+        skip: offset,
+        take: limitNum
+      });
+      
+      // Get total count for pagination
+      const totalCount = await postRepo.count({ 
+        where: whereConditions 
+      });
+      
+      // Apply search filter using query builder if needed
+      let filteredPosts = posts;
+      if (search) {
+        filteredPosts = await postRepo
+          .createQueryBuilder('p')
+          .leftJoinAndSelect('p.author', 'author')
+          .leftJoinAndSelect('p.category', 'category')
+          .where('p.published = :published', { published: true })
+          .andWhere('(p.title ILIKE :search OR p.content ILIKE :search)', { 
+            search: `%${search}%` 
+          })
+          .orderBy('p.created_at', 'DESC')
+          .skip(offset)
+          .take(limitNum)
+          .getMany();
+      }
+      
+      const totalPages = Math.ceil(totalCount / limitNum);
+      
+      res.status(200).json({
+        data: filteredPosts,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: totalCount,
+          totalPages,
+          hasNext: pageNum < totalPages,
+          hasPrev: pageNum > 1
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        error: 'Failed to fetch posts',
+        details: error.message 
+      });
+    }
+  },
+  
+  POST: async ({ client, req, res }) => {
+    const { title, content, excerpt, category_id, published = false } = req.body;
+    
+    if (!title || !content) {
+      return res.status(400).json({ 
+        error: 'Validation failed',
+        details: {
+          title: !title ? 'Title is required' : null,
+          content: !content ? 'Content is required' : null
+        }
+      });
+    }
+    
+    const postRepo = client.getRepository<Post>('posts');
+    
+    try {
+      // Generate slug from title
+      const slug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      
+      // Check if slug already exists
+      const existingPost = await postRepo.findOne({ 
+        where: { slug },
+        select: ['id']
+      });
+      
+      if (existingPost) {
+        return res.status(409).json({
+          error: 'Slug already exists',
+          details: 'A post with this title already exists'
+        });
+      }
+      
+      // Create new post
+      const newPost = await postRepo.save({
+        title,
+        content,
+        excerpt: excerpt || content.substring(0, 200) + '...',
+        slug,
+        category_id: category_id ? parseInt(category_id) : null,
+        published,
+        author_id: req.user?.id,
+        reading_time: Math.ceil(content.split(' ').length / 200),
+        created_at: new Date().toISOString()
+      });
+      
+      // Fetch the created post with relations
+      const postWithRelations = await postRepo.findOne({
+        where: { id: newPost.id },
+        relations: ['author', 'category'],
+        select: [
+          'id', 'title', 'excerpt', 'slug', 'published',
+          'author.id', 'author.name', 'author.avatar_url',
+          'category.id', 'category.name', 'category.color'
+        ]
+      });
+      
+      res.status(201).json({
+        data: postWithRelations,
+        message: 'Post created successfully'
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        error: 'Failed to create post',
+        details: error.message 
+      });
+    }
+  }
+});
+```
+
+:::
       data: post,
       message: 'Post created successfully'
     });

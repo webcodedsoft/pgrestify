@@ -1,18 +1,25 @@
 # Basic Queries
 
-Learn the fundamentals of querying data with PGRestify, from simple selects to working with different data types and response patterns.
+Learn the fundamentals of querying data with PGRestify using either PostgREST's native syntax or ORM-style repositories. Master both approaches to choose what fits your development style.
 
 ## Overview
 
-Basic queries form the foundation of data retrieval in PGRestify. This guide covers essential query operations, data type handling, and common patterns you'll use throughout your application. Every query in PGRestify follows a consistent, chainable pattern that maps directly to PostgREST's capabilities.
+Basic queries form the foundation of data retrieval in PGRestify. This guide covers both query approaches:
+
+- **🎯 PostgREST Native Syntax**: Direct, chainable queries that map to PostgREST's capabilities
+- **🏗️ ORM-Style Repository Pattern**: ORM-inspired approach with repositories and query builders
+
+Both approaches are fully supported and can be used together in the same application.
 
 ## Getting Started with Queries
 
 ### Your First Query
 
-The simplest query retrieves all records from a table:
+The simplest query retrieves all records from a table. Choose the approach that feels natural:
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
@@ -28,9 +35,29 @@ const users = await client
 console.log(users.data); // Array of user objects
 ```
 
+```typescript [Repository Pattern]
+import { createClient } from '@webcoded/pgrestify';
+
+const client = createClient({
+  url: 'http://localhost:3000'
+});
+
+// Get repository for users table
+const userRepo = client.getRepository<User>('users');
+
+// Retrieve all users
+const users = await userRepo.find();
+
+console.log(users); // Array of user objects (no .data wrapper)
+```
+
+:::
+
 ### Understanding the Query Structure
 
-Every query in PGRestify follows this pattern:
+PGRestify supports two query patterns:
+
+#### 🎯 PostgREST Native Pattern
 
 1. **Client** - Your configured PGRestify instance
 2. **Table Selection** - Using `from()` to specify the table
@@ -47,13 +74,30 @@ const result = await client
   .execute();                 // 5. Execute query
 ```
 
+#### 🏗️ ORM-Style Repository Pattern
+
+1. **Repository** - Get a repository for your table
+2. **Query Builder** - Build queries with parameter binding
+3. **Method Chaining** - Add conditions, joins, ordering
+4. **Execution** - Using `getMany()`, `getOne()`, etc.
+
+```typescript
+const result = await userRepo
+  .createQueryBuilder()           // 1. Create query builder
+  .select(['column1', 'column2']) // 2. Select columns
+  .where('column = :value', { value: 'test' }) // 3. Add conditions
+  .orderBy('column', 'ASC')       // 4. Add ordering
+  .getMany();                     // 5. Execute query
+```
+
 ## SELECT Operations
 
 ### Selecting All Columns
 
-Use the wildcard `*` to select all columns:
+::: code-group
 
-```typescript
+```typescript [PostgREST Syntax]
+// Use the wildcard `*` to select all columns
 const allData = await client
   .from('products')
   .select('*')
@@ -61,13 +105,31 @@ const allData = await client
 
 // Returns all columns for all products
 // { id, name, price, description, created_at, ... }
+console.log(allData.data);
 ```
+
+```typescript [Repository Pattern]
+// Repository approach - all columns by default
+const productRepo = client.getRepository<Product>('products');
+
+// Simple find - returns all columns
+const allData = await productRepo.find();
+
+// Or using query builder (explicit all columns)
+const allDataExplicit = await productRepo
+  .createQueryBuilder()
+  .getMany(); // Selects all columns by default
+
+console.log(allData);
+```
+
+:::
 
 ### Selecting Specific Columns
 
-Specify exact columns to retrieve:
+::: code-group
 
-```typescript
+```typescript [PostgREST Syntax]
 // String format
 const products = await client
   .from('products')
@@ -84,11 +146,34 @@ const products = await client
   .execute();
 ```
 
+```typescript [Repository Pattern]
+// Repository approach - specify columns in select array
+const productRepo = client.getRepository<Product>('products');
+
+// Using query builder with specific columns
+const products = await productRepo
+  .createQueryBuilder()
+  .select(['id', 'name', 'price'])
+  .getMany();
+
+// Returns only: { id, name, price }
+
+// Dynamic column selection
+const columns = ['id', 'name', 'price'];
+const dynamicProducts = await productRepo
+  .createQueryBuilder()
+  .select(columns)
+  .getMany();
+```
+
+:::
+
 ### Column Aliases
 
-Rename columns in your query results:
+::: code-group
 
-```typescript
+```typescript [PostgREST Syntax]
+// Rename columns in your query results
 const products = await client
   .from('products')
   .select(`
@@ -102,11 +187,34 @@ const products = await client
 // Returns: { id, product_name, unit_price, date_added }
 ```
 
+```typescript [Repository Pattern]
+// Repository approach - use raw select strings for aliases
+const productRepo = client.getRepository<Product>('products');
+
+const products = await productRepo
+  .createQueryBuilder()
+  .select('id, name as product_name, price as unit_price, created_at as date_added')
+  .getMany();
+
+// Returns: { id, product_name, unit_price, date_added }
+
+// Alternative: Add individual selects with aliases
+const aliasedProducts = await productRepo
+  .createQueryBuilder()
+  .select('id')
+  .addSelect('name as product_name')
+  .addSelect('price as unit_price')
+  .addSelect('created_at as date_added')
+  .getMany();
+```
+
+:::
+
 ### Computed Columns
 
-Select computed or virtual columns:
+::: code-group
 
-```typescript
+```typescript [PostgREST Syntax]
 // If your database has computed columns
 const orders = await client
   .from('orders')
@@ -120,6 +228,29 @@ const orders = await client
 
 // total_amount might be computed as quantity * unit_price
 ```
+
+```typescript [Repository Pattern]
+// Repository approach - computed columns work the same way
+const orderRepo = client.getRepository<Order>('orders');
+
+const orders = await orderRepo
+  .createQueryBuilder()
+  .select([
+    'id',
+    'quantity', 
+    'unit_price',
+    'total_amount' // Computed column
+  ])
+  .getMany();
+
+// Or with computed expressions
+const ordersWithComputed = await orderRepo
+  .createQueryBuilder()
+  .select('id, quantity, unit_price, (quantity * unit_price) as computed_total')
+  .getMany();
+```
+
+:::
 
 ## Working with Different Data Types
 
@@ -301,7 +432,9 @@ users.data.forEach(user => {
 
 ### Basic Execution
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Standard execution returning all results
 const result = await client
   .from('products')
@@ -316,9 +449,33 @@ if (result.error) {
 }
 ```
 
+```typescript [Repository Pattern]
+// Repository execution - throws errors instead of error objects
+try {
+  const products = await productRepo.find();
+  console.log(`Retrieved ${products.length} products`);
+} catch (error) {
+  console.error('Query failed:', error);
+}
+
+// Query builder execution
+try {
+  const products = await productRepo
+    .createQueryBuilder()
+    .getMany();
+  console.log(`Retrieved ${products.length} products`);
+} catch (error) {
+  console.error('Query failed:', error);
+}
+```
+
+:::
+
 ### Single Record Queries
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // When expecting exactly one record
 const user = await client
   .from('users')
@@ -344,9 +501,50 @@ const settings = await client
 const theme = settings.data?.theme || 'default';
 ```
 
+```typescript [Repository Pattern]
+// Repository single record patterns
+const userRepo = client.getRepository<User>('users');
+const settingsRepo = client.getRepository<UserSettings>('user_settings');
+
+// Simple findOne (returns null if not found)
+const user = await userRepo.findOne({ id: 123 });
+
+if (user) {
+  console.log('User found:', user.name);
+} else {
+  console.log('User not found');
+}
+
+// Query builder - getOne (returns null if not found)
+const userQb = await userRepo
+  .createQueryBuilder()
+  .where('id = :id', { id: 123 })
+  .getOne();
+
+// Query builder - getOneOrFail (throws error if not found)
+try {
+  const userOrFail = await userRepo
+    .createQueryBuilder()
+    .where('id = :id', { id: 123 })
+    .getOneOrFail();
+  console.log('User found:', userOrFail.name);
+} catch (error) {
+  console.log('User not found');
+}
+
+// Zero or one record
+const settings = await settingsRepo.findOne({ user_id: 123 });
+const theme = settings?.theme || 'default';
+```
+
+:::
+```
+
 ### Count Queries
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Get count with data
 const result = await client
   .from('products')
@@ -365,9 +563,41 @@ const countOnly = await client
 console.log(`Total products: ${countOnly.count}`);
 ```
 
+```typescript [Repository Pattern]
+// Repository count queries
+const productRepo = client.getRepository<Product>('products');
+
+// Get count only
+const totalProducts = await productRepo
+  .createQueryBuilder()
+  .getCount();
+
+console.log(`Total products: ${totalProducts}`);
+
+// Get data and count separately
+const products = await productRepo.find();
+const count = await productRepo
+  .createQueryBuilder()
+  .getCount();
+
+console.log(`Total products: ${count}`);
+console.log(`Returned: ${products.length}`);
+
+// Count with conditions
+const activeCount = await productRepo
+  .createQueryBuilder()
+  .where('active = :active', { active: true })
+  .getCount();
+```
+
+:::
+```
+
 ### Limited Queries
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Get first 10 records
 const topProducts = await client
   .from('products')
@@ -383,11 +613,45 @@ const pageTwo = await client
   .execute();
 ```
 
+```typescript [Repository Pattern]
+// Repository limiting and pagination
+const productRepo = client.getRepository<Product>('products');
+
+// Get first 10 records
+const topProducts = await productRepo
+  .createQueryBuilder()
+  .limit(10)
+  .getMany();
+
+// Get specific range (page 2, 10 per page)
+const pageTwo = await productRepo
+  .createQueryBuilder()
+  .limit(10)
+  .offset(10) // Skip first 10
+  .getMany();
+
+// Complete pagination pattern
+const getPaginatedProducts = async (page: number, pageSize: number) => {
+  return await productRepo
+    .createQueryBuilder()
+    .orderBy('created_at', 'DESC')
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .getMany();
+};
+
+const page2Products = await getPaginatedProducts(2, 10);
+```
+
+:::
+
 ## Common Query Patterns
 
 ### Get All Records
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 const getAllRecords = async (table: string) => {
   const result = await client
     .from(table)
@@ -402,9 +666,32 @@ const allUsers = await getAllRecords('users');
 const allProducts = await getAllRecords('products');
 ```
 
+```typescript [Repository Pattern]
+// Generic repository helper
+const getAllRecords = async <T>(tableName: string) => {
+  const repo = client.getRepository<T>(tableName);
+  return await repo.find();
+};
+
+// Usage with type safety
+const allUsers = await getAllRecords<User>('users');
+const allProducts = await getAllRecords<Product>('products');
+
+// Or direct repository usage
+const userRepo = client.getRepository<User>('users');
+const productRepo = client.getRepository<Product>('products');
+
+const allUsers2 = await userRepo.find();
+const allProducts2 = await productRepo.find();
+```
+
+:::
+
 ### Get Record by ID
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 const getRecordById = async (table: string, id: number) => {
   const result = await client
     .from(table)
@@ -421,9 +708,38 @@ const user = await getRecordById('users', 123);
 const product = await getRecordById('products', 456);
 ```
 
+```typescript [Repository Pattern]
+// Generic repository helper
+const getRecordById = async <T>(tableName: string, id: number) => {
+  const repo = client.getRepository<T>(tableName);
+  return await repo.findOne({ id });
+};
+
+// Usage with type safety
+const user = await getRecordById<User>('users', 123);
+const product = await getRecordById<Product>('products', 456);
+
+// Or direct repository usage
+const userRepo = client.getRepository<User>('users');
+const productRepo = client.getRepository<Product>('products');
+
+const user2 = await userRepo.findOne({ id: 123 });
+const product2 = await productRepo.findOne({ id: 456 });
+
+// Query builder approach
+const user3 = await userRepo
+  .createQueryBuilder()
+  .where('id = :id', { id: 123 })
+  .getOne();
+```
+
+:::
+
 ### Get Records with Pagination
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 const getPaginatedRecords = async (
   table: string,
   page: number = 0,
@@ -452,9 +768,54 @@ const firstPage = await getPaginatedRecords('products', 0, 20);
 console.log(`Page 1 of ${firstPage.totalPages}`);
 ```
 
+```typescript [Repository Pattern]
+// Repository pagination helper
+const getPaginatedRecords = async <T>(
+  tableName: string,
+  page: number = 1, // 1-based page numbering
+  pageSize: number = 10
+) => {
+  const repo = client.getRepository<T>(tableName);
+  
+  const [data, total] = await Promise.all([
+    repo.createQueryBuilder()
+      .limit(pageSize)
+      .offset((page - 1) * pageSize)
+      .getMany(),
+    repo.createQueryBuilder().getCount()
+  ]);
+  
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize)
+  };
+};
+
+// Usage with type safety
+const firstPage = await getPaginatedRecords<Product>('products', 1, 20);
+console.log(`Page 1 of ${firstPage.totalPages}`);
+
+// Direct repository usage
+const productRepo = client.getRepository<Product>('products');
+const page2 = await productRepo
+  .createQueryBuilder()
+  .orderBy('created_at', 'DESC')
+  .limit(20)
+  .offset(20)
+  .getMany();
+```
+
+:::
+```
+
 ### Search Pattern
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 const searchRecords = async (
   table: string,
   searchColumn: string,
@@ -473,9 +834,46 @@ const searchRecords = async (
 const results = await searchRecords('products', 'name', 'laptop');
 ```
 
+```typescript [Repository Pattern]
+// Repository search helper
+const searchRecords = async <T>(
+  tableName: string,
+  searchColumn: string,
+  searchTerm: string
+) => {
+  const repo = client.getRepository<T>(tableName);
+  
+  return await repo
+    .createQueryBuilder()
+    .where(`${searchColumn} ILIKE :term`, { term: `%${searchTerm}%` })
+    .getMany();
+};
+
+// Usage with type safety
+const results = await searchRecords<Product>('products', 'name', 'laptop');
+
+// Direct repository usage
+const productRepo = client.getRepository<Product>('products');
+const laptops = await productRepo
+  .createQueryBuilder()
+  .where('name ILIKE :term', { term: '%laptop%' })
+  .getMany();
+
+// Multiple column search
+const searchResults = await productRepo
+  .createQueryBuilder()
+  .where('name ILIKE :term', { term: '%laptop%' })
+  .orWhere('description ILIKE :term', { term: '%laptop%' })
+  .getMany();
+```
+
+:::
+
 ### Get Recent Records
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 const getRecentRecords = async (
   table: string,
   dateColumn: string = 'created_at',
@@ -494,6 +892,46 @@ const getRecentRecords = async (
 // Usage
 const recentPosts = await getRecentRecords('posts', 'published_at', 5);
 const recentUsers = await getRecentRecords('users', 'created_at', 20);
+```
+
+```typescript [Repository Pattern]
+// Repository recent records helper
+const getRecentRecords = async <T>(
+  tableName: string,
+  dateColumn: string = 'created_at',
+  limit: number = 10
+) => {
+  const repo = client.getRepository<T>(tableName);
+  
+  return await repo
+    .createQueryBuilder()
+    .orderBy(dateColumn, 'DESC')
+    .limit(limit)
+    .getMany();
+};
+
+// Usage with type safety
+const recentPosts = await getRecentRecords<Post>('posts', 'published_at', 5);
+const recentUsers = await getRecentRecords<User>('users', 'created_at', 20);
+
+// Direct repository usage
+const postRepo = client.getRepository<Post>('posts');
+const userRepo = client.getRepository<User>('users');
+
+const recentPosts2 = await postRepo
+  .createQueryBuilder()
+  .orderBy('published_at', 'DESC')
+  .limit(5)
+  .getMany();
+
+const recentUsers2 = await userRepo
+  .createQueryBuilder()
+  .orderBy('created_at', 'DESC')
+  .limit(20)
+  .getMany();
+```
+
+:::
 ```
 
 ## Response Handling
@@ -814,11 +1252,29 @@ const result = await query.execute();
 
 Basic queries in PGRestify provide:
 
-- **Simple API**: Intuitive chainable methods for building queries
-- **Type Safety**: Full TypeScript support for all operations
+- **Dual Syntax Support**: Choose between PostgREST native syntax or ORM-style repositories
+- **Simple API**: Intuitive chainable methods for building queries in both approaches
+- **Type Safety**: Full TypeScript support for all operations with complete IntelliSense
 - **Data Type Support**: Handle all PostgreSQL data types naturally
 - **Flexible Patterns**: From simple selects to complex data retrieval
 - **Performance**: Efficient query execution with proper optimization
 - **Error Handling**: Comprehensive error information for debugging
+- **Parameter Binding**: Safe, parameterized queries with the repository pattern
+- **Method Chaining**: Fluent APIs in both PostgREST and ORM styles
 
-Master these fundamental query patterns, and you'll have a solid foundation for building more complex database interactions with PGRestify.
+### Which Approach to Choose?
+
+**Use PostgREST Syntax when:**
+- You want direct control over PostgREST features
+- Working with simple queries
+- You prefer the PostgREST query language
+- Migrating from existing PostgREST applications
+
+**Use Repository Pattern when:**
+- You prefer ORM-style development
+- Building complex queries with parameter binding
+- You want automatic parameter escaping
+- Coming from ORM or similar ORMs
+- Building reusable query logic in custom repositories
+
+Both approaches are equally powerful and can be mixed within the same application. Master these fundamental query patterns, and you'll have a solid foundation for building more complex database interactions with PGRestify.

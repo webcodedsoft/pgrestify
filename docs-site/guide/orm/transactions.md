@@ -1,6 +1,6 @@
 # Transactions
 
-While PostgREST doesn't support traditional database transactions like TypeORM, PGRestify provides transaction-like patterns and coordination mechanisms to help manage complex operations across multiple tables. This guide covers the available patterns and best practices for handling multi-step operations.
+While PostgREST doesn't support traditional database transactions like ORM, PGRestify provides transaction-like patterns and coordination mechanisms to help manage complex operations across multiple tables. This guide covers the available patterns and best practices for handling multi-step operations.
 
 ## Overview
 
@@ -639,7 +639,7 @@ $$ LANGUAGE plpgsql;
 
 ## Summary
 
-While PGRestify doesn't provide traditional transactions like TypeORM, it offers several patterns for managing complex operations:
+While PGRestify doesn't provide traditional transactions like ORM, it offers several patterns for managing complex operations:
 
 - **Pseudo-Transactions**: Coordination mechanisms through DataManager
 - **Compensating Actions**: Manual rollback patterns for error recovery

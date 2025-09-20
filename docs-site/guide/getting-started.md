@@ -129,6 +129,10 @@ interface Post {
 
 ### Step 4: Start Querying
 
+PGRestify supports two query approaches - choose what feels natural:
+
+#### 🎯 PostgREST Syntax (Direct & Clean)
+
 ```typescript
 // Get all users
 const users = await client.from<User>('users').select('*').execute();
@@ -147,6 +151,64 @@ const newUser = await client.from<User>('users')
     active: true
   })
   .single()
+  .execute();
+```
+
+#### 🏗️ ORM-Style Repository Pattern (NEW!)
+
+```typescript
+// Get repository for the users table
+const userRepo = client.getRepository<User>('users');
+
+// Simple queries
+const users = await userRepo.find();
+const activeUsers = await userRepo.findBy({ active: true });
+const user = await userRepo.findOne({ id: 1 });
+
+// Advanced query builder
+const complexQuery = await userRepo
+  .createQueryBuilder()
+  .select(['id', 'name', 'email'])
+  .where('active = :active', { active: true })
+  .andWhere('created_at >= :date', { date: '2024-01-01' })
+  .orderBy('name', 'ASC')
+  .limit(10)
+  .getMany();
+
+// CRUD operations
+const newUser = await userRepo.save({
+  name: 'John Doe',
+  email: 'john@example.com',
+  active: true
+});
+
+await userRepo.remove(user);
+```
+
+#### 🔧 Custom Repository (Advanced)
+
+```typescript
+import { CustomRepositoryBase } from '@webcoded/pgrestify';
+
+class UserRepository extends CustomRepositoryBase<User> {
+  async findActiveUsers(): Promise<User[]> {
+    return this.createQueryBuilder()
+      .where('active = :active', { active: true })
+      .andWhere('verified = :verified', { verified: true })
+      .getMany();
+  }
+
+  async findUserWithPosts(userId: number): Promise<User | null> {
+    return this.createQueryBuilder()
+      .leftJoinAndSelect('posts', 'post')
+      .where('id = :id', { id: userId })
+      .getOne();
+  }
+}
+
+// Use your custom repository
+const userRepo = client.getCustomRepository(UserRepository, 'users');
+const activeUsers = await userRepo.findActiveUsers()
   .execute();
 ```
 
@@ -459,7 +521,6 @@ Now that you have PGRestify running, explore these features:
 
 ### ⚛️ React Integration  
 - **[React Hooks](./react.md)** - Use `useQuery`, `useMutation`
-- **[TanStack Query](./tanstack-query.md)** - Advanced data fetching
 
 ### ▲ Next.js Integration
 - **[Next.js Guide](./nextjs/overview.md)** - SSR, API routes, middleware

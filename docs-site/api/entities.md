@@ -2,11 +2,11 @@
 
 # Entity Decorators API
 
-PGRestify provides a complete TypeORM-style decorator system for defining database schemas with TypeScript classes.
+PGRestify provides a complete ORM-style decorator system for defining database schemas with TypeScript classes.
 
 ## Overview
 
-Entity decorators allow you to define your database schema using TypeScript classes, similar to TypeORM. This approach provides:
+Entity decorators allow you to define your database schema using TypeScript classes, similar to ORM. This approach provides:
 
 - **Type Safety**: Full TypeScript inference and validation
 - **Code Generation**: Automatic migration and seeder generation
@@ -525,7 +525,7 @@ pgrestify schema:sync --dry-run  # Preview changes first
 
 ## Next Steps
 
-- 📖 [TypeORM-Style API Guide](./typeorm-style.md)
+- 📖 [ORM-Style API Guide](./orm.md)
 - 🔧 [CLI Reference](../guide/cli.md)
 - 🏗️ [Migration Guide](../guide/getting-started.md)
 - 🌱 [Seeding Guide](../examples/basic-usage.md)

@@ -4,7 +4,12 @@ Master high-performance bulk operations in PGRestify for inserting, updating, up
 
 ## Overview
 
-Bulk operations in PGRestify provide efficient processing of large datasets while maintaining data integrity and providing detailed feedback on success and failure rates. These operations are built on top of the standard CRUD methods but provide optimized batch processing capabilities.
+Bulk operations in PGRestify provide efficient processing of large datasets with two powerful approaches:
+
+- **🎯 PostgREST Native Syntax**: Direct `.bulkInsert()`, `.bulkUpdate()`, `.bulkUpsert()` and `.bulkDelete()` methods
+- **🏗️ ORM-Style Repository Pattern**: Repository batch methods and custom bulk operations
+
+Both approaches maintain data integrity and provide detailed feedback on success and failure rates while offering optimized batch processing capabilities.
 
 ## Benefits of Bulk Operations
 
@@ -19,7 +24,9 @@ Bulk operations in PGRestify provide efficient processing of large datasets whil
 
 ### Basic Bulk Insert
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({
@@ -52,9 +59,79 @@ console.log(`Failed insertions: ${result.failed}`);
 console.log(`Total processed: ${result.count}`);
 ```
 
+```typescript [Repository Pattern]
+import { createClient } from '@webcoded/pgrestify';
+
+const client = createClient({
+  url: 'http://localhost:3000'
+});
+
+// Define your data interface
+interface User {
+  id?: number;
+  name: string;
+  email: string;
+  role: string;
+  created_at?: string;
+}
+
+// Get repository
+const userRepo = client.getRepository<User>('users');
+
+// Prepare data
+const users: Partial<User>[] = [
+  { name: 'John Doe', email: 'john@example.com', role: 'user' },
+  { name: 'Jane Smith', email: 'jane@example.com', role: 'admin' },
+  { name: 'Bob Johnson', email: 'bob@example.com', role: 'user' },
+];
+
+// Repository bulk insert
+const result = await userRepo.bulkInsert(users);
+
+console.log(`Successfully inserted ${result.length} records`);
+
+// Alternative: Using insertMany method
+const insertedUsers = await userRepo.insertMany(users);
+console.log(`Inserted ${insertedUsers.length} users`);
+
+// Custom repository with bulk operations
+class UserRepository extends CustomRepositoryBase<User> {
+  async bulkCreateUsers(userData: Partial<User>[]) {
+    // Add timestamps to all users
+    const usersWithTimestamps = userData.map(user => ({
+      ...user,
+      created_at: new Date().toISOString()
+    }));
+
+    return this.insertMany(usersWithTimestamps);
+  }
+
+  async bulkInsertWithValidation(userData: Partial<User>[]) {
+    // Validate data before inserting
+    const validUsers = userData.filter(user => 
+      user.name && user.email && user.email.includes('@')
+    );
+
+    if (validUsers.length === 0) {
+      throw new Error('No valid users to insert');
+    }
+
+    return this.insertMany(validUsers);
+  }
+}
+
+const customUserRepo = client.getCustomRepository(UserRepository);
+const createdUsers = await customUserRepo.bulkCreateUsers(users);
+console.log(`Created ${createdUsers.length} users with custom repository`);
+```
+
+:::
+
 ### Advanced Bulk Insert with Options
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 import { BulkInsertOptions } from '@webcoded/pgrestify';
 
 const bulkInsertOptions: BulkInsertOptions = {
@@ -75,8 +152,97 @@ console.log('- Count:', result.count);         // Total records processed
 console.log('- Successful:', result.successful); // Successfully inserted
 console.log('- Failed:', result.failed);       // Failed insertions
 console.log('- Errors:', result.errors);       // Array of error details
-
 ```
+
+```typescript [Repository Pattern]
+import { BulkInsertOptions } from '@webcoded/pgrestify';
+
+const userRepo = client.getRepository<User>('users');
+
+// Repository bulk insert with options
+const bulkInsertOptions: BulkInsertOptions = {
+  batchSize: 100,              // Process 100 records at a time
+  returning: true,             // Return inserted records in result
+  onConflict: 'ignore',        // Strategy: 'ignore', 'update', or 'error'
+  conflictColumns: ['email']   // Columns to check for conflicts
+};
+
+const result = await userRepo.bulkInsert(users, bulkInsertOptions);
+
+// Repository result handling
+console.log('Repository Bulk Insert Result:');
+console.log('- Inserted Records:', result);  // Array of inserted records
+
+// Alternative: Repository methods with different conflict handling
+const insertWithIgnore = await userRepo.insertMany(users, {
+  onConflict: 'ignore',
+  conflictColumns: ['email']
+});
+
+// Custom repository with advanced options
+class UserRepository extends CustomRepositoryBase<User> {
+  async bulkInsertWithDuplicateHandling(userData: Partial<User>[]) {
+    try {
+      // Try insert without conflicts first
+      return await this.insertMany(userData, { 
+        onConflict: 'error' 
+      });
+    } catch (error) {
+      // Fallback to ignore duplicates
+      console.warn('Conflicts detected, ignoring duplicates');
+      return await this.insertMany(userData, { 
+        onConflict: 'ignore',
+        conflictColumns: ['email']
+      });
+    }
+  }
+
+  async bulkInsertInBatches(userData: Partial<User>[], batchSize: number = 100) {
+    const results = [];
+    
+    for (let i = 0; i < userData.length; i += batchSize) {
+      const batch = userData.slice(i, i + batchSize);
+      console.log(`Processing batch ${Math.floor(i / batchSize) + 1}...`);
+      
+      const batchResult = await this.insertMany(batch, {
+        onConflict: 'ignore',
+        conflictColumns: ['email']
+      });
+      
+      results.push(...batchResult);
+    }
+    
+    return results;
+  }
+
+  async upsertUsers(userData: Partial<User>[]) {
+    // Repository-style upsert using save
+    const results = [];
+    
+    for (const user of userData) {
+      try {
+        const savedUser = await this.save(user);
+        results.push(savedUser);
+      } catch (error) {
+        console.warn(`Failed to upsert user ${user.email}:`, error);
+      }
+    }
+    
+    return results;
+  }
+}
+
+const customUserRepo = client.getCustomRepository(UserRepository);
+
+// Usage examples
+const insertResult = await customUserRepo.bulkInsertWithDuplicateHandling(users);
+console.log(`Inserted ${insertResult.length} users with duplicate handling`);
+
+const batchResult = await customUserRepo.bulkInsertInBatches(users, 50);
+console.log(`Batch processed ${batchResult.length} users`);
+```
+
+:::
 
 ### Large Dataset Bulk Insert
 
@@ -173,7 +339,9 @@ const strictInsert = async (data: Partial<User>[]) => {
 
 ### Basic Bulk Update
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Prepare update data with IDs
 const userUpdates = [
   { id: 1, name: 'John Updated', active: true },
@@ -191,6 +359,85 @@ const result = await client
 
 console.log(`Updated ${result.successful} records`);
 ```
+
+```typescript [Repository Pattern]
+// Repository bulk updates
+const userRepo = client.getRepository<User>('users');
+
+// Prepare update data with IDs
+const userUpdates = [
+  { id: 1, name: 'John Updated', active: true },
+  { id: 2, name: 'Jane Updated', active: false },
+  { id: 3, role: 'admin' }, // Partial update
+];
+
+// Method 1: Repository bulk update
+const result = await userRepo.bulkUpdate(userUpdates, {
+  matchColumn: 'id', // Column to match records by
+  batchSize: 50
+});
+
+console.log(`Updated ${result.length} records`);
+
+// Method 2: Using save method for bulk updates
+const updatedUsers = [];
+for (const update of userUpdates) {
+  const user = await userRepo.findOne({ id: update.id });
+  if (user) {
+    const updatedUser = await userRepo.save({ ...user, ...update });
+    updatedUsers.push(updatedUser);
+  }
+}
+
+console.log(`Updated ${updatedUsers.length} users with save method`);
+
+// Custom repository with bulk update logic
+class UserRepository extends CustomRepositoryBase<User> {
+  async bulkUpdateUsers(updates: Array<{ id: number } & Partial<User>>) {
+    const results = [];
+    
+    for (const update of updates) {
+      try {
+        const { id, ...updateData } = update;
+        const updated = await this.update({ id }, updateData);
+        results.push(...updated);
+      } catch (error) {
+        console.error(`Failed to update user ${update.id}:`, error);
+      }
+    }
+    
+    return results;
+  }
+
+  async bulkUpdateWithValidation(updates: Array<{ id: number } & Partial<User>>) {
+    const validUpdates = updates.filter(update => 
+      update.id && (update.name || update.email || update.role !== undefined)
+    );
+
+    if (validUpdates.length === 0) {
+      throw new Error('No valid updates provided');
+    }
+
+    return this.bulkUpdateUsers(validUpdates);
+  }
+
+  async bulkUpdateStatus(userIds: number[], active: boolean) {
+    const updates = userIds.map(id => ({ 
+      id, 
+      active,
+      updated_at: new Date().toISOString()
+    }));
+
+    return this.bulkUpdateUsers(updates);
+  }
+}
+
+const customUserRepo = client.getCustomRepository(UserRepository);
+const updateResult = await customUserRepo.bulkUpdateUsers(userUpdates);
+console.log(`Updated ${updateResult.length} users with custom repository`);
+```
+
+:::
 
 ### Conditional Bulk Updates
 
@@ -228,7 +475,9 @@ await client
 
 Bulk upsert combines insert and update operations, creating new records or updating existing ones:
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Upsert user data
 const userData = [
   { email: 'existing@example.com', name: 'Updated Name' },
@@ -249,11 +498,157 @@ console.log('Upsert results:', {
 });
 ```
 
+```typescript [Repository Pattern]
+// Repository bulk upsert
+const userRepo = client.getRepository<User>('users');
+
+// Upsert user data
+const userData = [
+  { email: 'existing@example.com', name: 'Updated Name' },
+  { email: 'new@example.com', name: 'New User', role: 'user' },
+];
+
+// Method 1: Repository bulk upsert
+const result = await userRepo.bulkUpsert(userData, {
+  conflictColumns: ['email'], // Use email as unique identifier
+  batchSize: 50
+});
+
+console.log(`Upserted ${result.length} users`);
+
+// Method 2: Manual upsert using save method
+const upsertResults = [];
+for (const user of userData) {
+  try {
+    const upsertedUser = await userRepo.save(user);
+    upsertResults.push(upsertedUser);
+  } catch (error) {
+    console.error(`Failed to upsert user ${user.email}:`, error);
+  }
+}
+
+console.log(`Manually upserted ${upsertResults.length} users`);
+
+// Custom repository with advanced upsert logic
+class UserRepository extends CustomRepositoryBase<User> {
+  async bulkUpsertUsers(userData: Partial<User>[]) {
+    const results = [];
+    
+    for (const user of userData) {
+      try {
+        // Check if user exists
+        const existing = await this.findOne({ email: user.email });
+        
+        if (existing) {
+          // Update existing user
+          const updated = await this.save({ ...existing, ...user });
+          results.push({ action: 'updated', user: updated });
+        } else {
+          // Create new user
+          const created = await this.save({
+            ...user,
+            created_at: new Date().toISOString()
+          });
+          results.push({ action: 'created', user: created });
+        }
+      } catch (error) {
+        console.error(`Failed to upsert user ${user.email}:`, error);
+        results.push({ action: 'error', user, error: error.message });
+      }
+    }
+    
+    return results;
+  }
+
+  async bulkUpsertWithConflictResolution(userData: Partial<User>[]) {
+    // First try bulk insert with ignore conflicts
+    try {
+      const inserted = await this.insertMany(userData, {
+        onConflict: 'ignore',
+        conflictColumns: ['email']
+      });
+      
+      console.log(`Inserted ${inserted.length} new users`);
+      
+      // Find users that weren't inserted (conflicts)
+      const insertedEmails = inserted.map(u => u.email);
+      const conflictUsers = userData.filter(u => !insertedEmails.includes(u.email));
+      
+      // Update conflicting users
+      const updated = [];
+      for (const user of conflictUsers) {
+        const existing = await this.findOne({ email: user.email });
+        if (existing) {
+          const updatedUser = await this.save({ ...existing, ...user });
+          updated.push(updatedUser);
+        }
+      }
+      
+      console.log(`Updated ${updated.length} existing users`);
+      
+      return {
+        inserted,
+        updated,
+        total: inserted.length + updated.length
+      };
+    } catch (error) {
+      console.error('Bulk upsert failed:', error);
+      throw error;
+    }
+  }
+
+  async smartBulkUpsert(userData: Partial<User>[]) {
+    // Group users by whether they likely exist
+    const emails = userData.map(u => u.email).filter(Boolean);
+    const existingUsers = await this
+      .createQueryBuilder()
+      .where('email IN (:...emails)', { emails })
+      .getMany();
+    
+    const existingEmails = new Set(existingUsers.map(u => u.email));
+    
+    const toInsert = userData.filter(u => !existingEmails.has(u.email));
+    const toUpdate = userData.filter(u => existingEmails.has(u.email));
+    
+    const [inserted, updated] = await Promise.all([
+      toInsert.length > 0 ? this.insertMany(toInsert) : [],
+      Promise.all(toUpdate.map(async (user) => {
+        const existing = existingUsers.find(e => e.email === user.email);
+        return this.save({ ...existing, ...user });
+      }))
+    ]);
+    
+    return {
+      inserted,
+      updated,
+      total: inserted.length + updated.length
+    };
+  }
+}
+
+const customUserRepo = client.getCustomRepository(UserRepository);
+
+// Usage examples
+const upsertResult = await customUserRepo.bulkUpsertUsers(userData);
+console.log('Upsert results:', {
+  created: upsertResult.filter(r => r.action === 'created').length,
+  updated: upsertResult.filter(r => r.action === 'updated').length,
+  errors: upsertResult.filter(r => r.action === 'error').length
+});
+
+const smartResult = await customUserRepo.smartBulkUpsert(userData);
+console.log(`Smart upsert: ${smartResult.inserted.length} inserted, ${smartResult.updated.length} updated`);
+```
+
+:::
+
 ## Bulk Delete
 
 ### Basic Bulk Delete
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Delete by IDs
 const idsToDelete = [1, 2, 3, 4, 5];
 
@@ -266,6 +661,140 @@ const result = await client
 
 console.log(`Deleted ${result.successful} records`);
 ```
+
+```typescript [Repository Pattern]
+// Repository bulk delete
+const userRepo = client.getRepository<User>('users');
+
+// Delete by IDs
+const idsToDelete = [1, 2, 3, 4, 5];
+
+// Method 1: Repository bulk delete
+const result = await userRepo.bulkDelete(idsToDelete, {
+  matchColumn: 'id',
+  batchSize: 100
+});
+
+console.log(`Deleted ${result.length} records`);
+
+// Method 2: Using delete method
+const deleteResult = await userRepo.delete({ 
+  id: { in: idsToDelete } 
+});
+
+console.log(`Deleted ${deleteResult.length} users`);
+
+// Method 3: Individual deletions with error handling
+const deletedUsers = [];
+const failedDeletes = [];
+
+for (const id of idsToDelete) {
+  try {
+    const deleted = await userRepo.delete({ id });
+    if (deleted.length > 0) {
+      deletedUsers.push(...deleted);
+    } else {
+      failedDeletes.push({ id, error: 'User not found' });
+    }
+  } catch (error) {
+    failedDeletes.push({ id, error: error.message });
+  }
+}
+
+console.log(`Successfully deleted: ${deletedUsers.length}, Failed: ${failedDeletes.length}`);
+
+// Custom repository with bulk delete logic
+class UserRepository extends CustomRepositoryBase<User> {
+  async bulkDeleteUsers(userIds: number[]) {
+    const results = {
+      deleted: [],
+      failed: []
+    };
+
+    // Delete in batches
+    const batchSize = 50;
+    for (let i = 0; i < userIds.length; i += batchSize) {
+      const batch = userIds.slice(i, i + batchSize);
+      
+      try {
+        const deleted = await this.delete({ 
+          id: { in: batch } 
+        });
+        results.deleted.push(...deleted);
+      } catch (error) {
+        console.error(`Failed to delete batch:`, error);
+        results.failed.push(...batch.map(id => ({ id, error: error.message })));
+      }
+    }
+
+    return results;
+  }
+
+  async softDeleteUsers(userIds: number[]) {
+    // Soft delete by marking as inactive
+    const updateData = {
+      active: false,
+      deleted_at: new Date().toISOString()
+    };
+
+    const updated = await this.update(
+      { id: { in: userIds } },
+      updateData
+    );
+
+    return updated;
+  }
+
+  async deleteInactiveUsers(inactiveSince: string) {
+    // Delete users who have been inactive since a certain date
+    const usersToDelete = await this
+      .createQueryBuilder()
+      .where('active = :active', { active: false })
+      .andWhere('last_login < :date', { date: inactiveSince })
+      .getMany();
+
+    if (usersToDelete.length === 0) {
+      return [];
+    }
+
+    const userIds = usersToDelete.map(u => u.id);
+    return this.bulkDeleteUsers(userIds);
+  }
+
+  async cascadeDeleteUserData(userId: number) {
+    // Delete user and all related data
+    try {
+      // Delete related data first (assuming relationships exist)
+      await this.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
+      await this.query('DELETE FROM user_preferences WHERE user_id = $1', [userId]);
+      
+      // Finally delete the user
+      const deleted = await this.delete({ id: userId });
+      
+      return {
+        success: true,
+        deletedUser: deleted[0] || null
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+}
+
+const customUserRepo = client.getCustomRepository(UserRepository);
+
+// Usage examples
+const bulkDeleteResult = await customUserRepo.bulkDeleteUsers(idsToDelete);
+console.log(`Bulk delete: ${bulkDeleteResult.deleted.length} deleted, ${bulkDeleteResult.failed.length} failed`);
+
+const softDeleted = await customUserRepo.softDeleteUsers([1, 2, 3]);
+console.log(`Soft deleted ${softDeleted.length} users`);
+```
+
+:::
 
 ### Conditional Bulk Delete
 

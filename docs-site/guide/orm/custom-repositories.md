@@ -1,6 +1,6 @@
 # Custom Repositories
 
-PGRestify supports custom repositories that extend the base Repository class with domain-specific methods and business logic. This allows you to encapsulate complex queries, add validation logic, and create reusable components that follow the repository pattern established by TypeORM.
+PGRestify supports custom repositories that extend the CustomRepositoryBase class with domain-specific methods and business logic. This allows you to encapsulate complex queries, add validation logic, and create reusable components that follow the repository pattern established by ORM.
 
 ## Overview
 
@@ -20,7 +20,7 @@ Custom repositories in PGRestify provide:
 Extend the base Repository class with custom methods:
 
 ```typescript
-import { Repository, DataManager } from '@webcoded/pgrestify';
+import { CustomRepositoryBase, createClient } from '@webcoded/pgrestify';
 
 interface User {
   id: string;
@@ -34,7 +34,7 @@ interface User {
   updated_at: string;
 }
 
-class UserRepository extends Repository<User> {
+class UserRepository extends CustomRepositoryBase<User> {
   /**
    * Find active users only
    */
@@ -63,13 +63,11 @@ class UserRepository extends Repository<User> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
     
-    const result = await this.getQueryBuilder()
-      .eq('active', true)
-      .gte('last_login', cutoffDate.toISOString())
-      .order('last_login', { ascending: false })
-      .execute();
-    
-    return result.data || [];
+    return this.createQueryBuilder()
+      .where('active = :active', { active: true })
+      .andWhere('last_login >= :cutoff', { cutoff: cutoffDate.toISOString() })
+      .orderBy('last_login', 'DESC')
+      .getMany();
   }
   
   /**
@@ -165,10 +163,9 @@ class UserRepository extends Repository<User> {
 
 // Usage
 const client = createClient({ url: 'http://localhost:3000' });
-const dataManager = client.dataManager;
 
 // Get custom repository instance
-const userRepository = dataManager.getCustomRepository(UserRepository, 'users');
+const userRepository = client.getCustomRepository(UserRepository, 'users');
 
 // Use custom methods
 const activeUsers = await userRepository.findActiveUsers();
@@ -195,7 +192,7 @@ interface Post {
   updated_at: string;
 }
 
-class PostRepository extends Repository<Post> {
+class PostRepository extends CustomRepositoryBase<Post> {
   /**
    * Find published posts with pagination
    */
@@ -283,19 +280,18 @@ class PostRepository extends Repository<Post> {
   } = {}): Promise<Post[]> {
     const { publishedOnly = true, limit = 50 } = options;
     
-    let queryBuilder = this.getQueryBuilder()
-      .or(`title.ilike.%${query}%,content.ilike.%${query}%`);
+    let queryBuilder = this.createQueryBuilder()
+      .where('title ILIKE :query', { query: `%${query}%` })
+      .orWhere('content ILIKE :query', { query: `%${query}%` });
     
     if (publishedOnly) {
-      queryBuilder = queryBuilder.eq('published', true);
+      queryBuilder = queryBuilder.andWhere('published = :published', { published: true });
     }
     
-    const result = await queryBuilder
-      .order('view_count', { ascending: false })
+    return queryBuilder
+      .orderBy('view_count', 'DESC')
       .limit(limit)
-      .execute();
-    
-    return result.data || [];
+      .getMany();
   }
   
   /**
@@ -786,7 +782,7 @@ Custom repositories in PGRestify provide:
 
 - **Domain-Specific Logic**: Encapsulate business rules and complex queries
 - **Type Safety**: Full TypeScript support with generic type parameters
-- **Repository Pattern**: Familiar TypeORM-like patterns and methods
+- **Repository Pattern**: Familiar ORM-like patterns and methods
 - **Relationship Handling**: Easy management of related data
 - **Service Layer Integration**: Compose repositories into higher-level services
 - **Testing Support**: Mockable interfaces for unit testing

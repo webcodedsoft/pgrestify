@@ -463,44 +463,6 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
-### Vue 3 Setup
-
-```bash
-# Install Vue dependencies
-npm install vue@next pgrestify
-```
-
-```typescript
-// src/composables/useUsers.ts
-import { ref } from 'vue';
-import { client } from '../lib/client';
-
-export function useUsers() {
-  const users = ref([]);
-  const loading = ref(false);
-  const error = ref(null);
-
-  const fetchUsers = async () => {
-    loading.value = true;
-    try {
-      const { data } = await client.from('users').select('*');
-      users.value = data || [];
-    } catch (err) {
-      error.value = err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  return {
-    users,
-    loading,
-    error,
-    fetchUsers
-  };
-}
-```
-
 ---
 
 ## 🔧 Environment Configuration

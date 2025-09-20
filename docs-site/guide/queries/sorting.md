@@ -1,10 +1,15 @@
 # Sorting & Ordering
 
-Master data sorting and ordering in PGRestify with single and multi-column sorting, null handling, and performance optimization techniques.
+Master data sorting and ordering in PGRestify with both PostgREST syntax and ORM-style query builders for comprehensive ordering control.
 
 ## Overview
 
-Sorting is essential for presenting data in meaningful order. PGRestify provides comprehensive sorting capabilities that map directly to PostgreSQL's ORDER BY functionality, with support for multiple columns, custom directions, null handling, and performance optimization.
+Sorting is essential for presenting data in meaningful order. PGRestify provides comprehensive sorting capabilities through two approaches:
+
+- **🎯 PostgREST Native Syntax**: Direct `.order()` methods that map to PostgreSQL's ORDER BY functionality
+- **🏗️ ORM-Style Query Builder**: `.orderBy()` and `.addOrderBy()` methods for fluent query construction
+
+Both approaches support multiple columns, custom directions, null handling, and performance optimization.
 
 ## Basic Sorting
 
@@ -12,7 +17,9 @@ Sorting is essential for presenting data in meaningful order. PGRestify provides
 
 #### Ascending Order (Default)
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Sort users by name (ascending by default)
 const users = await client
   .from('users')
@@ -35,9 +42,38 @@ const posts = await client
   .execute();
 ```
 
+```typescript [Repository Pattern]
+// Repository approach with orderBy (ascending by default)
+const userRepo = client.getRepository<User>('users');
+const productRepo = client.getRepository<Product>('products');
+const postRepo = client.getRepository<Post>('posts');
+
+// Sort users by name (ascending by default)
+const users = await userRepo
+  .createQueryBuilder()
+  .orderBy('name', 'ASC')
+  .getMany();
+
+// Explicitly specify ascending
+const products = await productRepo
+  .createQueryBuilder()
+  .orderBy('price', 'ASC')
+  .getMany();
+
+// Sort by created date (oldest first)
+const posts = await postRepo
+  .createQueryBuilder()
+  .orderBy('created_at', 'ASC')
+  .getMany();
+```
+
+:::
+
 #### Descending Order
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Most recent posts first
 const recentPosts = await client
   .from('posts')
@@ -60,11 +96,40 @@ const users = await client
   .execute();
 ```
 
+```typescript [Repository Pattern]
+// Repository approach with DESC ordering
+const postRepo = client.getRepository<Post>('posts');
+const productRepo = client.getRepository<Product>('products');
+const userRepo = client.getRepository<User>('users');
+
+// Most recent posts first
+const recentPosts = await postRepo
+  .createQueryBuilder()
+  .orderBy('created_at', 'DESC')
+  .getMany();
+
+// Highest priced products first
+const expensiveProducts = await productRepo
+  .createQueryBuilder()
+  .orderBy('price', 'DESC')
+  .getMany();
+
+// Users by name Z-A
+const users = await userRepo
+  .createQueryBuilder()
+  .orderBy('name', 'DESC')
+  .getMany();
+```
+
+:::
+
 ### Multiple Column Sorting
 
 #### Basic Multi-Column Sorting
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Sort by category, then by price within each category
 const products = await client
   .from('products')
@@ -90,9 +155,41 @@ const posts = await client
   .execute();
 ```
 
+```typescript [Repository Pattern]
+// Repository approach with multiple orderBy calls
+const productRepo = client.getRepository<Product>('products');
+const userRepo = client.getRepository<User>('users');
+const postRepo = client.getRepository<Post>('posts');
+
+// Sort by category, then by price within each category
+const products = await productRepo
+  .createQueryBuilder()
+  .orderBy('category', 'ASC')
+  .addOrderBy('price', 'DESC')
+  .getMany();
+
+// Sort users by active status, then by name
+const users = await userRepo
+  .createQueryBuilder()
+  .orderBy('is_active', 'DESC')
+  .addOrderBy('name', 'ASC')
+  .getMany();
+
+// Sort posts by published date, then by title
+const posts = await postRepo
+  .createQueryBuilder()
+  .orderBy('published_at', 'DESC')
+  .addOrderBy('title', 'ASC')
+  .getMany();
+```
+
+:::
+
 #### Complex Multi-Column Sorting
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Complex sorting: priority (high first), then due date, then alphabetical
 const tasks = await client
   .from('tasks')
@@ -111,6 +208,30 @@ const employees = await client
   .order('hire_date')
   .execute();
 ```
+
+```typescript [Repository Pattern]
+// Repository approach with multiple addOrderBy calls
+const taskRepo = client.getRepository<Task>('tasks');
+const employeeRepo = client.getRepository<Employee>('employees');
+
+// Complex sorting: priority (high first), then due date, then alphabetical
+const tasks = await taskRepo
+  .createQueryBuilder()
+  .orderBy('priority', 'DESC')
+  .addOrderBy('due_date', 'ASC')
+  .addOrderBy('title', 'ASC')
+  .getMany();
+
+// Employee sorting: department, then salary (high first), then hire date
+const employees = await employeeRepo
+  .createQueryBuilder()
+  .orderBy('department', 'ASC')
+  .addOrderBy('salary', 'DESC')
+  .addOrderBy('hire_date', 'ASC')
+  .getMany();
+```
+
+:::
 
 ### String-based Sorting
 
@@ -404,7 +525,9 @@ const categories = await client
 
 ### User-Controlled Sorting
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 interface SortOptions {
   column: string;
   direction: 'asc' | 'desc';
@@ -432,9 +555,41 @@ const productsByName = await getSortedProducts({
 });
 ```
 
+```typescript [Repository Pattern]
+interface SortOptions {
+  column: string;
+  direction: 'asc' | 'desc';
+}
+
+const getSortedProducts = async (sort: SortOptions) => {
+  const productRepo = client.getRepository<Product>('products');
+  const direction = sort.direction.toUpperCase() as 'ASC' | 'DESC';
+  
+  return productRepo
+    .createQueryBuilder()
+    .orderBy(sort.column, direction)
+    .getMany();
+};
+
+// Usage
+const productsByPrice = await getSortedProducts({ 
+  column: 'price', 
+  direction: 'desc' 
+});
+
+const productsByName = await getSortedProducts({ 
+  column: 'name', 
+  direction: 'asc' 
+});
+```
+
+:::
+
 ### Multi-Column Dynamic Sorting
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 interface MultiSortOptions {
   sorts: Array<{
     column: string;
@@ -467,6 +622,47 @@ const complexSort = await getMultiSortedData('users', {
     { column: 'name', direction: 'asc' }
   ]
 });
+```
+
+```typescript [Repository Pattern]
+interface MultiSortOptions {
+  sorts: Array<{
+    column: string;
+    direction: 'asc' | 'desc';
+  }>;
+}
+
+const getMultiSortedData = async <T>(
+  tableName: string,
+  options: MultiSortOptions
+) => {
+  const repo = client.getRepository<T>(tableName);
+  let query = repo.createQueryBuilder();
+  
+  options.sorts.forEach((sort, index) => {
+    const direction = sort.direction.toUpperCase() as 'ASC' | 'DESC';
+    
+    if (index === 0) {
+      query = query.orderBy(sort.column, direction);
+    } else {
+      query = query.addOrderBy(sort.column, direction);
+    }
+  });
+  
+  return query.getMany();
+};
+
+// Usage
+const complexSort = await getMultiSortedData<User>('users', {
+  sorts: [
+    { column: 'is_active', direction: 'desc' },
+    { column: 'last_login', direction: 'desc' },
+    { column: 'name', direction: 'asc' }
+  ]
+});
+```
+
+:::
 ```
 
 ### Sortable Table Columns
@@ -832,6 +1028,7 @@ const getPriorityQueue = async () => {
 
 PGRestify's sorting capabilities provide:
 
+- **Dual Syntax Support**: Choose between PostgREST `.order()` or ORM-style `.orderBy()` methods
 - **Simple API**: Intuitive methods for single and multi-column sorting
 - **Full Control**: Complete control over sort direction and null handling
 - **Data Type Support**: Proper sorting for all PostgreSQL data types
@@ -840,5 +1037,21 @@ PGRestify's sorting capabilities provide:
 - **Performance Awareness**: Index-conscious sorting patterns
 - **Utility Functions**: Reusable helpers for common sorting scenarios
 - **Type Safety**: Full TypeScript support for all sorting operations
+- **Method Chaining**: Fluent APIs in both PostgREST and ORM styles
 
-Master these sorting techniques to present your data in the most meaningful order for your users and applications.
+### Which Sorting Approach to Choose?
+
+**Use PostgREST Syntax when:**
+- You prefer the PostgREST `.order()` method
+- Working with simple sorting needs
+- You want direct PostgREST parameter mapping
+- Migrating from existing PostgREST applications
+
+**Use Repository Pattern when:**
+- You prefer SQL-like `.orderBy()` and `.addOrderBy()` methods
+- Building complex multi-column sorts
+- You want explicit ASC/DESC syntax
+- Coming from ORM or similar ORMs
+- Building reusable query logic in custom repositories
+
+Both approaches offer the same sorting power with complete type safety. Master these sorting techniques to present your data in the most meaningful order for your users and applications.

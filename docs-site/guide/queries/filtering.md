@@ -578,7 +578,9 @@ const posts = await client
 
 ### Conditional Filter Application
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 interface ProductFilters {
   category?: string;
   minPrice?: number;
@@ -623,6 +625,55 @@ const electronics = await getFilteredProducts({
   maxPrice: 1000,
   inStock: true
 });
+```
+
+```typescript [Repository Pattern]
+interface ProductFilters {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  search?: string;
+}
+
+const getFilteredProducts = async (filters: ProductFilters) => {
+  const productRepo = client.getRepository<Product>('products');
+  let query = productRepo.createQueryBuilder();
+
+  // Apply filters conditionally with parameter binding
+  if (filters.category) {
+    query = query.where('category = :category', { category: filters.category });
+  }
+
+  if (filters.minPrice !== undefined) {
+    query = query.andWhere('price >= :minPrice', { minPrice: filters.minPrice });
+  }
+
+  if (filters.maxPrice !== undefined) {
+    query = query.andWhere('price <= :maxPrice', { maxPrice: filters.maxPrice });
+  }
+
+  if (filters.inStock !== undefined) {
+    query = query.andWhere('in_stock = :inStock', { inStock: filters.inStock });
+  }
+
+  if (filters.search) {
+    query = query.andWhere('name ILIKE :search', { search: `%${filters.search}%` });
+  }
+
+  return query.getMany();
+};
+
+// Usage
+const electronics = await getFilteredProducts({
+  category: 'electronics',
+  minPrice: 100,
+  maxPrice: 1000,
+  inStock: true
+});
+```
+
+:::
 ```
 
 ### Filter Builder Pattern
@@ -956,13 +1007,31 @@ const avoidExpensiveFilters = async () => {
 
 PGRestify's filtering capabilities provide:
 
+- **Dual Syntax Support**: Choose between PostgREST operators or ORM-style query builders
 - **Complete Operator Set**: All PostgREST operators for any filtering need
+- **Parameter Binding**: Safe, parameterized queries with the repository pattern
 - **Pattern Matching**: Powerful LIKE/ILIKE operations for text search
 - **Array Operations**: Native array column filtering support
 - **JSON Support**: Query JSON/JSONB columns naturally
-- **Complex Logic**: AND/OR/NOT combinations for sophisticated filters
-- **Type Safety**: Full TypeScript support for filter operations
+- **Complex Logic**: AND/OR/NOT combinations with Brackets for sophisticated filters
+- **Type Safety**: Full TypeScript support for all filter operations
 - **Performance**: Optimized filtering with index awareness
 - **Flexibility**: Dynamic filter building for runtime conditions
+- **Method Chaining**: Fluent APIs in both PostgREST and ORM styles
 
-Master these filtering operators to build precise, efficient queries that retrieve exactly the data you need from your PostgreSQL database.
+### Which Filtering Approach to Choose?
+
+**Use PostgREST Syntax when:**
+- You prefer direct PostgREST operators (`eq`, `gte`, `ilike`)
+- Working with simple filters
+- You want minimal query transformation
+- Migrating from existing PostgREST applications
+
+**Use Repository Pattern when:**
+- You prefer SQL-like syntax (`WHERE`, `AND`, `OR`)
+- You need parameter binding for security
+- Building complex conditional logic
+- You want automatic parameter escaping
+- Coming from ORM or similar ORMs
+
+Both approaches offer the same filtering power with complete type safety. Master these filtering techniques to build precise, efficient queries that retrieve exactly the data you need from your PostgreSQL database.

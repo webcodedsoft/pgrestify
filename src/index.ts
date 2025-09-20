@@ -15,6 +15,20 @@ export { JWTAuthManager } from './core/auth';
 export { MemoryQueryCache, SmartQueryCache, CacheKeyBuilder } from './core/cache';
 export { RPCBuilder, TypedRPCBuilder, RPCUtils, PostgreSQLFunctions } from './core/rpc-builder';
 
+// Repository pattern exports
+export { 
+  BaseRepository, 
+  RepositoryFactory,
+  CustomRepositoryBase,
+  Brackets
+} from './core/repository';
+
+// Advanced query builder exports
+export { SelectQueryBuilder } from './core/repository';
+
+// Repository interface
+export type { SimpleRepository } from './core/repository';
+
 // Enum exports for better developer experience
 export { 
   JoinType, 

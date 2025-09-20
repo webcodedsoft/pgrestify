@@ -69,7 +69,7 @@ export {
   useQueryBuilder,
 } from './context-hooks';
 
-// Additional infinite query hooks (TanStack Query compatible - require provider)
+// Additional infinite query hooks (require provider)
 export {
   useInfinitePosts,
   useInfiniteComments,
@@ -118,15 +118,10 @@ export type {
 } from './hooks';
 
 export type {
-  UseTanStackInfiniteQueryOptions,
   UseTableInfiniteQueryOptions,
   UseStandardInfiniteQueryOptions,
   UseInfiniteQueryResult,
   InfiniteData,
 } from '../../query/react/hooks/useInfiniteQuery';
-
-export type {
-  UseTanStackQueryOptions,
-} from '../../query/react/hooks/useQuery';
 
 export type { PGRestifyProviderProps } from './provider';

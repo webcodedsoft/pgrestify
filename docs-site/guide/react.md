@@ -2,7 +2,7 @@
 
 PGRestify provides powerful React hooks and components for seamless integration with React applications.
 
-> **Note**: For comprehensive React integration including TanStack Query support, see our [React Guide](./react/hooks.md) and [TanStack Query Integration](./tanstack-query.md).
+> **Note**: For comprehensive React integration, see our [React Hooks Guide](./react/hooks.md).
 
 ## Installation
 
@@ -36,27 +36,26 @@ function App() {
 
 ```typescript
 import { useQuery } from '@webcoded/pgrestify/react';
-import { usePGRestify } from '@webcoded/pgrestify/react';
 
 interface User {
   id: number;
   name: string;
   email: string;
+  active: boolean;
 }
 
 function UserList() {
-  const client = usePGRestify();
-  
   const { 
     data: users, 
     error,
     isLoading,
     refetch
-  } = useQuery(
-    client,
-    'users',
-    (query) => query.select('*').eq('active', true)
-  );
+  } = useQuery<User>({
+    from: 'users',
+    select: ['id', 'name', 'email'],
+    filter: { active: true },
+    order: { column: 'name', ascending: true }
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -64,7 +63,7 @@ function UserList() {
   return (
     <ul>
       {users?.map(user => (
-        <li key={user.id}>{user.name}</li>
+        <li key={user.id}>{user.name} - {user.email}</li>
       ))}
     </ul>
   );
@@ -74,29 +73,24 @@ function UserList() {
 ## Mutation Hook
 
 ```typescript
-import { useMutation, usePGRestify } from '@webcoded/pgrestify/react';
+import { useMutation } from '@webcoded/pgrestify/react';
 
 function CreateUserForm() {
-  const client = usePGRestify();
-  
   const { 
     mutate: createUser, 
     isLoading, 
     error,
     data,
     mutateAsync
-  } = useMutation(
-    client,
-    'users',
-    {
-      onSuccess: (newUser) => {
-        console.log('User created:', newUser);
-      },
-      onError: (error) => {
-        console.error('Failed to create user:', error);
-      }
+  } = useMutation<User>('users', {
+    operation: 'INSERT',
+    onSuccess: (newUser) => {
+      console.log('User created:', newUser);
+    },
+    onError: (error) => {
+      console.error('Failed to create user:', error);
     }
-  );
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,11 +121,10 @@ For more advanced React patterns and features, see our comprehensive guides:
 - **[React Data Fetching](./react/fetching.md)** - Advanced data fetching patterns and best practices  
 - **[React Mutations](./react/mutations.md)** - Comprehensive guide to mutations, form handling, and optimistic updates
 
-### 🚀 TanStack Query Integration
+### 🚀 Advanced Features
 
-For the most powerful React experience, use our TanStack Query integration:
+For advanced React patterns:
 
-- **[TanStack Query Guide](./tanstack-query.md)** - Full TanStack Query integration with factories and utilities
 - **[Advanced Caching](./advanced-features/caching.md)** - Intelligent caching strategies and invalidation patterns
 - **[Real-time Updates](./advanced-features/realtime.md)** - Live data synchronization with PostgreSQL NOTIFY
 
@@ -148,18 +141,17 @@ For Next.js applications, see our specialized guides:
 ```typescript
 // Complete example with provider, hooks, and error handling
 import React from 'react';
-import { PGRestifyProvider, useQuery, usePGRestify } from '@webcoded/pgrestify/react';
+import { PGRestifyProvider, useQuery } from '@webcoded/pgrestify/react';
 import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient({ url: 'http://localhost:3000' });
 
 function UserList() {
-  const client = usePGRestify();
-  const { data: users, isLoading, error } = useQuery(
-    client,
-    'users', 
-    (query) => query.select('id', 'name', 'email').eq('active', true)
-  );
+  const { data: users, isLoading, error } = useQuery<User>({
+    from: 'users',
+    select: ['id', 'name', 'email'],
+    filter: { active: true }
+  });
 
   if (isLoading) return <div>Loading users...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -185,4 +177,4 @@ function App() {
 }
 ```
 
-This provides a solid foundation for React integration. For production applications, we strongly recommend using the TanStack Query integration for optimal performance, caching, and developer experience.
+This provides a solid foundation for React integration with built-in hooks for querying and mutations.

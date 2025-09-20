@@ -6,7 +6,7 @@ titleTemplate: The Definitive PostgREST Client
 hero:
   name: PGRestify
   text: The Definitive PostgREST Client
-  tagline: TypeScript-first, zero-config, enterprise-grade PostgREST client with TypeORM-inspired API
+  tagline: TypeScript-first, zero-config, enterprise-grade PostgREST client with ORM-inspired API
   image:
     src: /images/logo.png
     alt: PGRestify
@@ -30,7 +30,7 @@ hero:
 
 <div class="tip custom-block" style="padding-top: 8px">
 
-**TypeORM-Inspired** - Familiar API that developers already know and love, with full TypeScript support.
+**ORM-Inspired** - Familiar API that developers already know and love, with full TypeScript support.
 
 </div>
 
@@ -73,7 +73,7 @@ hero:
     <p>Complete command-line tool for project setup, schema generation, migrations, and development workflow.</p>
   </a>
   
-  <a href="/guide/typeorm-style/repository-pattern" class="doc-card">
+  <a href="/guide/orm/repository-pattern" class="doc-card">
     <div class="doc-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="m21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
     </div>
@@ -101,7 +101,7 @@ hero:
       </svg>
     </div>
     <h3>React Integration</h3>
-    <p>React hooks, TanStack Query integration, data fetching patterns, and mutation handling.</p>
+    <p>React hooks, query libraries integration, data fetching patterns, and mutation handling.</p>
   </a>
   
   <a href="/guide/nextjs/overview" class="doc-card">

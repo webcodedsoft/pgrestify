@@ -73,9 +73,13 @@ export class QueryBuilder<T = Record<string, unknown>> {
         if (!firstArg) {
           throw new Error('Select query must be a non-empty string');
         }
+        
+        // Process relation-aware syntax
+        const processedSelect = this.processRelationAwareSelect(firstArg);
+        
         return this.clone({
           ...this.state,
-          select: firstArg,
+          select: processedSelect,
         });
       } else if (Array.isArray(firstArg)) {
         // Array of strings with potential aliases
@@ -119,6 +123,46 @@ export class QueryBuilder<T = Record<string, unknown>> {
       ...this.state,
       select: aliasedColumns,
     });
+  }
+
+  /**
+   * Add a relation to the query for embedded resources
+   * Simplifies PostgREST's embedded resource syntax
+   * @example
+   * // Instead of: .select('*, posts(title, content)')
+   * // Use: .relation('posts', 'post').select('*, posts.title, posts.content')
+   * 
+   * // Basic usage
+   * .relation('posts')  // Equivalent to posts(*)
+   * 
+   * // With alias
+   * .relation('posts', 'post')  // Creates alias for easier select syntax
+   * 
+   * // With specific columns
+   * .relation('posts', 'post', ['title', 'content'])  // Equivalent to posts(title,content)
+   */
+  relation(
+    relationName: string, 
+    alias?: string, 
+    columns?: string[] | '*'
+  ): QueryBuilder<T> {
+    // Store relation information for later use in select()
+    const newState = { ...this.state };
+    
+    if (!newState.relations) {
+      newState.relations = [];
+    }
+    
+    // Create relation config
+    const relationConfig = {
+      name: relationName,
+      alias: alias || relationName,
+      columns: columns || '*'
+    };
+    
+    newState.relations.push(relationConfig);
+    
+    return this.clone(newState);
   }
 
   // Filter methods - comparison operators
@@ -1427,6 +1471,70 @@ export class QueryBuilder<T = Record<string, unknown>> {
     } else {
       return `${baseSelect}, ${embeddedResources}`;
     }
+  }
+
+  /**
+   * Process relation-aware select syntax and convert to PostgREST embedded resources
+   * Converts "*, posts.title, posts.content" to "*, posts(title,content)"
+   */
+  private processRelationAwareSelect(selectString: string): string {
+    if (!this.state.relations || this.state.relations.length === 0) {
+      return selectString; // No relations defined, return as-is
+    }
+
+    const columns = selectString.split(',').map(col => col.trim());
+    const mainColumns: string[] = [];
+    const relationColumns: Record<string, string[]> = {};
+
+    // Group columns by relation
+    for (const column of columns) {
+      if (column === '*') {
+        mainColumns.push(column);
+        continue;
+      }
+
+      // Check if this is a relation column (e.g., "posts.title")
+      const relationMatch = column.match(/^(\w+)\.(.+)$/);
+      if (relationMatch) {
+        const [, relationAlias, columnName] = relationMatch;
+        
+        // Find the actual relation name from the alias
+        const relation = this.state.relations.find(r => r.alias === relationAlias);
+        if (relation && columnName) {
+          if (!relationColumns[relation.name]) {
+            relationColumns[relation.name] = [];
+          }
+          relationColumns[relation.name]!.push(columnName);
+        } else {
+          // If no relation found, treat as main column
+          mainColumns.push(column);
+        }
+      } else {
+        mainColumns.push(column);
+      }
+    }
+
+    // Build the final select string
+    const selectParts: string[] = [];
+
+    // Add main columns
+    if (mainColumns.length > 0) {
+      selectParts.push(...mainColumns);
+    }
+
+    // Add relation columns as embedded resources
+    for (const relation of this.state.relations) {
+      const columns = relationColumns[relation.name];
+      if (columns && columns.length > 0) {
+        selectParts.push(`${relation.name}(${columns.join(',')})`);
+      } else if (relation.columns === '*') {
+        selectParts.push(`${relation.name}(*)`);
+      } else if (Array.isArray(relation.columns)) {
+        selectParts.push(`${relation.name}(${relation.columns.join(',')})`);
+      }
+    }
+
+    return selectParts.join(', ');
   }
 
   /**

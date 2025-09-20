@@ -17,7 +17,7 @@ import { fs } from '../../utils/fs.js';
 import { SecurityValidator } from '../../utils/security.js';
 
 /**
- * Framework configurations - standardized across all frameworks
+ * Framework configurations - React and Next.js only
  */
 const FRAMEWORKS = {
   react: {
@@ -29,24 +29,6 @@ const FRAMEWORKS = {
   nextjs: {
     name: 'Next.js',
     envPrefix: 'NEXT_PUBLIC_',
-    dependencies: { 'pgrestify': '^1.0.0' },
-    devDependencies: { '@types/node': '^20.0.0' }
-  },
-  vue: {
-    name: 'Vue',
-    envPrefix: 'VITE_',
-    dependencies: { 'pgrestify': '^1.0.0' },
-    devDependencies: { '@types/node': '^20.0.0' }
-  },
-  angular: {
-    name: 'Angular',
-    envPrefix: '',
-    dependencies: { 'pgrestify': '^1.0.0' },
-    devDependencies: { '@types/node': '^20.0.0' }
-  },
-  svelte: {
-    name: 'Svelte',
-    envPrefix: 'PUBLIC_',
     dependencies: { 'pgrestify': '^1.0.0' },
     devDependencies: { '@types/node': '^20.0.0' }
   }
@@ -178,19 +160,13 @@ async function detectFramework(projectPath: string): Promise<Framework | null> {
       const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies };
       
       if (allDeps['next']) return 'nextjs';
-      if (allDeps['@angular/core']) return 'angular';
-      if (allDeps['vue']) return 'vue';
-      if (allDeps['svelte']) return 'svelte';
       if (allDeps['react']) return 'react';
     }
     
     // Check configuration files
     const configFiles = [
       ['next.config.js', 'nextjs'],
-      ['next.config.ts', 'nextjs'],
-      ['angular.json', 'angular'],
-      ['vue.config.js', 'vue'],
-      ['svelte.config.js', 'svelte']
+      ['next.config.ts', 'nextjs']
     ];
     
     for (const [file, framework] of configFiles) {
@@ -458,29 +434,6 @@ export function createServerClient() {
   });
 }`,
     
-    vue: `
-// Vue integration
-export { pgrestify as default };
-
-// Vue composable
-export function usePGRestify() {
-  return pgrestify;
-}`,
-    
-    angular: `
-// Angular integration
-export { pgrestify as default };
-
-// Use pgrestify in your Angular services:
-// constructor() { const client = pgrestify; }`,
-    
-    svelte: `
-// Svelte integration
-export { pgrestify as default };
-
-// Svelte store (optional)
-import { writable } from 'svelte/store';
-export const pgrestifyStore = writable(pgrestify);`
   };
   
   return integrations[config.framework] || '// Framework-agnostic client\nexport { pgrestify as default };';

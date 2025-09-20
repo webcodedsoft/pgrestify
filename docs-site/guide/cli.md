@@ -26,7 +26,7 @@ Commands that are safe for client-side projects and never handle credentials:
 ```bash
 pgrestify frontend init     # Initialize a frontend project
 pgrestify frontend types    # Generate TypeScript types from PostgREST API
-pgrestify frontend hooks    # Generate React/Vue hooks
+pgrestify frontend hooks    # Generate React hooks
 ```
 
 ### API/Backend Commands (PostgREST & Database)
@@ -103,7 +103,7 @@ pgrestify frontend types --output src/db-types.ts
 
 ### `pgrestify frontend hooks`
 
-Generate React/Vue hooks for database operations.
+Generate React hooks for database operations.
 
 **Examples:**
 ```bash

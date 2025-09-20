@@ -91,11 +91,58 @@ const users = await client
 
 ### `client.getRepository<T>(tableName)`
 
-Creates a repository for type-safe CRUD operations.
+Creates a repository for type-safe CRUD operations with ORM-style methods.
 
 ```typescript
 const userRepo = client.getRepository<User>('users');
+
+// Simple queries
 const allUsers = await userRepo.find();
+const activeUsers = await userRepo.findBy({ active: true });
+const user = await userRepo.findOne({ id: 1 });
+
+// Advanced query builder
+const complexQuery = await userRepo
+  .createQueryBuilder()
+  .select(['id', 'name', 'email'])
+  .where('active = :active', { active: true })
+  .andWhere('created_at >= :date', { date: '2024-01-01' })
+  .leftJoinAndSelect('posts', 'post')
+  .orderBy('created_at', 'DESC')
+  .getMany();
+
+// CRUD operations
+await userRepo.save({ name: 'John', email: 'john@example.com' });
+await userRepo.update({ id: 1 }, { name: 'Updated Name' });
+await userRepo.remove(user);
+```
+
+### `client.getCustomRepository<T>(repositoryClass, tableName)`
+
+Creates a custom repository instance with your business logic.
+
+```typescript
+import { CustomRepositoryBase } from '@webcoded/pgrestify';
+
+class UserRepository extends CustomRepositoryBase<User> {
+  async findActiveUsers(): Promise<User[]> {
+    return this.createQueryBuilder()
+      .where('active = :active', { active: true })
+      .andWhere('verified = :verified', { verified: true })
+      .getMany();
+  }
+
+  async findUserWithPosts(userId: number): Promise<User | null> {
+    return this.createQueryBuilder()
+      .leftJoinAndSelect('posts', 'post')
+      .where('id = :id', { id: userId })
+      .getOne();
+  }
+}
+
+// Use custom repository
+const userRepo = client.getCustomRepository(UserRepository, 'users');
+const activeUsers = await userRepo.findActiveUsers();
 ```
 
 ### `client.switchRole(role, token?)`
@@ -124,6 +171,54 @@ const stats = await client.rpc<UserStatsArgs, UserStats>(
   'get_user_stats', 
   { user_id: 123 }
 );
+```
+
+### `client.clearCache()`
+
+Clears all cached query results.
+
+```typescript
+client.clearCache();
+```
+
+### `client.invalidateCache(pattern)`
+
+Invalidates cache entries matching a specific pattern.
+
+```typescript
+// Clear all user-related cache entries
+client.invalidateCache('users*');
+
+// Clear specific table cache
+client.invalidateCache('table:posts*');
+```
+
+### `client.extend(config)`
+
+Creates a new client instance with different configuration.
+
+```typescript
+const newClient = client.extend({
+  schema: 'auth',
+  headers: { 'X-Custom-Header': 'value' },
+  timeout: 10000
+});
+```
+
+### `client.raw<T>(path, options?)`
+
+Execute a raw PostgREST query with full control over the request.
+
+```typescript
+const result = await client.raw<User[]>('users', {
+  method: 'GET',
+  params: { select: 'id,name', active: 'eq.true' },
+  headers: { 'Accept': 'application/json' }
+});
+
+console.log(result.data); // User[]
+console.log(result.count); // Total count if requested
+console.log(result.status); // HTTP status
 ```
 
 ## Authentication Methods

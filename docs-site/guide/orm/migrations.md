@@ -196,9 +196,9 @@ pgrestify api migrate --docker --network my-network
 
 ## Migration Patterns
 
-### TypeORM-Style Migration Class
+### ORM-Style Migration Class
 
-While PGRestify doesn't use class-based migrations like TypeORM, you can organize migrations with consistent patterns:
+While PGRestify doesn't use class-based migrations like ORM, you can organize migrations with consistent patterns:
 
 ```typescript
 // migration-template.ts (for reference/documentation)
@@ -506,7 +506,7 @@ PGRestify migrations provide:
 - **Environment Support**: Different configurations for various deployment environments
 - **Docker Support**: Container-based migration execution
 - **Safety Features**: Dry-run, backup, and validation capabilities
-- **TypeORM-Like Patterns**: Familiar migration concepts adapted for PostgREST
+- **ORM-Like Patterns**: Familiar migration concepts adapted for PostgREST
 - **Repository Integration**: Seamless integration with the repository pattern
 
-While different from TypeORM's class-based approach, PGRestify migrations provide powerful, SQL-focused database evolution capabilities that work excellently with PostgREST's architecture.
+While different from ORM's class-based approach, PGRestify migrations provide powerful, SQL-focused database evolution capabilities that work excellently with PostgREST's architecture.

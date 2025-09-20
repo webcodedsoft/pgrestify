@@ -494,7 +494,9 @@ const conditionalInsert = async (userData: any) => {
 
 ### Insert with Relationship Data
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Create related records in sequence
 const createUserWithProfile = async (userData: any, profileData: any) => {
   try {
@@ -540,6 +542,61 @@ const createUserWithProfile = async (userData: any, profileData: any) => {
     throw error;
   }
 };
+```
+
+```typescript [Repository Pattern]
+// Repository approach with cleaner business logic
+const createUserWithProfile = async (userData: any, profileData: any) => {
+  const userRepo = client.getRepository<User>('users');
+  const profileRepo = client.getRepository<UserProfile>('user_profiles');
+  
+  try {
+    // Create user first
+    const user = await userRepo.save(userData);
+
+    // Create profile with user ID
+    const profile = await profileRepo.save({
+      ...profileData,
+      user_id: user.id
+    });
+
+    return { user, profile };
+  } catch (error) {
+    console.error('User with profile creation error:', error);
+    throw error;
+  }
+};
+
+// Alternative: Custom repository with encapsulated business logic
+import { CustomRepositoryBase } from '@webcoded/pgrestify';
+
+class UserRepository extends CustomRepositoryBase<User> {
+  async createWithProfile(userData: Partial<User>, profileData: Partial<UserProfile>) {
+    try {
+      // Create user
+      const user = await this.save(userData);
+      
+      // Create profile
+      const profileRepo = client.getRepository<UserProfile>('user_profiles');
+      const profile = await profileRepo.save({
+        ...profileData,
+        user_id: user.id
+      });
+      
+      return { user, profile };
+    } catch (error) {
+      // Handle rollback logic here if needed
+      throw error;
+    }
+  }
+}
+
+// Usage with custom repository
+const userRepo = client.getCustomRepository(UserRepository, 'users');
+const result = await userRepo.createWithProfile(userData, profileData);
+```
+
+:::
 
 // Usage
 const userWithProfile = await createUserWithProfile(

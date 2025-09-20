@@ -1,5 +1,5 @@
 /**
- * Core PostgREST client implementation with TypeORM-like API
+ * Core PostgREST client implementation with Advanced-like API
  */
 
 import { FetchHttpClient } from '../utils/http';
@@ -7,8 +7,9 @@ import { validateUrl, validateSchemaName } from '../utils/validation';
 import { MemoryQueryCache } from './cache';
 import { JWTAuthManager } from './auth';
 import { QueryBuilder } from './query-builder';
+import { RepositoryFactory, SimpleRepository, CustomRepositoryBase } from './repository';
+import { DataManager } from './repository';
 import { RPCBuilder } from './rpc-builder';
-import { DataManager, Repository } from './repository';
 import { RealtimeClient } from './realtime';
 import { SSRHelper } from './ssr';
 import type {
@@ -170,6 +171,7 @@ export class PostgRESTClientImpl {
   public readonly manager: DataManager;
   public readonly realtime: RealtimeClient;
   public readonly ssr: SSRHelper;
+  public readonly repositoryFactory: RepositoryFactory;
   private readonly httpClient: HttpClient;
 
   constructor(config: ClientConfig) {
@@ -200,7 +202,7 @@ export class PostgRESTClientImpl {
     // Set up auth header updates
     this.setupAuthHeaderUpdates();
 
-    // Initialize data manager (TypeORM-like repositories)
+    // Initialize data manager (Advanced-like repositories)
     this.manager = new DataManager(
       this.httpClient,
       this.cache,
@@ -221,10 +223,13 @@ export class PostgRESTClientImpl {
       enabled: this.config.ssr?.enabled ?? false,
       serialize: this.config.ssr?.serialize ?? true,
     });
+
+    // Initialize Advanced-style repository factory
+    this.repositoryFactory = new RepositoryFactory(this as unknown as PostgRESTClient);
   }
 
   /**
-   * Create a query builder for a table (TypeORM-like API)
+   * Create a query builder for a table (Standard PostgREST API)
    */
   from<T extends Record<string, unknown> = Record<string, unknown>>(
     table: string,
@@ -239,6 +244,18 @@ export class PostgRESTClientImpl {
       undefined,
       options
     );
+  }
+
+  /**
+   * Get a repository for a table (provides ORM-style methods)
+   * @example
+   * const userRepo = client.getRepository<User>('users');
+   * const users = await userRepo.find({ where: { active: true } });
+   */
+  getRepository<T extends Record<string, unknown> = Record<string, unknown>>(
+    tableName: string
+  ): SimpleRepository<T> {
+    return this.repositoryFactory.getRepository<T>(tableName);
   }
 
   /**
@@ -303,22 +320,21 @@ export class PostgRESTClientImpl {
   }
 
   /**
-   * Get repository for a table (TypeORM-style)
-   */
-  getRepository<T extends Record<string, unknown>>(
-    tableName: string
-  ): Repository<T> {
-    return this.manager.getRepository<T>(tableName);
-  }
-
-  /**
    * Get custom repository instance
+   * @example
+   * class UserRepository extends CustomRepositoryBase<User> {
+   *   async findActiveUsers(): Promise<User[]> {
+   *     return this.findBy({ active: true });
+   *   }
+   * }
+   * 
+   * const userRepo = client.getCustomRepository(UserRepository, 'users');
    */
-  getCustomRepository<T extends any>(
-    repositoryClass: new (...args: any[]) => T,
+  getCustomRepository<T extends CustomRepositoryBase<any>>(
+    repositoryClass: new (tableName: string, client: PostgRESTClient) => T,
     tableName: string
   ): T {
-    return this.manager.getCustomRepository(repositoryClass as any, tableName) as T;
+    return this.repositoryFactory.getCustomRepository(repositoryClass, tableName);
   }
 
   /**

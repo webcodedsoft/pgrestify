@@ -93,6 +93,12 @@ export interface ClientConfig {
 }
 
 // Query state and operations
+export interface RelationConfig {
+  name: string;
+  alias: string;
+  columns: string[] | '*';
+}
+
 export interface QueryState<T = Record<string, unknown>> {
   select?: string;
   filters: Filter<T>[];
@@ -104,6 +110,7 @@ export interface QueryState<T = Record<string, unknown>> {
   having?: string;
   role?: string;
   joins?: JoinConfig[];
+  relations?: RelationConfig[];
   // Raw PostgREST integration fields
   rawParams?: Record<string, string>;
   rawFilters?: Record<string, string>;

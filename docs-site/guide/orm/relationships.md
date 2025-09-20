@@ -1,17 +1,18 @@
 # Relationships
 
-PGRestify handles relationships through PostgREST's powerful resource embedding syntax, allowing you to fetch related data in a single query. While PostgREST doesn't use traditional JOIN syntax, it provides even more flexible ways to load related data through foreign key relationships and computed columns.
+PGRestify handles relationships through both PostgREST's resource embedding syntax and ORM-style query builder joins, allowing you to fetch related data in a single query with either approach.
 
 ## Overview
 
 Relationships in PGRestify work through:
 
-- **Resource Embedding**: Load related data using PostgREST's embedding syntax
+- **PostgREST Resource Embedding**: Load related data using PostgREST's embedding syntax
+- **ORM-Style Joins**: Use `leftJoinAndSelect()` and `innerJoinAndSelect()` methods
 - **Foreign Key Navigation**: Follow foreign key relationships automatically
 - **Reverse Relationships**: Query from referenced table back to referencing table
 - **Deep Nesting**: Load multiple levels of related data
 - **Filtering on Relationships**: Filter parent records by related data
-- **Computed Relationships**: Use database functions to compute relationships
+- **Dual Syntax Support**: Choose between PostgREST embedding or SQL-style joins
 
 ## Basic Relationship Patterns
 
@@ -37,11 +38,11 @@ interface UserProfile {
 
 // User with profile (one-to-one)
 async function oneToOneRelationships() {
-  const userRepository = dataManager.getRepository<User>('users');
+  const userRepository = client.getRepository<User>('users');
   
-  // Load user with profile
+  // Method 1: PostgREST embedding syntax
   const userWithProfile = await userRepository
-    .getQueryBuilder()
+    .createQueryBuilder()
     .select(`
       id,
       email,
@@ -56,22 +57,28 @@ async function oneToOneRelationships() {
         location
       )
     `)
-    .eq('id', 'user-123')
-    .single()
-    .execute();
+    .where('id = :id', { id: 'user-123' })
+    .getOne();
   
-  if (userWithProfile.data) {
-    const user = userWithProfile.data;
-    console.log(`User: ${user.first_name} ${user.last_name}`);
-    console.log(`Bio: ${user.profile?.bio || 'No bio'}`);
-    console.log(`Website: ${user.profile?.website || 'No website'}`);
+  if (userWithProfile) {
+    console.log(`User: ${userWithProfile.first_name} ${userWithProfile.last_name}`);
+    console.log(`Bio: ${userWithProfile.profile?.bio || 'No bio'}`);
+    console.log(`Website: ${userWithProfile.profile?.website || 'No website'}`);
   }
   
-  // Alternative: Load profile with user (reverse direction)
-  const profileRepository = dataManager.getRepository<UserProfile>('profiles');
+  // Method 2: ORM-style join
+  const userWithProfileJoin = await userRepository
+    .createQueryBuilder()
+    .leftJoinAndSelect('profiles', 'profile')
+    .where('id = :id', { id: 'user-123' })
+    .getOne();
   
+  // Alternative: Load profile with user (reverse direction)
+  const profileRepository = client.getRepository<UserProfile>('profiles');
+  
+  // Method 1: PostgREST embedding
   const profileWithUser = await profileRepository
-    .getQueryBuilder()
+    .createQueryBuilder()
     .select(`
       id,
       bio,
@@ -85,15 +92,20 @@ async function oneToOneRelationships() {
         last_name
       )
     `)
-    .eq('user_id', 'user-123')
-    .single()
-    .execute();
+    .where('user_id = :userId', { userId: 'user-123' })
+    .getOne();
   
-  if (profileWithUser.data) {
-    const profile = profileWithUser.data;
-    console.log(`Profile for: ${profile.user.first_name} ${profile.user.last_name}`);
-    console.log(`Bio: ${profile.bio}`);
+  if (profileWithUser) {
+    console.log(`Profile for: ${profileWithUser.user.first_name} ${profileWithUser.user.last_name}`);
+    console.log(`Bio: ${profileWithUser.bio}`);
   }
+  
+  // Method 2: ORM-style join
+  const profileWithUserJoin = await profileRepository
+    .createQueryBuilder()
+    .leftJoinAndSelect('users', 'user')
+    .where('user_id = :userId', { userId: 'user-123' })
+    .getOne();
 }
 ```
 

@@ -1,12 +1,12 @@
 # Repository Pattern
 
-PGRestify implements the Repository pattern popularized by TypeORM, providing a clean, object-oriented interface for database operations. This pattern abstracts database access logic and provides a consistent API for working with your PostgREST endpoints.
+PGRestify implements the Repository pattern popularized by ORM, providing a clean, object-oriented interface for database operations. This pattern abstracts database access logic and provides a consistent API for working with your PostgREST endpoints.
 
 ## Overview
 
 The Repository pattern in PGRestify offers:
 
-- **TypeORM-like API**: Familiar methods for developers coming from TypeORM
+- **ORM-like API**: Familiar methods for developers coming from ORM
 - **Type Safety**: Full TypeScript support with generic types
 - **Query Builder Integration**: Access to the underlying query builder when needed
 - **Standardized CRUD Operations**: Consistent interface for all database operations
@@ -537,7 +537,7 @@ class UserService {
 
 The Repository pattern in PGRestify provides:
 
-- **Familiar API**: TypeORM-like methods for easy adoption
+- **Familiar API**: ORM-like methods for easy adoption
 - **Type Safety**: Full TypeScript support with generic repositories
 - **Flexibility**: Access to underlying query builder when needed
 - **Consistency**: Standardized CRUD operations across all tables

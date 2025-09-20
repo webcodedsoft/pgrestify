@@ -1,8 +1,8 @@
-<!-- TODO: TypeORM-Style API & Entity System temporarily disabled for security review
+<!-- TODO: ORM-Style API & Entity System temporarily disabled for security review
 
-# TypeORM-Style API & Entity System
+# ORM-Style API & Entity System
 
-PGRestify provides a familiar, TypeORM-inspired API that makes database interactions intuitive and type-safe. It includes both a client API and a complete entity system with decorators for schema generation.
+PGRestify provides a familiar, ORM-inspired API that makes database interactions intuitive and type-safe. It includes both a client API and a complete entity system with decorators for schema generation.
 
 ## Repository Pattern
 
@@ -146,7 +146,7 @@ try {
 
 ## Entity System & Schema Generation
 
-PGRestify includes a complete TypeORM-like entity system for defining database schemas using TypeScript decorators.
+PGRestify includes a complete ORM-like entity system for defining database schemas using TypeScript decorators.
 
 ### Generating Entities
 

@@ -1,6 +1,6 @@
 # Query Methods
 
-PGRestify's Repository pattern provides TypeORM-style query methods that make database operations intuitive and type-safe. This guide covers all the query methods available through the Repository class and QueryBuilder integration.
+PGRestify's Repository pattern provides ORM-style query methods that make database operations intuitive and type-safe. This guide covers all the query methods available through the Repository class and QueryBuilder integration.
 
 ## Overview
 
@@ -719,4 +719,4 @@ PGRestify's query methods provide:
 - **Relationship Queries**: Join related data using PostgREST's powerful selection syntax
 - **Error Handling**: Robust error handling with specific PostgREST error types
 
-These methods provide a TypeORM-like experience while leveraging PostgREST's powerful querying capabilities and maintaining full type safety throughout your application.
+These methods provide a ORM-like experience while leveraging PostgREST's powerful querying capabilities and maintaining full type safety throughout your application.

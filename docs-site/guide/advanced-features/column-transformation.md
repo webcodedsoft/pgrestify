@@ -1,10 +1,12 @@
 # Column Name Transformation
 
-Transform between JavaScript `camelCase` and PostgreSQL `snake_case` column names automatically.
+Transform between JavaScript `camelCase` and PostgreSQL `snake_case` column names automatically with both PostgREST syntax and ORM-style repository patterns.
 
 ## Overview
 
 PGRestify provides automatic bidirectional column name transformation, similar to naming strategies in ORMs. This feature allows you to write JavaScript code using familiar `camelCase` naming conventions while maintaining PostgreSQL `snake_case` standards in your database.
+
+Both PostgREST native syntax and repository patterns support full column transformation capabilities.
 
 ### Key Benefits
 
@@ -19,7 +21,9 @@ PGRestify provides automatic bidirectional column name transformation, similar t
 
 ### Basic Example
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 import { createClient } from '@webcoded/pgrestify';
 
 // Enable transformation globally
@@ -49,6 +53,52 @@ const users = await client
 // Response data has camelCase properties
 console.log(users.data[0].firstName); // ✅ Works!
 ```
+
+```typescript [Repository Pattern]
+import { createClient } from '@webcoded/pgrestify';
+
+// Enable transformation globally
+const client = createClient({
+  url: 'http://localhost:3000',
+  transformColumns: true  // Default: false
+});
+
+// Use camelCase in your TypeScript interfaces
+interface User {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+// Get repository with transformation
+const userRepo = client.getRepository<User>('users');
+
+// Repository methods automatically use transformation
+const users = await userRepo.find({
+  select: ['userId', 'firstName', 'lastName'],
+  where: { isActive: true },
+  order: { createdAt: 'DESC' },
+  take: 10
+});
+
+// Response data has camelCase properties
+console.log(users[0].firstName); // ✅ Works!
+
+// Alternative: Query builder with repository
+const queryBuilderUsers = await userRepo
+  .createQueryBuilder()
+  .select(['userId', 'firstName', 'lastName'])
+  .where('isActive = :active', { active: true })
+  .orderBy('createdAt', 'DESC')
+  .getMany();
+
+console.log(queryBuilderUsers[0].firstName); // ✅ Works!
+```
+
+:::
 
 ### What Happens Under the Hood
 
@@ -84,7 +134,9 @@ const client = createClient({
 
 Override global settings for specific queries:
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 const client = createClient({
   url: 'http://localhost:3000',
   transformColumns: false  // Disabled globally
@@ -102,6 +154,42 @@ const query2 = client
   .transformColumns(false) // ✅ Explicit disable
   .select('first_name', 'last_name');
 ```
+
+```typescript [Repository Pattern]
+const client = createClient({
+  url: 'http://localhost:3000',
+  transformColumns: false  // Disabled globally
+});
+
+const userRepo = client.getRepository<User>('users');
+
+// Enable transformation for specific repository queries
+const usersWithTransform = await userRepo.find({
+  select: ['firstName', 'lastName'],
+  transformColumns: true  // ✅ Enable transformation
+});
+
+// Keep disabled for specific queries
+const usersWithoutTransform = await userRepo.find({
+  select: ['first_name', 'last_name'],
+  transformColumns: false // ✅ Explicit disable
+});
+
+// Query builder with transformation control
+const transformedQuery = await userRepo
+  .createQueryBuilder()
+  .select(['firstName', 'lastName'])
+  .transformColumns(true)  // ✅ Enable for this query
+  .getMany();
+
+const rawQuery = await userRepo
+  .createQueryBuilder()
+  .select(['first_name', 'last_name'])
+  .transformColumns(false) // ✅ Keep disabled
+  .getMany();
+```
+
+:::
 
 ### React Hook Configuration
 
@@ -132,7 +220,9 @@ All query methods support column transformation:
 
 ### Find Methods
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // findOne() with transformation
 const user = await client
   .from('users')
@@ -164,6 +254,51 @@ const courses = await client
   });
 ```
 
+```typescript [Repository Pattern]
+// Repository findOne() with transformation
+const userRepo = client.getRepository<User>('users');
+const courseRepo = client.getRepository<Course>('course');
+
+const user = await userRepo.findOne({
+  where: { userId: 1 },
+  select: ['firstName', 'lastName', 'emailAddress']
+  // transformColumns inherited from client configuration
+});
+
+// findOneOrFail() with relations
+const courseWithCategory = await courseRepo.findOneOrFail({
+  where: { id: 'uuid-here' },
+  relations: ['courseCategory', 'courseTranslation'],
+  select: ['id', 'finalPrice', 'createdAt']
+});
+
+// find() with complex queries
+const courses = await courseRepo.find({
+  where: { publishedAt: true },
+  select: ['id', 'finalPrice', 'courseCategory.categoryName'],
+  order: { createdAt: 'DESC' },
+  take: 10
+});
+
+// Query builder equivalents
+const userWithBuilder = await userRepo
+  .createQueryBuilder()
+  .select(['firstName', 'lastName', 'emailAddress'])
+  .where('userId = :id', { id: 1 })
+  .getOne();
+
+const coursesWithBuilder = await courseRepo
+  .createQueryBuilder('c')
+  .leftJoinAndSelect('c.courseCategory', 'category')
+  .select(['c.id', 'c.finalPrice', 'category.categoryName'])
+  .where('c.publishedAt = :published', { published: true })
+  .orderBy('c.createdAt', 'DESC')
+  .take(10)
+  .getMany();
+```
+
+:::
+
 ### Direct Query Building
 
 ```typescript
@@ -194,7 +329,9 @@ const coursesWithDetails = await client
 
 Transformation works for all mutation operations:
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // INSERT with transformation
 const newUser = await client
   .from('users')
@@ -229,6 +366,80 @@ await client
   })
   .execute();
 ```
+
+```typescript [Repository Pattern]
+// Repository mutations with transformation
+const userRepo = client.getRepository<User>('users');
+const preferencesRepo = client.getRepository<UserPreferences>('user_preferences');
+
+// INSERT with repository save
+const newUser = await userRepo.save({
+  firstName: 'Jane',        // → first_name
+  lastName: 'Smith',        // → last_name
+  emailAddress: 'jane@example.com', // → email_address
+  isActive: true           // → is_active
+});
+
+// Alternative: using insert method
+const insertedUser = await userRepo.insert({
+  firstName: 'Jane',
+  lastName: 'Smith',
+  emailAddress: 'jane@example.com',
+  isActive: true
+});
+
+// UPDATE with repository
+const updatedUser = await userRepo.update(
+  { userId: 1 },              // → user_id
+  {
+    firstName: 'Jane Updated', // → first_name
+    lastLoginAt: new Date()    // → last_login_at
+  }
+);
+
+// Alternative: using save for updates
+const existingUser = await userRepo.findOne({ userId: 1 });
+if (existingUser) {
+  existingUser.firstName = 'Jane Updated';
+  existingUser.lastLoginAt = new Date();
+  await userRepo.save(existingUser);
+}
+
+// UPSERT with repository save (automatic upsert behavior)
+await preferencesRepo.save({
+  userId: 1,                // → user_id
+  themePreference: 'dark',  // → theme_preference
+  notificationsEnabled: true // → notifications_enabled
+});
+
+// Custom repository methods with transformation
+class UserRepository extends CustomRepositoryBase<User> {
+  async updateProfile(userId: number, profileData: Partial<User>) {
+    return this.update(
+      { userId },             // → user_id
+      {
+        ...profileData,
+        updatedAt: new Date() // → updated_at
+      }
+    );
+  }
+
+  async createUserWithPreferences(userData: Partial<User>, preferences: any) {
+    const user = await this.save(userData);
+    
+    if (user) {
+      await this.manager.getRepository('user_preferences').save({
+        userId: user.userId,  // → user_id
+        ...preferences
+      });
+    }
+    
+    return user;
+  }
+}
+```
+
+:::
 
 ### Bulk Operations
 
@@ -544,8 +755,10 @@ users.data.forEach(user => {
 
 ### Generic Repository Pattern
 
-```typescript
-class UserRepository {
+::: code-group
+
+```typescript [PostgREST Syntax]
+class UserService {
   constructor(private client: PostgRESTClient) {}
 
   async findByEmail(email: string): Promise<User | null> {
@@ -569,8 +782,98 @@ class UserRepository {
     if (result.error) throw new Error(result.error.message);
     return result.data!;
   }
+
+  async updateProfile(userId: number, updates: Partial<User>): Promise<User> {
+    const result = await this.client
+      .from<User>('users')
+      .transformColumns(true)
+      .update(updates)
+      .where('userId', 'eq', userId)
+      .single()
+      .execute();
+
+    if (result.error) throw new Error(result.error.message);
+    return result.data!;
+  }
 }
 ```
+
+```typescript [Repository Pattern]
+class UserRepository extends CustomRepositoryBase<User> {
+  async findByEmail(email: string): Promise<User | null> {
+    return this.findOne({
+      where: { emailAddress: email },
+      select: ['userId', 'firstName', 'lastName', 'isActive']
+      // transformColumns inherited from client configuration
+    });
+  }
+
+  async create(userData: Omit<User, 'userId' | 'createdAt'>): Promise<User> {
+    return this.save({
+      ...userData,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  async updateProfile(userId: number, updates: Partial<User>): Promise<User> {
+    const existingUser = await this.findOne({ userId });
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    return this.save({
+      ...existingUser,
+      ...updates,
+      updatedAt: new Date().toISOString()
+    });
+  }
+
+  async findActiveUsers(limit: number = 10): Promise<User[]> {
+    return this.find({
+      where: { isActive: true },
+      select: ['userId', 'firstName', 'lastName', 'emailAddress'],
+      order: { createdAt: 'DESC' },
+      take: limit
+    });
+  }
+
+  async createWithPreferences(
+    userData: Omit<User, 'userId' | 'createdAt'>,
+    preferences: any
+  ): Promise<User> {
+    // Use transaction for atomicity
+    return this.manager.transaction(async (transactionalEntityManager) => {
+      const userRepo = transactionalEntityManager.getRepository<User>('users');
+      const prefRepo = transactionalEntityManager.getRepository('user_preferences');
+
+      const user = await userRepo.save({
+        ...userData,
+        createdAt: new Date().toISOString()
+      });
+
+      await prefRepo.save({
+        userId: user.userId,  // → user_id
+        ...preferences
+      });
+
+      return user;
+    });
+  }
+}
+
+// Usage
+const userRepo = client.getCustomRepository(UserRepository);
+
+const user = await userRepo.findByEmail('john@example.com');
+const newUser = await userRepo.create({
+  firstName: 'John',
+  lastName: 'Doe',
+  emailAddress: 'john@example.com',
+  isActive: true
+});
+```
+
+:::
 
 ## Performance Considerations
 
