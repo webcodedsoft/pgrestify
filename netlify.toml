@@ -6,6 +6,18 @@
   NODE_VERSION = "20"
   PNPM_VERSION = "8.15.4"
 
+# Deploy only from main branch
+[context.production]
+  command = "cd docs-site && pnpm install && pnpm docs:build"
+
+# Disable deploy previews for pull requests
+[context.deploy-preview]
+  command = "echo 'Deploy previews disabled for this open-source project'"
+
+# Disable branch deploys (except main)
+[context.branch-deploy]
+  command = "echo 'Branch deploys disabled for this open-source project'"
+
 [[headers]]
   for = "/*"
   [headers.values]
