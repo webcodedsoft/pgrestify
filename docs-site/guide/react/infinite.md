@@ -11,7 +11,7 @@ Infinite queries in PGRestify handle:
 - **Bidirectional Loading**: Load both older and newer content
 - **Intelligent Caching**: Efficiently cache and manage large datasets
 - **Optimistic Updates**: Update infinite lists optimistically
-- **Performance Optimization**: Virtual scrolling and smart loading
+- **Performance Optimization**: Virtual scrolling and smart isLoading
 
 ## Basic Infinite Query
 
@@ -75,7 +75,7 @@ function InfinitePostsList() {
 
 ### Automatic Infinite Scrolling
 
-Add automatic loading when scrolling near the bottom:
+Add automatic isLoading when scrolling near the bottom:
 
 ```typescript
 import { useInfiniteQuery } from '@webcoded/pgrestify/react';
@@ -102,7 +102,7 @@ function AutoInfinitePostsList() {
     initialPageParam: 0,
   });
 
-  // Intersection observer hook for automatic loading
+  // Intersection observer hook for automatic isLoading
   const { ref: loadMoreRef } = useIntersection({
     onIntersect: () => {
       if (hasNextPage && !isFetchingNextPage) {
@@ -130,7 +130,7 @@ function AutoInfinitePostsList() {
       {/* Loading trigger element */}
       <div ref={loadMoreRef} className="load-trigger">
         {isFetchingNextPage && (
-          <div className="loading-spinner">Loading more posts...</div>
+          <div className="isLoading-spinner">Loading more posts...</div>
         )}
         {!hasNextPage && posts.length > 0 && (
           <div className="end-message">No more posts to load</div>
@@ -429,7 +429,7 @@ function VirtualInfiniteList() {
     
     if (!post) {
       return (
-        <div style={style} className="loading-item">
+        <div style={style} className="isLoading-item">
           Loading...
         </div>
       );
@@ -1029,7 +1029,7 @@ const getOptimalPageSize = (itemType: 'text' | 'image' | 'video') => {
 ### Loading States
 
 ```typescript
-// Good: Comprehensive loading state management
+// Good: Comprehensive isLoading state management
 function LoadingStates({ isLoading, isFetchingNextPage, hasNextPage, posts }: any) {
   if (isLoading) return <div>Loading initial posts...</div>;
   

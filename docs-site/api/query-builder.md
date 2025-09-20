@@ -20,8 +20,19 @@ ORM-inspired query builder with parameter binding, complex WHERE conditions, and
 
 ```typescript
 interface QueryBuilder<T = Record<string, unknown>> {
-  // Select specific columns
-  select(...columns: (keyof T)[]): QueryBuilder<T>;
+  // Select specific columns (supports arrays and aliasing)
+  select(...columns: (keyof T | string)[]): QueryBuilder<T>;
+  select(columns: (keyof T | string)[]): QueryBuilder<T>;
+  
+  // Relations for table joins
+  relations(relations: string[]): QueryBuilder<T>;
+  
+  // Ordering methods
+  order(column: keyof T | string): QueryBuilder<T>;
+  order(column: keyof T | string, options: { 
+    ascending?: boolean; 
+    nullsFirst?: boolean 
+  }): QueryBuilder<T>;
   
   // Filter methods
   eq(column: keyof T, value: T[keyof T]): QueryBuilder<T>;
@@ -51,21 +62,88 @@ const userQuery = client.from<User>('users');
 
 ## Selection Methods
 
+### Array Syntax (Recommended)
+
 ```typescript
-// Select specific columns
+// Select specific columns using array
 const selectedUsers = await client
   .from<User>('users')
-  .select('id', 'name', 'email')
+  .select(['id', 'name', 'email'])
   .execute();
 
-// Select with aliases
+// Select with aliases using array and AS keyword
 const aliasedUsers = await client
+  .from<User>('users')
+  .select([
+    'id AS user_id',
+    'name AS full_name', 
+    'email AS contact_email'
+  ])
+  .execute();
+
+// Mixed selection with and without aliases
+const mixedSelection = await client
+  .from<User>('users')
+  .select([
+    'id',
+    'name AS full_name',
+    'email',
+    'created_at AS signup_date'
+  ])
+  .execute();
+
+// Dynamic column selection
+const columns = ['id', 'name AS username', 'email'];
+const dynamicUsers = await client
+  .from<User>('users')
+  .select(columns)
+  .execute();
+```
+
+### String Syntax
+
+```typescript
+// Traditional string syntax
+const stringUsers = await client
+  .from<User>('users')
+  .select('id, name, email')
+  .execute();
+
+// String syntax with PostgREST colon aliases
+const colonAliases = await client
+  .from<User>('users')
+  .select(`
+    id,
+    name:full_name,
+    email:contact_email
+  `)
+  .execute();
+
+// String syntax with AS keyword aliases
+const asAliases = await client
   .from<User>('users')
   .select(`
     id as user_id, 
     name as full_name, 
     email as contact_email
   `)
+  .execute();
+```
+
+### Complex Selection with Relations and Aliases
+
+```typescript
+// Array syntax with relations and aliases
+const complexSelection = await client
+  .from<User>('users')
+  .select([
+    'id AS user_id',
+    'name AS full_name',
+    'profile.bio AS user_bio',
+    'profile.avatar_url AS profile_image',
+    'posts.title AS latest_post_title'
+  ])
+  .relations(['profile', 'posts'])
   .execute();
 ```
 
@@ -115,20 +193,111 @@ const roleFilter = await client
 
 ## Sorting and Ordering
 
+### Single Column Ordering
+
 ```typescript
-// Basic ordering
+// Ascending order (default)
 const orderedUsers = await client
+  .from<User>('users')
+  .select('*')
+  .order('name')
+  .execute();
+
+// Descending order
+const recentUsers = await client
   .from<User>('users')
   .select('*')
   .order('created_at', { ascending: false })
   .execute();
 
-// Multiple column ordering
+// With null handling
+const usersWithNulls = await client
+  .from<User>('users')
+  .select('*')
+  .order('last_login', { ascending: false, nullsFirst: false })
+  .execute();
+```
+
+### Multiple Column Ordering
+
+Chain multiple `.order()` calls for complex sorting:
+
+```typescript
+// Two-column sort: age descending, then name ascending
 const complexOrdering = await client
   .from<User>('users')
   .select('*')
   .order('age', { ascending: false })
   .order('name', { ascending: true })
+  .execute();
+
+// Three-column sort: status, date, name
+const prioritizedUsers = await client
+  .from<User>('users')
+  .select('*')
+  .order('is_active', { ascending: false })
+  .order('created_at', { ascending: false })
+  .order('name')
+  .execute();
+
+// Complex business logic sorting
+const productsByImportance = await client
+  .from<Product>('products')
+  .select('*')
+  .order('featured', { ascending: false })     // Featured first
+  .order('in_stock', { ascending: false })     // In-stock next
+  .order('category')                           // Group by category
+  .order('rating', { ascending: false })       // Best rated first
+  .order('price')                              // Cheapest first
+  .execute();
+```
+
+### Dynamic Multiple Ordering
+
+```typescript
+interface OrderCriteria {
+  column: string;
+  ascending?: boolean;
+  nullsFirst?: boolean;
+}
+
+// Build dynamic multi-column sorts
+const buildMultiSort = (table: string, criteria: OrderCriteria[]) => {
+  let query = client.from(table).select('*');
+  
+  criteria.forEach(sort => {
+    query = query.order(sort.column, {
+      ascending: sort.ascending !== false,
+      nullsFirst: sort.nullsFirst
+    });
+  });
+  
+  return query;
+};
+
+// Usage
+const dynamicSort = await buildMultiSort('orders', [
+  { column: 'priority', ascending: false },
+  { column: 'due_date', ascending: true },
+  { column: 'customer_name', ascending: true }
+]).execute();
+```
+
+### String-Based Ordering
+
+```typescript
+// PostgREST string format for single sort
+const singleSort = await client
+  .from<Product>('products')
+  .select('*')
+  .order('price.desc')
+  .execute();
+
+// PostgREST string format for multiple sorts
+const multiSort = await client
+  .from<User>('users')
+  .select('*')
+  .order('is_active.desc,created_at.desc,name.asc')
   .execute();
 ```
 
@@ -197,6 +366,33 @@ const roleStats = await client
 ```
 
 ## Joins and Embedded Resources
+
+### Relations Array Syntax
+
+```typescript
+// Simple relation
+const usersWithProfile = await client
+  .from<User>('users')
+  .select(['id', 'name', 'email', 'profile.bio', 'profile.avatar_url'])
+  .relations(['profile'])
+  .execute();
+
+// Multiple relations
+const usersWithData = await client
+  .from<User>('users')
+  .select(['id', 'name', 'posts.title', 'comments.content'])
+  .relations(['posts', 'comments'])
+  .execute();
+
+// Nested relations
+const deepData = await client
+  .from<User>('users')
+  .select(['id', 'name', 'posts.title', 'posts.comments.content'])
+  .relations(['posts.comments'])
+  .execute();
+```
+
+### PostgREST Embedded Resources
 
 ```typescript
 // One-to-many join

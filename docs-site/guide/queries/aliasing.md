@@ -4,13 +4,55 @@ PGRestify provides flexible column aliasing capabilities, allowing you to rename
 
 ## Basic Column Aliasing
 
+PGRestify supports column aliasing in multiple ways:
+
+### Array Syntax with AS Keyword
+
 ```typescript
 import { createClient } from '@webcoded/pgrestify';
 
 const client = createClient('http://localhost:3000');
 
-// Simple column aliasing
+// Array syntax with aliases
 const aliasedQuery = await client
+  .from('users')
+  .select([
+    'id AS user_id', 
+    'name AS full_name', 
+    'email AS contact_email'
+  ])
+  .find();
+
+// Mixed array syntax
+const mixedAliases = await client
+  .from('users')
+  .select([
+    'id AS user_id',
+    'first_name AS firstName', 
+    'last_name AS lastName',
+    'email',  // No alias
+    'created_at AS signupDate'
+  ])
+  .find();
+
+// With relations and aliases
+const aliasedRelations = await client
+  .from('users')
+  .select([
+    'id AS user_id',
+    'name AS full_name',
+    'profile.bio AS userBio',
+    'profile.avatar_url AS profileImage'
+  ])
+  .relations(['profile'])
+  .find();
+```
+
+### String Syntax with AS Keyword
+
+```typescript
+// Traditional string syntax with aliases
+const stringAliases = await client
   .from('users')
   .select(`
     id as user_id, 
@@ -23,8 +65,19 @@ const aliasedQuery = await client
 ## Computed Column Aliases
 
 ```typescript
-// Computed column aliases
+// Array syntax with computed aliases
 const computedAliases = await client
+  .from('orders')
+  .select([
+    'id',
+    'total',
+    'total * 0.1 AS tax_amount',
+    'total - (total * 0.1) AS final_total'
+  ])
+  .find();
+
+// String syntax with computed aliases
+const stringComputedAliases = await client
   .from('orders')
   .select(`
     id,
@@ -38,8 +91,20 @@ const computedAliases = await client
 ## Aggregate Function Aliases
 
 ```typescript
-// Aggregate function aliases
+// Array syntax with aggregate aliases
 const aggregateAliases = await client
+  .from('products')
+  .select([
+    'category',
+    'count(*) AS product_count',
+    'avg(price) AS average_price',
+    'max(price) AS highest_price'
+  ])
+  .groupBy('category')
+  .find();
+
+// String syntax with aggregate aliases
+const stringAggregateAliases = await client
   .from('products')
   .select(`
     category,
@@ -48,6 +113,43 @@ const aggregateAliases = await client
     max_price:max(price) as highest_price
   `)
   .groupBy('category')
+  .find();
+```
+
+## Advanced Array Syntax Features
+
+### Case-Insensitive AS Keyword
+
+```typescript
+// Case variations supported in array syntax
+const caseVariations = await client
+  .from('users')
+  .select([
+    'id AS user_id',        // Uppercase AS
+    'name as full_name',    // Lowercase as
+    'email As contact',     // Mixed case As
+    'created_at aS signup'  // Mixed case aS
+  ])
+  .find();
+```
+
+### Complex Field Selection with Aliases
+
+```typescript
+// Complex field selection in arrays
+const complexSelection = await client
+  .from('users')
+  .select([
+    'id',
+    'first_name AS firstName',
+    'last_name AS lastName', 
+    'CONCAT(first_name, \' \', last_name) AS full_name',
+    'EXTRACT(YEAR FROM created_at) AS signup_year',
+    'profile.bio AS user_bio',
+    'profile.avatar_url AS profile_image',
+    'posts.title AS latest_post'
+  ])
+  .relations(['profile', 'posts'])
   .find();
 ```
 

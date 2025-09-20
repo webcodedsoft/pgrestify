@@ -7,7 +7,7 @@ Next.js App Router is the modern routing system built on React Server Components
 App Router features supported by PGRestify:
 
 - **React Server Components**: Direct database access in server components
-- **Streaming & Suspense**: Progressive page loading with fallback UI
+- **Streaming & Suspense**: Progressive page isLoading with fallback UI
 - **Parallel Routes**: Load multiple route segments simultaneously  
 - **Intercepting Routes**: Intercept and modify route behavior
 - **Route Groups**: Organize routes without affecting URL structure
@@ -31,7 +31,7 @@ pnpm add @webcoded/pgrestify next@latest react@latest react-dom@latest
 app/
 ├── layout.tsx              # Root layout
 ├── page.tsx               # Home page
-├── loading.tsx            # Loading UI
+├── isLoading.tsx            # Loading UI
 ├── error.tsx              # Error UI
 ├── not-found.tsx          # 404 page
 ├── global-error.tsx       # Global error boundary
@@ -518,17 +518,17 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold">Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Fast loading component */}
+        {/* Fast isLoading component */}
         <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded"></div>}>
           <UserStats />
         </Suspense>
         
-        {/* Slower loading component */}
+        {/* Slower isLoading component */}
         <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded"></div>}>
           <RecentPosts />
         </Suspense>
         
-        {/* Very slow loading component */}
+        {/* Very slow isLoading component */}
         <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded"></div>}>
           <Analytics />
         </Suspense>

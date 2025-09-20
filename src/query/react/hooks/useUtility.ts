@@ -1,6 +1,6 @@
 /**
  * Utility Hooks
- * Additional hooks for TanStack Query-compatible functionality
+ * Additional hooks for React Query-compatible functionality
  */
 
 import { useSyncExternalStore, useCallback } from 'react';

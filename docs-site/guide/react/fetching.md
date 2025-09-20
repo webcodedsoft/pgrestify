@@ -19,13 +19,14 @@ interface User {
 }
 
 function UserList() {
-  const { data: users, loading, error } = useQuery<User>({
+  const { data: users, isLoading, error } = useQuery<User>({
+    queryKey: ['users'],
     from: 'users',
     select: ['id', 'name', 'email'],
     order: { column: 'name', ascending: true }
   });
 
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
@@ -44,13 +45,14 @@ Use `useSingleQuery` when you need exactly one record:
 
 ```tsx
 function UserProfile({ userId }: { userId: string }) {
-  const { data: user, loading, error } = useSingleQuery<User>({
+  const { data: user, isLoading, error } = useSingleQuery<User>({
+    queryKey: ['user', userId],
     from: 'users',
     select: '*',
     filter: { id: userId }
   });
 
-  if (loading) return <div>Loading user...</div>;
+  if (isLoading) return <div>Loading user...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!user) return <div>User not found</div>;
 
@@ -73,7 +75,8 @@ function SearchableUserList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isActive, setIsActive] = useState<boolean | undefined>();
 
-  const { data: users, loading } = useQuery<User>({
+  const { data: users, isLoading } = useQuery<User>({
+    queryKey: ['users', 'search'],
     from: 'users',
     select: ['id', 'name', 'email', 'active'],
     filter: {
@@ -108,7 +111,7 @@ function SearchableUserList() {
         </select>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div>Searching...</div>
       ) : (
         <div className="user-list">
@@ -140,7 +143,8 @@ interface Post {
 }
 
 function PostList() {
-  const { data: posts, loading } = useQuery<Post>({
+  const { data: posts, isLoading } = useQuery<Post>({
+    queryKey: ['posts', 'with-authors'],
     from: 'posts',
     select: [
       'id',
@@ -154,7 +158,7 @@ function PostList() {
     limit: 10
   });
 
-  if (loading) return <div>Loading posts...</div>;
+  if (isLoading) return <div>Loading posts...</div>;
 
   return (
     <div className="posts">
@@ -183,6 +187,222 @@ function PostList() {
 }
 ```
 
+**Advanced Relations with Array Syntax, Aliases, and Multiple Sorting:**
+
+```tsx
+// E-commerce product catalog with relations, aliases, and sorting
+function ProductCatalogWithRelations() {
+  const { data: products, isLoading } = useQuery<Product>({
+    queryKey: ['products', 'catalog'],
+    from: 'products',
+    select: [
+      'id AS product_id',
+      'name AS product_name',
+      'price AS current_price',
+      'description AS product_description',
+      'category.name AS category_name',
+      'category.slug AS category_path',
+      'brand.name AS brand_name',
+      'brand.logo_url AS brand_logo',
+      'reviews.rating AS avg_rating',
+      'reviews.count AS total_reviews',
+      'inventory.stock AS available_stock'
+    ],
+    relations: ['category', 'brand', 'reviews', 'inventory'],
+    filter: { 
+      active: true,
+      'inventory.stock': 'gt.0' // Only in-stock products
+    },
+    order: [
+      { column: 'category.sort_order', ascending: true },     // Category priority
+      { column: 'reviews.rating', ascending: false },        // Best rated first
+      { column: 'brand.popularity', ascending: false },      // Popular brands first
+      { column: 'price', ascending: true }                   // Cheapest within category
+    ],
+    limit: 50
+  });
+
+  if (isLoading) return <div>Loading product catalog...</div>;
+
+  return (
+    <div className="product-catalog">
+      {products?.map(product => (
+        <div key={product.product_id} className="product-card">
+          <div className="product-header">
+            <img src={product.brand_logo} alt={product.brand_name} className="brand-logo" />
+            <span className="category">{product.category_name}</span>
+          </div>
+          
+          <h3 className="product-name">{product.product_name}</h3>
+          <p className="description">{product.product_description}</p>
+          
+          <div className="product-details">
+            <div className="price">${product.current_price}</div>
+            <div className="rating">
+              ⭐ {product.avg_rating} ({product.total_reviews} reviews)
+            </div>
+            <div className="stock">
+              {product.available_stock} in stock
+            </div>
+          </div>
+          
+          <div className="brand">Brand: {product.brand_name}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Blog platform with authors, categories, and tags
+function BlogPostsWithComplexRelations() {
+  const { data: posts, isLoading } = useQuery<BlogPost>({
+    from: 'posts',
+    select: [
+      'id AS post_id',
+      'title AS post_title',
+      'content AS post_content',
+      'excerpt AS post_excerpt',
+      'published_at AS publication_date',
+      'author.name AS author_name',
+      'author.email AS author_email',
+      'author.bio AS author_bio',
+      'author.avatar_url AS author_avatar',
+      'category.name AS category_name',
+      'category.color AS category_color',
+      'tags.name AS tag_names',
+      'comments.count AS total_comments',
+      'likes.count AS total_likes'
+    ],
+    relations: ['author', 'category', 'tags', 'comments', 'likes'],
+    filter: { 
+      published: true,
+      'author.active': true
+    },
+    order: [
+      { column: 'category.priority', ascending: true },       // Featured categories first
+      { column: 'published_at', ascending: false },          // Latest posts first
+      { column: 'likes.count', ascending: false },           // Popular posts prioritized
+      { column: 'author.reputation', ascending: false }      // Reputable authors first
+    ],
+    limit: 30
+  });
+
+  return (
+    <div className="blog-posts">
+      {posts?.map(post => (
+        <article key={post.post_id} className="blog-post">
+          <header className="post-header">
+            <div className="category" style={{ backgroundColor: post.category_color }}>
+              {post.category_name}
+            </div>
+            <h2 className="post-title">{post.post_title}</h2>
+            <p className="post-excerpt">{post.post_excerpt}</p>
+          </header>
+          
+          <div className="author-info">
+            <img src={post.author_avatar} alt={post.author_name} />
+            <div>
+              <div className="author-name">{post.author_name}</div>
+              <div className="author-bio">{post.author_bio}</div>
+            </div>
+          </div>
+          
+          <div className="post-meta">
+            <time>{new Date(post.publication_date).toLocaleDateString()}</time>
+            <div className="engagement">
+              <span>❤️ {post.total_likes}</span>
+              <span>💬 {post.total_comments}</span>
+            </div>
+          </div>
+          
+          <div className="tags">
+            {post.tag_names?.map((tag, index) => (
+              <span key={index} className="tag">{tag}</span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+// User dashboard with profile, activities, and statistics
+function UserDashboardWithRelations({ userId }: { userId: string }) {
+  const { data: userProfile, isLoading } = useQuery<UserProfile>({
+    from: 'users',
+    select: [
+      'id AS user_id',
+      'username AS display_name',
+      'email AS contact_email',
+      'created_at AS join_date',
+      'profile.bio AS user_bio',
+      'profile.avatar_url AS profile_image',
+      'profile.website AS personal_website',
+      'activities.action AS recent_actions',
+      'activities.created_at AS activity_dates',
+      'stats.posts_count AS total_posts',
+      'stats.comments_count AS total_comments',
+      'stats.likes_received AS total_likes_received'
+    ],
+    relations: ['profile', 'activities', 'stats'],
+    filter: { 
+      id: userId,
+      active: true
+    },
+    order: [
+      { column: 'activities.created_at', ascending: false },  // Latest activity first
+      { column: 'activities.importance', ascending: false }   // Important activities first
+    ]
+  });
+
+  if (isLoading) return <div>Loading user dashboard...</div>;
+  if (!userProfile) return <div>User not found</div>;
+
+  return (
+    <div className="user-dashboard">
+      <div className="profile-header">
+        <img src={userProfile.profile_image} alt="Profile" className="profile-avatar" />
+        <div className="profile-info">
+          <h1>{userProfile.display_name}</h1>
+          <p className="bio">{userProfile.user_bio}</p>
+          <a href={userProfile.personal_website} target="_blank" rel="noopener">
+            {userProfile.personal_website}
+          </a>
+          <p className="join-date">
+            Member since {new Date(userProfile.join_date).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+      
+      <div className="user-stats">
+        <div className="stat">
+          <span className="count">{userProfile.total_posts}</span>
+          <span className="label">Posts</span>
+        </div>
+        <div className="stat">
+          <span className="count">{userProfile.total_comments}</span>
+          <span className="label">Comments</span>
+        </div>
+        <div className="stat">
+          <span className="count">{userProfile.total_likes_received}</span>
+          <span className="label">Likes Received</span>
+        </div>
+      </div>
+      
+      <div className="recent-activity">
+        <h3>Recent Activity</h3>
+        {userProfile.recent_actions?.map((action, index) => (
+          <div key={index} className="activity-item">
+            <span className="action">{action}</span>
+            <time>{new Date(userProfile.activity_dates[index]).toLocaleString()}</time>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
 ### Dynamic Query Building
 
 ```tsx
@@ -197,7 +417,7 @@ interface SearchFilters {
 function DynamicPostSearch() {
   const [filters, setFilters] = useState<SearchFilters>({});
   
-  const { data: posts, loading, refetch } = useQuery<Post>({
+  const { data: posts, isLoading, refetch } = useQuery<Post>({
     from: 'posts',
     select: ['id', 'title', 'content', 'category', 'status', 'created_at'],
     filter: {
@@ -263,7 +483,7 @@ function DynamicPostSearch() {
         </button>
       </div>
 
-      {loading && <div>Searching...</div>}
+      {isLoading && <div>Searching...</div>}
       
       <div className="results">
         {posts?.map(post => (
@@ -287,7 +507,7 @@ function DynamicPostSearch() {
 
 ```tsx
 function CachedUserData({ userId }: { userId: string }) {
-  const { data: user, loading } = useQuery<User>({
+  const { data: user, isLoading } = useQuery<User>({
     from: 'users',
     select: '*',
     filter: { id: userId },
@@ -306,7 +526,7 @@ function CachedUserData({ userId }: { userId: string }) {
 
   return (
     <div>
-      {loading ? (
+      {isLoading ? (
         <div>Loading user data...</div>
       ) : user ? (
         <div>
@@ -335,7 +555,7 @@ function ConditionalData() {
   });
 
   // Detail query only runs when enabled
-  const { data: userDetails, loading: detailsLoading } = useQuery<User>({
+  const { data: userDetails, isLoading: detailsLoading } = useQuery<User>({
     from: 'users',
     select: '*',
     filter: { id: selectedUserId },
@@ -390,7 +610,8 @@ function ConditionalData() {
 
 ```tsx
 function SmartLoadingStates() {
-  const { data: posts, loading, error, refetch, isFetching } = useQuery<Post>({
+  const { data: posts, isLoading, error, refetch, isFetching } = useQuery<Post>({
+    queryKey: ['posts', 'smart-isLoading'],
     from: 'posts',
     select: '*',
     order: { column: 'created_at', ascending: false }
@@ -403,15 +624,15 @@ function SmartLoadingStates() {
         <button 
           onClick={() => refetch()}
           disabled={isFetching}
-          className={isFetching ? 'loading' : ''}
+          className={isFetching ? 'isLoading' : ''}
         >
           {isFetching ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
-      {/* Initial loading */}
-      {loading && !posts && (
-        <div className="loading-skeleton">
+      {/* Initial isLoading */}
+      {isLoading && !posts && (
+        <div className="isLoading-skeleton">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="skeleton-item">
               <div className="skeleton-title"></div>
@@ -429,11 +650,11 @@ function SmartLoadingStates() {
         </div>
       )}
 
-      {/* Data with background loading indicator */}
+      {/* Data with background isLoading indicator */}
       {posts && (
         <div className={`posts-container ${isFetching ? 'updating' : ''}`}>
-          {isFetching && !loading && (
-            <div className="background-loading">Updating...</div>
+          {isFetching && !isLoading && (
+            <div className="background-isLoading">Updating...</div>
           )}
           
           {posts.map(post => (
@@ -455,7 +676,7 @@ function SmartLoadingStates() {
 function RobustDataFetching() {
   const [retryCount, setRetryCount] = useState(0);
   
-  const { data, loading, error, refetch } = useQuery<User>({
+  const { data, isLoading, error, refetch } = useQuery<User>({
     from: 'users',
     select: '*',
     
@@ -479,9 +700,9 @@ function RobustDataFetching() {
     refetch();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="loading">
+      <div className="isLoading">
         <div className="spinner"></div>
         <p>Loading users...</p>
         {retryCount > 0 && <p>Retry attempt: {retryCount}</p>}
@@ -540,8 +761,8 @@ function DeduplicatedQueries() {
   // Only one network request will be made
   return (
     <div>
-      <div>Query 1 loading: {query1.loading.toString()}</div>
-      <div>Query 2 loading: {query2.loading.toString()}</div>
+      <div>Query 1 isLoading: {query1.isLoading.toString()}</div>
+      <div>Query 2 isLoading: {query2.isLoading.toString()}</div>
     </div>
   );
 }
@@ -554,14 +775,14 @@ function PrefetchedData() {
   const [selectedTab, setSelectedTab] = useState<'users' | 'posts'>('users');
 
   // Always fetch users (current tab)
-  const { data: users, loading: usersLoading } = useQuery<User>({
+  const { data: users, isLoading: usersLoading } = useQuery<User>({
     from: 'users',
     select: ['id', 'name', 'email'],
     enabled: selectedTab === 'users'
   });
 
   // Prefetch posts when not selected
-  const { data: posts, loading: postsLoading } = useQuery<Post>({
+  const { data: posts, isLoading: postsLoading } = useQuery<Post>({
     from: 'posts',
     select: ['id', 'title', 'content'],
     enabled: selectedTab === 'posts',
@@ -635,8 +856,8 @@ function BackgroundRefresh() {
     // Keep previous data while refetching
     keepPreviousData: true,
     
-    // Update in background without showing loading
-    notifyOnChangeProps: ['data', 'error'] // Don't notify about loading changes
+    // Update in background without showing isLoading
+    notifyOnChangeProps: ['data', 'error'] // Don't notify about isLoading changes
   });
 
   // Manual refresh
@@ -732,9 +953,10 @@ function QueryErrorBoundary({ children }: { children: React.ReactNode }) {
 ```tsx
 function SuspensefulQuery() {
   const { data: users } = useQuery<User>({
+    queryKey: ['users', 'suspense'],
     from: 'users',
     select: '*',
-    suspense: true // Use Suspense for loading
+    suspense: true // Use Suspense for isLoading
   });
 
   // This component will suspend until data is loaded

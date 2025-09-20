@@ -1,6 +1,6 @@
 /**
  * PGRestify Query System - Main Exports
- * TanStack Query-like implementation for PostgREST
+ * React Query-like implementation for PostgREST
  */
 
 // Core imports

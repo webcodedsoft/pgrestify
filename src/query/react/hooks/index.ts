@@ -6,7 +6,7 @@
 // Core hooks
 export {
   useQuery,
-  type UseTanStackQueryOptions,
+  type UsePGRestifyQueryOptions,
   type UseQueryOptions,
   type UseQueryResult,
 } from './useQuery';
@@ -19,7 +19,7 @@ export {
   useInfiniteSearch,
   useInfiniteFeed,
   useInfiniteTableQuery, // deprecated
-  type UseTanStackInfiniteQueryOptions,
+  type UsePGRestifyInfiniteQueryOptions,
   type UseTableInfiniteQueryOptions,
   type UseStandardInfiniteQueryOptions,
   type UseInfiniteQueryResult,

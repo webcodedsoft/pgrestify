@@ -130,19 +130,25 @@ console.log(allData);
 ::: code-group
 
 ```typescript [PostgREST Syntax]
-// String format
+// Array format (recommended)
 const products = await client
   .from('products')
-  .select('id, name, price')
+  .select(['id', 'name', 'price'])
   .execute();
 
 // Returns only: { id, name, price }
 
-// Array format (when dynamically building)
-const columns = ['id', 'name', 'price'];
-const products = await client
+// String format
+const stringProducts = await client
   .from('products')
-  .select(columns.join(', '))
+  .select('id, name, price')
+  .execute();
+
+// Dynamic column selection with array
+const columns = ['id', 'name', 'price'];
+const dynamicProducts = await client
+  .from('products')
+  .select(columns)
   .execute();
 ```
 
@@ -170,10 +176,39 @@ const dynamicProducts = await productRepo
 
 ### Column Aliases
 
+Rename columns in your query results using various syntax options:
+
 ::: code-group
 
-```typescript [PostgREST Syntax]
-// Rename columns in your query results
+```typescript [PostgREST Array Syntax]
+// Array syntax with AS keyword (recommended)
+const products = await client
+  .from('products')
+  .select([
+    'id',
+    'name AS product_name',
+    'price AS unit_price', 
+    'created_at AS date_added'
+  ])
+  .execute();
+
+// Returns: { id, product_name, unit_price, date_added }
+
+// Mixed aliases and regular columns
+const mixedProducts = await client
+  .from('products')
+  .select([
+    'id',
+    'name AS product_name',
+    'description',  // No alias
+    'price AS cost',
+    'category_id'   // No alias
+  ])
+  .execute();
+```
+
+```typescript [PostgREST String Syntax]
+// Traditional string syntax with PostgREST colon notation
 const products = await client
   .from('products')
   .select(`
@@ -184,21 +219,39 @@ const products = await client
   `)
   .execute();
 
-// Returns: { id, product_name, unit_price, date_added }
+// String syntax with AS keyword
+const productsWithAS = await client
+  .from('products')
+  .select(`
+    id,
+    name AS product_name,
+    price AS unit_price,
+    created_at AS date_added
+  `)
+  .execute();
 ```
 
 ```typescript [Repository Pattern]
-// Repository approach - use raw select strings for aliases
+// Repository approach - use arrays with AS keyword
 const productRepo = client.getRepository<Product>('products');
 
 const products = await productRepo
   .createQueryBuilder()
+  .select([
+    'id',
+    'name AS product_name',
+    'price AS unit_price',
+    'created_at AS date_added'
+  ])
+  .getMany();
+
+// Alternative: String syntax
+const stringProducts = await productRepo
+  .createQueryBuilder()
   .select('id, name as product_name, price as unit_price, created_at as date_added')
   .getMany();
 
-// Returns: { id, product_name, unit_price, date_added }
-
-// Alternative: Add individual selects with aliases
+// Individual selects with aliases
 const aliasedProducts = await productRepo
   .createQueryBuilder()
   .select('id')

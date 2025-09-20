@@ -413,13 +413,13 @@ import { useQuery } from '@webcoded/pgrestify/react';
 import { client } from '../lib/client';
 
 export function UserList() {
-  const { data: users, loading, error } = useQuery(
+  const { data: users, isLoading, error } = useQuery(
     client,
     'users',
     (query) => query.select('*').eq('active', true)
   );
 
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (

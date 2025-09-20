@@ -1,5 +1,5 @@
 /**
- * TypeORM-inspired query builder for PostgREST
+ * ORM-style query builder for PostgREST
  */
 
 import { 
@@ -35,7 +35,7 @@ import {
 } from '../utils/column-transform';
 
 /**
- * TypeORM-like query builder implementation
+ * ORM-style query builder implementation
  */
 export class QueryBuilder<T = Record<string, unknown>> {
   private readonly state: QueryState<T>;
@@ -308,7 +308,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     return this.addFilter(column, 'not', `${String(operator)}.${this.formatValue(value)}`);
   }
 
-  // TypeORM-like where methods
+  // ORM-style where methods
   where<K extends keyof T>(column: K | string, operator: FilterOperator, value: T[K] | unknown): QueryBuilder<T> {
     return this.addFilter(column, operator, value);
   }
@@ -626,7 +626,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     });
   }
 
-  // TypeORM-style convenience methods
+  // ORM-style convenience methods
   async find(options?: import('../types').FindManyOptions<T>): Promise<QueryResponse<T>> {
     let query = this.clone();
     
@@ -671,7 +671,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
         query = query.offset(options.skip);
       }
       
-      // Apply relations (TypeORM-style)
+      // Apply relations (ORM-style)
       if (options.relations) {
         const relations: string[] = Array.isArray(options.relations) 
           ? options.relations 
@@ -679,7 +679,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
               .filter(([_, enabled]) => enabled)
               .map(([key]) => key);
         
-        // Convert TypeORM-style relations to PostgREST joins
+        // Convert ORM-style relations to PostgREST joins
         for (const relation of relations) {
           // Handle nested relations like 'user.profile'
           const parts = relation.split('.');
@@ -857,7 +857,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
         }
       }
       
-      // Apply relations (TypeORM-style)
+      // Apply relations (ORM-style)
       if (options.relations) {
         const relations: string[] = Array.isArray(options.relations) 
           ? options.relations 
@@ -865,7 +865,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
               .filter(([_, enabled]) => enabled)
               .map(([key]) => key);
         
-        // Convert TypeORM-style relations to PostgREST joins
+        // Convert ORM-style relations to PostgREST joins
         for (const relation of relations) {
           // Handle nested relations like 'user.profile'
           const parts = relation.split('.');

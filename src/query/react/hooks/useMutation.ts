@@ -1,6 +1,6 @@
 /**
  * useMutation Hook
- * TanStack Query-inspired mutation hook for PGRestify
+ * React Query-inspired mutation hook for PGRestify
  */
 
 import { useCallback, useRef, useSyncExternalStore } from 'react';

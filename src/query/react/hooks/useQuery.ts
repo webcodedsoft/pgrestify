@@ -1,6 +1,6 @@
 /**
  * useQuery Hook
- * TanStack Query-inspired query hook for PGRestify
+ * Query hook for PGRestify with caching and automatic refetching
  */
 
 import { useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
@@ -21,17 +21,17 @@ import type {
 import { QueryBuilder } from '@/core/query-builder';
 
 /**
- * Helper function to create QueryOptions from TanStack Query-like API
+ * Helper function to create QueryOptions from PGRestify API
  */
-function createTanStackQueryOptions<TData extends Record<string, unknown>, TError = Error>(
+function createPGRestifyQueryOptions<TData extends Record<string, unknown>, TError = Error>(
   client: any,
   tableName: string,
-  options: UseTanStackQueryOptions<TData, TError>
+  options: UsePGRestifyQueryOptions<TData, TError>
 ): UseQueryOptions<TData[], TError> {
   // Generate query key
   const queryKey = options.queryKey || [
     tableName,
-    'tanstack',
+    'pgrestify',
     {
       select: options.select,
       relations: options.relations,
@@ -184,13 +184,13 @@ function buildSelectWithRelations(
   return selectParts.join(', ');
 }
 
-// TanStack Query-like API options (new comprehensive interface)
-export interface UseTanStackQueryOptions<
+// PGRestify API options (new comprehensive interface)
+export interface UsePGRestifyQueryOptions<
   TData extends Record<string, unknown> = Record<string, unknown>,
   TError = Error
 > {
   // Brand property to help TypeScript distinguish this interface
-  readonly __brand?: 'tanstack-query-options';
+  readonly __brand?: 'pgrestify-query-options';
   
   // Core query configuration
   select?: string[];  // ['id', 'name', 'email', 'profile.bio', 'category.name AS category_name']
@@ -214,7 +214,7 @@ export interface UseTanStackQueryOptions<
   distinct?: boolean;
   count?: 'exact' | 'planned' | 'estimated';
   
-  // TanStack Query options
+  // Query options
   queryKey?: QueryKey;
   enabled?: boolean;
   staleTime?: number;
@@ -263,16 +263,16 @@ export interface UseQueryResult<TData = unknown, TError = Error>
  * Primary useQuery hook with function overloads for flexibility
  */
 
-// Overload 1: TanStack Query-like API (NEW - tableName + options object)
+// Overload 1: PGRestify-like API (NEW - tableName + options object)
 export function useQuery<
   TData extends Record<string, unknown> = Record<string, unknown>,
   TError = Error
 >(
   tableName: string,
-  options: UseTanStackQueryOptions<TData, TError>
+  options: UsePGRestifyQueryOptions<TData, TError>
 ): UseQueryResult<TData[], TError>;
 
-// Overload 2: TanStack Query-like API (tableName only, no options)
+// Overload 2: PGRestify-like API (tableName only, no options)
 export function useQuery<
   TData extends Record<string, unknown> = Record<string, unknown>,
   TError = Error
@@ -280,7 +280,7 @@ export function useQuery<
   tableName: string
 ): UseQueryResult<TData[], TError>;
 
-// Overload 3: Object-style (original, TanStack Query v5 style)
+// Overload 3: Object-style (original, PGRestify v5 style)
 export function useQuery<
   TData = unknown,
   TError = Error,
@@ -289,7 +289,7 @@ export function useQuery<
   options: UseQueryOptions<TData, TError, TSelect>
 ): UseQueryResult<TSelect, TError>;
 
-// Overload 4: Separate parameters (TanStack Query v4 style)
+// Overload 4: Separate parameters (PGRestify v4 style)
 export function useQuery<
   TData = unknown,
   TError = Error,
@@ -307,19 +307,19 @@ export function useQuery<
   TSelect = TData
 >(
   arg1: string | UseQueryOptions<TData, TError, TSelect> | QueryKey,
-  arg2?: UseTanStackQueryOptions<TData & Record<string, unknown>, TError> | QueryFunction<TData> | undefined,
+  arg2?: UsePGRestifyQueryOptions<TData & Record<string, unknown>, TError> | QueryFunction<TData> | undefined,
   arg3?: Omit<UseQueryOptions<TData, TError, TSelect>, 'queryKey' | 'queryFn'>
 ): UseQueryResult<TSelect, TError> {
   const client = usePGRestifyClient();
   
   // Normalize arguments with type safety
   const options = useMemo(() => {
-    // Case 1: TanStack Query-like API (tableName, options)
+    // Case 1: PGRestify-like API (tableName, options)
     if (typeof arg1 === 'string' && (typeof arg2 === 'object' || arg2 === undefined)) {
       const tableName = arg1;
-      const tanstackOptions = arg2 as UseTanStackQueryOptions<TData & Record<string, unknown>, TError> || {};
+      const queryOptions = arg2 as UsePGRestifyQueryOptions<TData & Record<string, unknown>, TError> || {};
       
-      return createTanStackQueryOptions(client, tableName, tanstackOptions) as unknown as UseQueryOptions<TData, TError, TSelect>;
+      return createPGRestifyQueryOptions(client, tableName, queryOptions) as unknown as UseQueryOptions<TData, TError, TSelect>;
     }
     
     // Case 2 & 3: Original API

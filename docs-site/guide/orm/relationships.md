@@ -7,12 +7,82 @@ PGRestify handles relationships through both PostgREST's resource embedding synt
 Relationships in PGRestify work through:
 
 - **PostgREST Resource Embedding**: Load related data using PostgREST's embedding syntax
+- **Relations Array Syntax**: Use the `relations` array for declarative relationship loading
 - **ORM-Style Joins**: Use `leftJoinAndSelect()` and `innerJoinAndSelect()` methods
 - **Foreign Key Navigation**: Follow foreign key relationships automatically
 - **Reverse Relationships**: Query from referenced table back to referencing table
 - **Deep Nesting**: Load multiple levels of related data
 - **Filtering on Relationships**: Filter parent records by related data
 - **Dual Syntax Support**: Choose between PostgREST embedding or SQL-style joins
+
+## Query Syntax Options
+
+PGRestify supports multiple approaches for relationship queries:
+
+### 1. Relations Array Syntax (Recommended)
+
+The most intuitive way to specify relationships:
+
+```typescript
+// Simple relation
+const usersWithProfile = await userRepository
+  .createQueryBuilder()
+  .select(['id', 'email', 'first_name', 'profile.bio', 'profile.avatar_url'])
+  .relations(['profile'])
+  .execute();
+
+// Multiple relations
+const usersWithPostsAndComments = await userRepository
+  .createQueryBuilder()
+  .select(['id', 'name', 'posts.title', 'comments.content'])
+  .relations(['posts', 'comments'])
+  .execute();
+
+// Nested relations
+const usersWithPostComments = await userRepository
+  .createQueryBuilder()
+  .select(['id', 'name', 'posts.title', 'posts.comments.content'])
+  .relations(['posts.comments'])
+  .execute();
+
+// Relations with filtering and ordering
+const activeUsersWithPosts = await userRepository
+  .createQueryBuilder()
+  .select(['id', 'name', 'posts.title', 'posts.created_at'])
+  .relations(['posts'])
+  .where('active = :active', { active: true })
+  .andWhere('posts.published = :published', { published: true })
+  .orderBy('posts.created_at', 'DESC')
+  .execute();
+```
+
+### 2. PostgREST Resource Embedding
+
+Traditional PostgREST syntax for full control:
+
+```typescript
+const userWithProfile = await userRepository
+  .createQueryBuilder()
+  .select(`
+    id,
+    email,
+    first_name,
+    profile:profiles!user_id(bio, avatar_url)
+  `)
+  .execute();
+```
+
+### 3. ORM-Style Joins
+
+SQL-style join methods:
+
+```typescript
+const userWithProfile = await userRepository
+  .createQueryBuilder()
+  .leftJoinAndSelect('profiles', 'profile')
+  .where('id = :id', { id: 'user-123' })
+  .execute();
+```
 
 ## Basic Relationship Patterns
 
