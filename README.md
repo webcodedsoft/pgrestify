@@ -162,18 +162,6 @@ const adminData = await client.from('users').find();
 - [Next.js Integration](https://pgrestify.netlify.app/guide/nextjs/)
 - [Advanced Features](https://pgrestify.netlify.app/guide/advanced-features/)
 
-## 🚧 Why Choose PGRestify?
-
-| Feature | PGRestify | Supabase-js | Other Libraries |
-|---------|-----------|-------------|-----------------|
-| **No API Keys** | ✅ | ❌ | ❌ |
-| **ORM-Style API** | ✅ | ❌ | ❌ |
-| **PostgreSQL Roles** | ✅ | ⚠️ | ❌ |
-| **Real-time** | ✅ | ✅ | ⚠️ |
-| **Smart Caching** | ✅ | ❌ | ⚠️ |
-| **React & Next.js** | ✅ | ⚠️ | ❌ |
-| **Bundle Size** | <15KB | ~20KB | Varies |
-
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
@@ -194,7 +182,7 @@ pnpm build
 
 ## 📄 License
 
-MIT © [PGRestify Team](https://github.com/pgrestify)
+MIT © [PGRestify Team](https://github.com/webcodedsoft/pgrestify)
 
 ## 🙏 Acknowledgments
 
@@ -204,6 +192,6 @@ MIT © [PGRestify Team](https://github.com/pgrestify)
 
 ---
 
-**[⭐ Star us on GitHub](https://github.com/pgrestify/pgrestify)** • **[📖 Complete Documentation](https://pgrestify.netlify.app/)**
+**[⭐ Star us on GitHub](https://github.com/webcodedsoft/pgrestify)** • **[📖 Complete Documentation](https://pgrestify.netlify.app/)**
 
 *Built with ❤️ for the PostgreSQL and TypeScript communities*

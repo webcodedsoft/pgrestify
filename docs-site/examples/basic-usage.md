@@ -1,6 +1,6 @@
-# Basic Usage Example
+# Basic Usage Examples
 
-This example demonstrates the core functionality of PGRestify with a typical user management scenario.
+This guide shows you how to get started with PGRestify using practical examples with both PostgREST native syntax and repository patterns.
 
 ## Setup
 
@@ -19,15 +19,19 @@ interface User {
   name: string;
   email: string;
   active: boolean;
+  role: 'user' | 'admin' | 'moderator';
   created_at: string;
+  updated_at?: string;
 }
 
 interface Post {
   id: number;
-  user_id: number;
   title: string;
   content: string;
+  author_id: number;
   published: boolean;
+  tags: string[];
+  created_at: string;
 }
 ```
 
@@ -36,174 +40,505 @@ interface Post {
 ```typescript
 import { createClient } from '@webcoded/pgrestify';
 
-// Create a simple client
-const client = createClient('http://localhost:3000');
+// Basic client setup
+const client = createClient({
+  url: 'http://localhost:3000', // Your PostgREST URL
+  auth: {
+    persistSession: true
+  }
+});
+
+// Advanced client with caching
+const client = createClient({
+  url: process.env.POSTGREST_URL || 'http://localhost:3000',
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true
+  },
+  cache: {
+    enabled: true,
+    ttl: 300000, // 5 minutes
+    maxSize: 1000
+  }
+});
 ```
 
-## Basic CRUD Operations
+## Dual Query Syntax
+
+PGRestify supports two query approaches - choose what feels natural:
+
+### 🎯 PostgREST Native Syntax
+
+```typescript
+// Get all users
+const { data: users, error } = await client
+  .from('users')
+  .select('*')
+  .execute();
+
+// Filter and order
+const { data: activeUsers } = await client
+  .from('users')
+  .select('id, name, email')
+  .eq('active', true)
+  .order('name', { ascending: true })
+  .execute();
+```
+
+### 🏗️ Repository Pattern
+
+```typescript
+// Get repository for users table
+const userRepo = client.getRepository<User>('users');
+
+// Simple queries
+const users = await userRepo.find();
+const activeUsers = await userRepo.findBy({ active: true });
+const user = await userRepo.findOne({ id: 1 });
+
+// Advanced query builder
+const users = await userRepo
+  .createQueryBuilder()
+  .select(['id', 'name', 'email'])
+  .where('active = :active', { active: true })
+  .orderBy('name', 'ASC')
+  .getMany();
+```
+
+## CRUD Operations
 
 ### Create (Insert) Records
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Insert a single user
-const newUser = await client
-  .from<User>('users')
+const { data: newUser } = await client
+  .from('users')
   .insert({
     name: 'John Doe',
     email: 'john@example.com',
     active: true
   })
-  .select('*')
-  .single();
+  .single()
+  .execute();
 
 // Bulk insert users
-const newUsers = await client
-  .from<User>('users')
+const { data: newUsers } = await client
+  .from('users')
   .insert([
     { name: 'Alice', email: 'alice@example.com', active: true },
     { name: 'Bob', email: 'bob@example.com', active: false }
   ])
-  .select('*');
+  .execute();
 ```
+
+```typescript [Repository Pattern]
+// Create single user
+const user = await userRepo.save({
+  name: 'John Doe',
+  email: 'john@example.com',
+  active: true
+});
+
+// Create multiple users
+const users = await userRepo.save([
+  { name: 'Alice', email: 'alice@example.com', active: true },
+  { name: 'Bob', email: 'bob@example.com', active: false }
+]);
+```
+
+:::
 
 ### Read (Select) Records
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Find all active users
-const activeUsers = await client
-  .from<User>('users')
+const { data: activeUsers } = await client
+  .from('users')
   .select('*')
-  .eq('active', true);
+  .eq('active', true)
+  .execute();
 
 // Find a specific user
-const user = await client
-  .from<User>('users')
-  .select('id', 'name', 'email')
+const { data: user } = await client
+  .from('users')
+  .select('id, name, email')
   .eq('id', 1)
-  .single();
+  .single()
+  .execute();
 
 // Complex query with joins
-const usersWithPosts = await client
-  .from<User>('users')
+const { data: usersWithPosts } = await client
+  .from('users')
   .select(`
     id, 
     name, 
     email, 
     posts:posts(id, title, content)
   `)
-  .eq('active', true);
+  .eq('active', true)
+  .execute();
 ```
+
+```typescript [Repository Pattern]
+// Find all active users
+const activeUsers = await userRepo.findBy({ active: true });
+
+// Find a specific user
+const user = await userRepo.findOne({ id: 1 });
+
+// Advanced query with joins
+const usersWithPosts = await userRepo
+  .createQueryBuilder()
+  .leftJoinAndSelect('posts', 'post')
+  .where('active = :active', { active: true })
+  .getMany();
+```
+
+:::
 
 ### Update Records
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Update a user
-const updatedUser = await client
-  .from<User>('users')
+const { data: updatedUser } = await client
+  .from('users')
   .update({ active: false })
   .eq('id', 1)
-  .select('*')
-  .single();
+  .single()
+  .execute();
 
 // Bulk update
-await client
-  .from<User>('users')
+const { data: updatedUsers } = await client
+  .from('users')
   .update({ active: false })
-  .lt('created_at', '2023-01-01');
+  .lt('created_at', '2023-01-01')
+  .execute();
 ```
+
+```typescript [Repository Pattern]
+// Update a user
+const user = await userRepo.findOne({ id: 1 });
+if (user) {
+  user.active = false;
+  await userRepo.save(user);
+}
+
+// Direct update
+await userRepo.update({ id: 1 }, { active: false });
+
+// Bulk update
+await userRepo.update(
+  { created_at: { $lt: '2023-01-01' } }, 
+  { active: false }
+);
+```
+
+:::
 
 ### Delete Records
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Delete a specific user
 await client
-  .from<User>('users')
+  .from('users')
   .delete()
-  .eq('id', 1);
+  .eq('id', 1)
+  .execute();
 
 // Bulk delete
 await client
-  .from<User>('users')
+  .from('users')
   .delete()
-  .eq('active', false);
+  .eq('active', false)
+  .execute();
 ```
+
+```typescript [Repository Pattern]
+// Delete a specific user
+const user = await userRepo.findOne({ id: 1 });
+if (user) {
+  await userRepo.remove(user);
+}
+
+// Direct delete
+await userRepo.delete({ id: 1 });
+
+// Bulk delete
+await userRepo.delete({ active: false });
+```
+
+:::
 
 ## Advanced Querying
 
-```typescript
+::: code-group
+
+```typescript [PostgREST Syntax]
 // Pagination
-const paginatedUsers = await client
-  .from<User>('users')
-  .select('*')
+const { data: paginatedUsers, count } = await client
+  .from('users')
+  .select('*', { count: 'exact' })
   .order('created_at', { ascending: false })
   .range(0, 9)
-  .executeWithPagination();
+  .execute();
 
 // Full-text search
-const searchResults = await client
-  .from<Post>('posts')
+const { data: searchResults } = await client
+  .from('posts')
   .select('*')
-  .fts('content', 'typescript postgresql')
-  .limit(10);
+  .textSearch('content', 'typescript postgresql')
+  .limit(10)
+  .execute();
 
 // Aggregate functions
-const userStats = await client
-  .from<User>('users')
+const { data: userStats } = await client
+  .from('users')
   .select(`
     count(*) as total_users,
     avg(id) as avg_id,
     min(created_at) as first_user_date
   `)
-  .single();
+  .single()
+  .execute();
 ```
+
+```typescript [Repository Pattern]
+// Pagination with repository
+const [users, total] = await userRepo
+  .createQueryBuilder()
+  .orderBy('created_at', 'DESC')
+  .limit(10)
+  .offset(0)
+  .getManyAndCount();
+
+// Full-text search with repository
+const searchResults = await userRepo
+  .createQueryBuilder()
+  .where('name ILIKE :search', { search: '%john%' })
+  .orWhere('email ILIKE :search', { search: '%john%' })
+  .getMany();
+
+// Complex filtering
+const complexQuery = await userRepo
+  .createQueryBuilder()
+  .where('active = :active', { active: true })
+  .andWhere('created_at >= :date', { date: '2024-01-01' })
+  .andWhere('role IN (:...roles)', { roles: ['admin', 'moderator'] })
+  .orderBy('name', 'ASC')
+  .getMany();
+```
+
+:::
 
 ## Error Handling
 
 ```typescript
+// PostgREST syntax error handling
 try {
-  const user = await client
-    .from<User>('users')
+  const { data: user, error } = await client
+    .from('users')
     .select('*')
     .eq('id', 999)
-    .single();
-} catch (error) {
-  if (error.name === 'NotFoundError') {
-    console.log('User not found');
+    .single()
+    .execute();
+    
+  if (error) {
+    console.error('Database error:', error);
   } else {
-    console.error('Unexpected error', error);
+    console.log('User found:', user);
+  }
+} catch (err) {
+  console.error('Network error:', err);
+}
+
+// Repository pattern error handling
+try {
+  const user = await userRepo.findOne({ id: 999 });
+  if (!user) {
+    console.log('User not found');
+  }
+} catch (error) {
+  if (error.name === 'PostgrestError') {
+    console.error('Database error:', error.message);
+  } else {
+    console.error('Unexpected error:', error);
   }
 }
 ```
 
-## Repository Pattern
+## Real-world Example: User Management System
 
 ```typescript
-// Get a type-safe repository
-const userRepo = client.getRepository<User>('users');
+class UserService {
+  private userRepo = client.getRepository<User>('users');
 
-// Use repository methods
-const allUsers = await userRepo.find();
-const activeUser = await userRepo.findOne({ active: true });
+  // Get active users with pagination
+  async getActiveUsers(page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+    
+    return await this.userRepo
+      .createQueryBuilder()
+      .where('active = :active', { active: true })
+      .orderBy('created_at', 'DESC')
+      .limit(limit)
+      .offset(offset)
+      .getManyAndCount();
+  }
 
-// Save (insert or update)
-await userRepo.save({
-  name: 'New User',
-  email: 'new@example.com',
+  // Search users by name or email
+  async searchUsers(query: string) {
+    return await this.userRepo
+      .createQueryBuilder()
+      .where('name ILIKE :query', { query: `%${query}%` })
+      .orWhere('email ILIKE :query', { query: `%${query}%` })
+      .andWhere('active = :active', { active: true })
+      .getMany();
+  }
+
+  // Create user with validation
+  async createUser(userData: Partial<User>) {
+    // Check if email already exists
+    const existingUser = await this.userRepo.findOne({ 
+      email: userData.email 
+    });
+    
+    if (existingUser) {
+      throw new Error('Email already exists');
+    }
+
+    return await this.userRepo.save({
+      ...userData,
+      created_at: new Date().toISOString()
+    });
+  }
+
+  // Update user profile
+  async updateUser(id: number, updates: Partial<User>) {
+    const user = await this.userRepo.findOne({ id });
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return await this.userRepo.save({
+      ...user,
+      ...updates,
+      updated_at: new Date().toISOString()
+    });
+  }
+
+  // Soft delete user
+  async deactivateUser(id: number) {
+    return await this.userRepo.update(
+      { id },
+      { active: false, updated_at: new Date().toISOString() }
+    );
+  }
+}
+
+// Usage
+const userService = new UserService();
+
+// Get paginated active users
+const [users, total] = await userService.getActiveUsers(1, 20);
+
+// Search for users
+const searchResults = await userService.searchUsers('john');
+
+// Create new user
+const newUser = await userService.createUser({
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  role: 'user',
   active: true
 });
 ```
 
 ## Best Practices
 
-- Always use type generics for type safety
-- Handle potential errors with try-catch
-- Use repository pattern for complex data operations
-- Leverage PGRestify's type inference
-- Keep sensitive operations server-side
+### Type Safety
+```typescript
+// Always define your types
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  // ... other fields
+}
 
-## Performance Tips
+// Use generics for type safety
+const userRepo = client.getRepository<User>('users');
+const user = await userRepo.findOne({ id: 1 }); // Type: User | null
+```
 
-- Use `select()` to limit returned fields
-- Utilize server-side filtering and sorting
-- Implement pagination for large datasets
-- Use caching for frequently accessed data
+### Error Handling
+```typescript
+// Always handle errors appropriately
+try {
+  const result = await userRepo.find();
+  return result;
+} catch (error) {
+  console.error('Failed to fetch users:', error);
+  throw error; // Re-throw or handle appropriately
+}
+```
+
+### Performance Optimization
+```typescript
+// Select only needed fields
+const users = await client
+  .from('users')
+  .select('id, name, email') // Don't select unnecessary fields
+  .execute();
+
+// Use pagination for large datasets
+const paginatedUsers = await userRepo
+  .createQueryBuilder()
+  .limit(50) // Reasonable page size
+  .offset(page * 50)
+  .getMany();
+
+// Use caching for frequently accessed data
+const client = createClient({
+  cache: {
+    enabled: true,
+    ttl: 300000 // 5 minutes
+  }
+});
+```
+
+### Security Considerations
+```typescript
+// Validate input parameters
+function validateUserId(id: unknown): number {
+  const userId = Number(id);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw new Error('Invalid user ID');
+  }
+  return userId;
+}
+
+// Use parameterized queries to prevent injection
+const users = await userRepo
+  .createQueryBuilder()
+  .where('name = :name', { name: userInput }) // Safe parameterized query
+  .getMany();
+```
+
+This example demonstrates:
+- ✅ Both PostgREST native syntax and repository patterns
+- ✅ Complete CRUD operations with both approaches
+- ✅ Advanced querying techniques
+- ✅ Proper error handling
+- ✅ Real-world service architecture
+- ✅ Type safety best practices
+- ✅ Performance optimization tips
+- ✅ Security considerations

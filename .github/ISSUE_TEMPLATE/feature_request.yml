@@ -1,0 +1,161 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for PGRestify
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! We appreciate your input.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you have completed these steps
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: I have checked the roadmap for planned features
+          required: true
+        - label: This is not a bug report (use Bug Report template instead)
+          required: true
+
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: Feature Summary
+      description: A brief, clear summary of the feature you'd like to see
+      placeholder: Briefly describe the feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the use case?
+      placeholder: |
+        As a [type of user], I want [some goal] so that [some reason].
+        
+        Currently, I have to [current workaround/limitation]...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your ideal solution for this feature
+      placeholder: Describe how you envision this feature working...
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-design
+    attributes:
+      label: API Design (if applicable)
+      description: If this involves API changes, show how you'd like the API to look
+      placeholder: |
+        ```typescript
+        // Example of how the API might look
+        const result = await client
+          .from('users')
+          .newFeature({ option: 'value' })
+          .execute();
+        ```
+      render: typescript
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - Query Builder Enhancement
+        - Repository Pattern Feature
+        - CLI Tool Enhancement
+        - React Integration
+        - Next.js Integration
+        - Caching Improvement
+        - Performance Optimization
+        - Developer Experience
+        - Documentation
+        - Testing
+        - Security
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (blocking my project)
+        - High (would significantly improve my workflow)
+        - Medium (nice to have)
+        - Low (minor improvement)
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered alternative solutions or workarounds?
+      placeholder: Describe any alternative solutions you've considered...
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples from Other Libraries
+      description: Are there examples of this feature in other libraries that we could reference?
+      placeholder: |
+        Library X does this with:
+        ```typescript
+        // example code
+        ```
+
+  - type: checkboxes
+    id: complexity
+    attributes:
+      label: Implementation Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - label: Simple (small API addition)
+        - label: Medium (requires some internal changes)
+        - label: Complex (significant architectural changes)
+        - label: I'm not sure
+
+  - type: checkboxes
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      description: Would this feature require breaking changes?
+      options:
+        - label: No breaking changes needed
+        - label: Minor breaking changes might be acceptable
+        - label: Major breaking changes would be worth it
+        - label: I'm not sure
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or links about the feature request
+      placeholder: Any additional information that would help us understand this request...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you interested in contributing to this feature?
+      options:
+        - label: I'd like to work on this feature
+        - label: I could help with testing
+        - label: I could help with documentation
+        - label: I can provide feedback during development

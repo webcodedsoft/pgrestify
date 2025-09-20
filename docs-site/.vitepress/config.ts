@@ -234,70 +234,70 @@ export default defineConfig({
           ]
         }
       ],
-      '/recipes/': [
-        {
-          text: 'Recipe Categories',
-          items: [
-            { text: 'Overview', link: '/recipes/overview' },
-            { text: 'Common Patterns', link: '/recipes/common-patterns' },
-            { text: 'Best Practices', link: '/recipes/best-practices' }
-          ]
-        },
-        {
-          text: 'Architecture Recipes',
-          items: [
-            { text: 'Repository Pattern', link: '/recipes/repository-pattern' },
-            { text: 'Service Layer', link: '/recipes/service-layer' },
-            { text: 'Data Access Layer', link: '/recipes/data-access-layer' },
-            { text: 'Domain Models', link: '/recipes/domain-models' }
-          ]
-        },
-        {
-          text: 'Query Recipes',
-          items: [
-            { text: 'Complex Filtering', link: '/recipes/complex-filtering' },
-            { text: 'Dynamic Queries', link: '/recipes/dynamic-queries' },
-            { text: 'Performance Optimization', link: '/recipes/query-performance' },
-            { text: 'Caching Strategies', link: '/recipes/caching-strategies' }
-          ]
-        },
-        {
-          text: 'State Management',
-          items: [
-            { text: 'Server State Sync', link: '/recipes/server-state-sync' },
-            { text: 'Optimistic Updates', link: '/recipes/optimistic-updates' },
-            { text: 'Background Refresh', link: '/recipes/background-refresh' },
-            { text: 'Offline Support', link: '/recipes/offline-support' }
-          ]
-        },
-        {
-          text: 'Security Recipes',
-          items: [
-            { text: 'Row Level Security', link: '/recipes/row-level-security' },
-            { text: 'JWT Authentication', link: '/recipes/jwt-auth' },
-            { text: 'Role-based Access', link: '/recipes/rbac-implementation' },
-            { text: 'Data Validation', link: '/recipes/data-validation' }
-          ]
-        },
-        {
-          text: 'Performance Recipes',
-          items: [
-            { text: 'Query Optimization', link: '/recipes/query-optimization' },
-            { text: 'Caching Patterns', link: '/recipes/caching-patterns' },
-            { text: 'Batch Operations', link: '/recipes/batch-operations' },
-            { text: 'Connection Pooling', link: '/recipes/connection-pooling' }
-          ]
-        },
-        {
-          text: 'Testing Recipes',
-          items: [
-            { text: 'Unit Testing', link: '/recipes/unit-testing' },
-            { text: 'Integration Testing', link: '/recipes/integration-testing' },
-            { text: 'Mock Strategies', link: '/recipes/mock-strategies' },
-            { text: 'Test Data Management', link: '/recipes/test-data' }
-          ]
-        }
-      ]
+      // '/recipes/': [
+      //   {
+      //     text: 'Recipe Categories',
+      //     items: [
+      //       { text: 'Overview', link: '/recipes/overview' },
+      //       { text: 'Common Patterns', link: '/recipes/common-patterns' },
+      //       { text: 'Best Practices', link: '/recipes/best-practices' }
+      //     ]
+      //   },
+      //   {
+      //     text: 'Architecture Recipes',
+      //     items: [
+      //       { text: 'Repository Pattern', link: '/recipes/repository-pattern' },
+      //       { text: 'Service Layer', link: '/recipes/service-layer' },
+      //       { text: 'Data Access Layer', link: '/recipes/data-access-layer' },
+      //       { text: 'Domain Models', link: '/recipes/domain-models' }
+      //     ]
+      //   },
+      //   {
+      //     text: 'Query Recipes',
+      //     items: [
+      //       { text: 'Complex Filtering', link: '/recipes/complex-filtering' },
+      //       { text: 'Dynamic Queries', link: '/recipes/dynamic-queries' },
+      //       { text: 'Performance Optimization', link: '/recipes/query-performance' },
+      //       { text: 'Caching Strategies', link: '/recipes/caching-strategies' }
+      //     ]
+      //   },
+      //   {
+      //     text: 'State Management',
+      //     items: [
+      //       { text: 'Server State Sync', link: '/recipes/server-state-sync' },
+      //       { text: 'Optimistic Updates', link: '/recipes/optimistic-updates' },
+      //       { text: 'Background Refresh', link: '/recipes/background-refresh' },
+      //       { text: 'Offline Support', link: '/recipes/offline-support' }
+      //     ]
+      //   },
+      //   {
+      //     text: 'Security Recipes',
+      //     items: [
+      //       { text: 'Row Level Security', link: '/recipes/row-level-security' },
+      //       { text: 'JWT Authentication', link: '/recipes/jwt-auth' },
+      //       { text: 'Role-based Access', link: '/recipes/rbac-implementation' },
+      //       { text: 'Data Validation', link: '/recipes/data-validation' }
+      //     ]
+      //   },
+      //   {
+      //     text: 'Performance Recipes',
+      //     items: [
+      //       { text: 'Query Optimization', link: '/recipes/query-optimization' },
+      //       { text: 'Caching Patterns', link: '/recipes/caching-patterns' },
+      //       { text: 'Batch Operations', link: '/recipes/batch-operations' },
+      //       { text: 'Connection Pooling', link: '/recipes/connection-pooling' }
+      //     ]
+      //   },
+      //   {
+      //     text: 'Testing Recipes',
+      //     items: [
+      //       { text: 'Unit Testing', link: '/recipes/unit-testing' },
+      //       { text: 'Integration Testing', link: '/recipes/integration-testing' },
+      //       { text: 'Mock Strategies', link: '/recipes/mock-strategies' },
+      //       { text: 'Test Data Management', link: '/recipes/test-data' }
+      //     ]
+      //   }
+      // ]
     },
 
     socialLinks: [
@@ -306,7 +306,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024 PGRestify Contributors'
+      copyright: 'Copyright © 2025 PGRestify Contributors'
     },
 
     editLink: {

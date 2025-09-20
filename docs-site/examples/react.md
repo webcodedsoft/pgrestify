@@ -1,15 +1,27 @@
-# React Integration Example
+# React Integration Examples
 
-Comprehensive guide to integrating PGRestify with React applications.
+Comprehensive guide to integrating PGRestify with React applications using both PostgREST syntax and repository patterns.
 
-## Basic Setup
+## Installation & Setup
+
+```bash
+npm install @webcoded/pgrestify
+```
+
+### Basic Setup
 
 ```tsx
 import React from 'react';
-import { createClient, PGRestifyProvider } from '@webcoded/pgrestify/react';
+import { createClient } from '@webcoded/pgrestify';
+import { PGRestifyProvider } from '@webcoded/pgrestify/react';
 
 // Create PGRestify client
-const client = createClient('http://localhost:3000');
+const client = createClient({
+  url: 'http://localhost:3000',
+  auth: {
+    persistSession: true
+  }
+});
 
 // App component with PGRestify provider
 function App() {
@@ -19,42 +31,126 @@ function App() {
     </PGRestifyProvider>
   );
 }
+
+export default App;
 ```
 
-## Query Hook
+### Type Definitions
 
 ```tsx
-import { useQuery } from '@webcoded/pgrestify/react';
-
-// Define type for user
 interface User {
   id: number;
   name: string;
   email: string;
   active: boolean;
+  role: 'user' | 'admin' | 'moderator';
+  avatar_url?: string;
+  created_at: string;
+  updated_at?: string;
 }
+
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  author_id: number;
+  published: boolean;
+  created_at: string;
+  author?: User;
+}
+```
+
+## Data Fetching with Hooks
+
+### Using Built-in React Hooks
+
+PGRestify provides powerful React hooks for data fetching with automatic caching, loading states, and error handling.
+
+::: code-group
+
+```tsx [PostgREST Syntax]
+import { useQuery } from '@webcoded/pgrestify/react';
 
 function UserList() {
   const { 
     data: users, 
     loading, 
-    error 
-  } = useQuery<User>('users', query => 
-    query.select('*').eq('active', true)
-  );
+    error,
+    refetch 
+  } = useQuery({
+    queryKey: ['users'],
+    queryFn: async ({ client }) => {
+      const { data, error } = await client
+        .from('users')
+        .select('*')
+        .eq('active', true)
+        .order('name', { ascending: true })
+        .execute();
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading users...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <ul>
-      {users?.map(user => (
-        <li key={user.id}>{user.name}</li>
-      ))}
-    </ul>
+    <div>
+      <button onClick={() => refetch()}>Refresh</button>
+      <ul>
+        {users?.map(user => (
+          <li key={user.id}>
+            {user.name} ({user.email})
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 ```
+
+```tsx [Repository Pattern]
+import { useRepository } from '@webcoded/pgrestify/react';
+
+function UserList() {
+  const userRepo = useRepository<User>('users');
+  
+  const { 
+    data: users, 
+    loading, 
+    error,
+    refetch 
+  } = useQuery({
+    queryKey: ['users', 'active'],
+    queryFn: async () => {
+      return await userRepo
+        .createQueryBuilder()
+        .where('active = :active', { active: true })
+        .orderBy('name', 'ASC')
+        .getMany();
+    }
+  });
+
+  if (loading) return <div>Loading users...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <button onClick={() => refetch()}>Refresh</button>
+      <ul>
+        {users?.map(user => (
+          <li key={user.id}>
+            {user.name} ({user.email})
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+:::
 
 ## Mutation Hook
 

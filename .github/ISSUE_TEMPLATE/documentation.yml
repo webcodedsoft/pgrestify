@@ -1,0 +1,154 @@
+name: 📚 Documentation
+description: Report an issue with documentation or suggest improvements
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve our documentation! Every suggestion makes PGRestify easier to use.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you have completed these steps
+      options:
+        - label: I have checked if this documentation issue already exists
+          required: true
+        - label: I have looked at the latest documentation
+          required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs attention?
+      options:
+        - API Reference
+        - Getting Started Guide
+        - Tutorial
+        - Example Code
+        - README
+        - Contributing Guide
+        - Changelog
+        - Code Comments
+        - TypeScript Definitions
+        - CLI Help Text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing Documentation
+        - Incorrect Information
+        - Outdated Content
+        - Unclear Explanation
+        - Broken Link
+        - Typo/Grammar
+        - Code Example Error
+        - Formatting Issue
+        - Missing Example
+        - Suggestion for Improvement
+    validations:
+      required: true
+
+  - type: input
+    id: doc-location
+    attributes:
+      label: Documentation Location
+      description: Where is this documentation located?
+      placeholder: e.g., https://pgrestify.netlify.app/guide/getting-started or README.md line 42
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content (if applicable)
+      description: What does the current documentation say?
+      placeholder: Copy the current content that needs attention...
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Describe the problem with the current documentation
+      placeholder: Explain what's wrong or missing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How would you improve this documentation?
+      placeholder: Describe your suggested changes or additions...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-content
+    attributes:
+      label: Proposed Content
+      description: If you have specific content suggestions, please provide them
+      placeholder: |
+        Write your proposed documentation content here...
+        
+        Include code examples if relevant:
+        ```typescript
+        // Your example code
+        ```
+
+  - type: dropdown
+    id: user-type
+    attributes:
+      label: Your Experience Level
+      description: What's your experience level with PGRestify?
+      options:
+        - Beginner (just getting started)
+        - Intermediate (some experience)
+        - Advanced (experienced user)
+        - Expert (contributor/maintainer)
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any additional context that would help us improve the documentation
+      placeholder: |
+        - What were you trying to accomplish?
+        - What confused you?
+        - What would have helped?
+        - Any other relevant information...
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Impact
+      description: How does this documentation issue affect users?
+      options:
+        - label: Blocks new users from getting started
+        - label: Causes confusion for existing users
+        - label: Leads to incorrect implementation
+        - label: Minor improvement opportunity
+        - label: Affects SEO/discoverability
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you interested in helping improve this documentation?
+      options:
+        - label: I'd like to write the improved documentation
+        - label: I can help review proposed changes
+        - label: I can provide additional examples
+        - label: I can help with testing the documentation
