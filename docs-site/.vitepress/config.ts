@@ -6,14 +6,14 @@ export default defineConfig({
   
   // Ensure public folder is included in build
   vite: {
-    build: {
-      rollupOptions: {
-        input: {
-          main: './index.md',
-          // Add other entry points if needed
-        }
-      }
-    },
+    // build: {
+    //   rollupOptions: {
+    //     input: {
+    //       main: './index.md',
+    //       // Add other entry points if needed
+    //     }
+    //   }
+    // },
     publicDir: 'public' // Explicitly set public directory
   },
 
@@ -25,7 +25,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/introduction' },
       { text: 'API', link: '/api/client' },
       { text: 'Examples', link: '/examples/overview' },
-      { text: 'Recipes', link: '/recipes/overview' },
+      // { text: 'Recipes', link: '/recipes/overview' },
       { text: 'GitHub', link: 'https://github.com/webcodedsoft/pgrestify' }
     ],
 
@@ -177,60 +177,23 @@ export default defineConfig({
           text: 'Getting Started',
           items: [
             { text: 'Overview', link: '/examples/overview' },
-            { text: 'Basic Usage', link: '/examples/basic-usage' },
-            { text: 'Client Setup', link: '/examples/client-setup' },
-            { text: 'First Query', link: '/examples/first-query' }
+            { text: 'Basic Usage', link: '/examples/basic-usage' }
           ]
         },
         {
-          text: 'Query Examples',
+          text: 'Advanced Examples',
           items: [
-            { text: 'Simple Queries', link: '/examples/simple-queries' },
-            { text: 'Advanced Filtering', link: '/examples/advanced-filtering' },
-            { text: 'Pagination & Sorting', link: '/examples/pagination-sorting' },
-            { text: 'Joins & Relationships', link: '/examples/joins-relationships' },
-            { text: 'Full-Text Search', link: '/examples/full-text-search' },
-            { text: 'Aggregation & Grouping', link: '/examples/aggregation' }
+            { text: 'Advanced Queries', link: '/examples/advanced-queries' },
+            { text: 'Authentication', link: '/examples/authentication' },
+            { text: 'Real-time Updates', link: '/examples/realtime' },
+            { text: 'Docker Setup', link: '/examples/docker' }
           ]
         },
         {
-          text: 'Mutation Examples',
+          text: 'Framework Integration',
           items: [
-            { text: 'Creating Data', link: '/examples/creating-data' },
-            { text: 'Updating Data', link: '/examples/updating-data' },
-            { text: 'Deleting Data', link: '/examples/deleting-data' },
-            { text: 'Bulk Operations', link: '/examples/bulk-operations' },
-            { text: 'Error Handling', link: '/examples/error-handling' }
-          ]
-        },
-        {
-          text: 'React Examples',
-          items: [
-            { text: 'React Hooks', link: '/examples/react-hooks' },
-            { text: 'Data Fetching', link: '/examples/react-data-fetching' },
-            { text: 'Forms & Mutations', link: '/examples/react-forms' },
-            { text: 'Real-time Updates', link: '/examples/react-realtime' },
-            { text: 'Infinite Scrolling', link: '/examples/react-infinite-scroll' },
-            { text: 'Optimistic Updates', link: '/examples/react-optimistic' }
-          ]
-        },
-        {
-          text: 'Next.js Examples',
-          items: [
-            { text: 'App Router Setup', link: '/examples/nextjs-app-router' },
-            { text: 'Server Components', link: '/examples/nextjs-server-components' },
-            { text: 'API Routes', link: '/examples/nextjs-api-routes' },
-            { text: 'Static Generation', link: '/examples/nextjs-ssg' },
-            { text: 'Authentication', link: '/examples/nextjs-auth' }
-          ]
-        },
-        {
-          text: 'Enterprise Examples',
-          items: [
-            { text: 'Multi-tenant Applications', link: '/examples/multi-tenant' },
-            { text: 'Role-based Access', link: '/examples/rbac' },
-            { text: 'Audit Logging', link: '/examples/audit-logging' },
-            { text: 'Performance Monitoring', link: '/examples/performance' }
+            { text: 'React Integration', link: '/examples/react' },
+            { text: 'Next.js Examples', link: '/examples/nextjs-examples' }
           ]
         }
       ],
