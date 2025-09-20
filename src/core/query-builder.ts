@@ -229,6 +229,150 @@ export class QueryBuilder<T = Record<string, unknown>> {
     return this.addFilter(column, 'cd', `{${values.map(v => this.formatValue(v)).join(',')}}`);
   }
 
+  // WHERE-style method aliases for FunctionBasedQueryBuilder compatibility
+  /**
+   * Filter where column value is in the provided array
+   * PostgREST fully supports: ?column=in.(value1,value2,value3)
+   * For subqueries: Uses a two-step execution workaround
+   * @param column The column to filter
+   * @param values Array of values OR a subquery (automatically handles two-step execution)
+   */
+  whereIn<K extends keyof T>(column: K | string, values: T[K][]): QueryBuilder<T>;
+  whereIn<K extends keyof T>(column: K | string, subquery: QueryBuilder<any>): QueryBuilder<T>;
+  whereIn<K extends keyof T>(column: K | string, valuesOrSubquery: T[K][] | QueryBuilder<any>): QueryBuilder<T> {
+    if (Array.isArray(valuesOrSubquery)) {
+      return this.in(column, valuesOrSubquery);
+    }
+  }
+
+  /**
+   * Filter where column value is NOT in the provided array
+   * PostgREST fully supports: ?column=not.in.(value1,value2,value3)
+   * For subqueries: Uses a two-step execution workaround
+   * @param column The column to filter
+   * @param values Array of values OR a subquery (automatically handles two-step execution)
+   */
+  whereNotIn<K extends keyof T>(column: K | string, values: T[K][]): QueryBuilder<T>;
+  whereNotIn<K extends keyof T>(column: K | string, subquery: QueryBuilder<any>): QueryBuilder<T>;
+  whereNotIn<K extends keyof T>(column: K | string, valuesOrSubquery: T[K][] | QueryBuilder<any>): QueryBuilder<T> {
+    if (Array.isArray(valuesOrSubquery)) {
+      if (!Array.isArray(valuesOrSubquery) || valuesOrSubquery.length === 0) {
+        throw new Error('Values must be a non-empty array');
+      }
+      return this.addFilter(column, 'not.in', `(${valuesOrSubquery.map(v => this.formatValue(v)).join(',')})`);
+    }
+  }
+
+  whereBetween<K extends keyof T>(column: K | string, min: T[K] | unknown, max: T[K] | unknown): QueryBuilder<T> {
+    // PostgREST doesn't have a native BETWEEN operator, so we use AND with gte and lte
+    return this.gte(column, min).lte(column, max);
+  }
+
+  whereNotBetween<K extends keyof T>(column: K | string, min: T[K] | unknown, max: T[K] | unknown): QueryBuilder<T> {
+    // NOT BETWEEN is OR of (< min OR > max)
+    return this.or(`${String(column)}.lt.${this.formatValue(min)},${String(column)}.gt.${this.formatValue(max)}`);
+  }
+
+
+  // Text search operations (FunctionBasedQueryBuilder compatibility)
+  whereContains<K extends keyof T>(column: K | string, value: string, caseSensitive: boolean = true): QueryBuilder<T> {
+    return caseSensitive ? this.like(column, `%${value}%`) : this.ilike(column, `%${value}%`);
+  }
+
+  whereStartsWith<K extends keyof T>(column: K | string, value: string, caseSensitive: boolean = true): QueryBuilder<T> {
+    return caseSensitive ? this.like(column, `${value}%`) : this.ilike(column, `${value}%`);
+  }
+
+  whereEndsWith<K extends keyof T>(column: K | string, value: string, caseSensitive: boolean = true): QueryBuilder<T> {
+    return caseSensitive ? this.like(column, `%${value}`) : this.ilike(column, `%${value}`);
+  }
+
+  whereMatches<K extends keyof T>(column: K | string, pattern: string): QueryBuilder<T> {
+    return this.match(column, pattern);
+  }
+
+  whereFullText<K extends keyof T>(column: K | string, query: string, config?: string): QueryBuilder<T> {
+    return this.fts(column, query, config);
+  }
+
+  // HIGH PRIORITY: Additional selection methods
+  addSelect<K extends keyof T>(...columns: K[]): QueryBuilder<T>;
+  addSelect(query: string): QueryBuilder<T>;
+  addSelect(columns: string[]): QueryBuilder<T>;
+  addSelect<K extends keyof T>(...args: K[] | [string] | [string[]]): QueryBuilder<T> {
+    let newColumns: string;
+    
+    if (args.length === 1) {
+      const firstArg = args[0];
+      
+      if (typeof firstArg === 'string') {
+        // String query case
+        if (!firstArg) {
+          throw new Error('Select query must be a non-empty string');
+        }
+        newColumns = firstArg;
+      } else if (Array.isArray(firstArg)) {
+        // Array of strings
+        if (firstArg.length === 0) {
+          throw new Error('At least one column must be selected');
+        }
+        newColumns = firstArg.join(', ');
+      } else {
+        throw new Error('Invalid argument type for addSelect');
+      }
+    } else {
+      // Typed columns array case
+      const columns = args as K[];
+      if (columns.length === 0) {
+        throw new Error('At least one column must be selected');
+      }
+      
+      // Validate column names
+      columns.forEach(col => validateColumnName(String(col)));
+      newColumns = columns.map(String).join(', ');
+    }
+    
+    // Add to existing selection or create new one
+    const currentSelect = this.state.select || '*';
+    const combinedSelect = currentSelect === '*' ? newColumns : `${currentSelect}, ${newColumns}`;
+    
+    return this.clone({
+      ...this.state,
+      select: combinedSelect,
+    });
+  }
+
+  // HIGH PRIORITY: Additional aggregation methods
+  countDistinct<K extends keyof T>(column: K | string): QueryBuilder<{ count: number }> {
+    const query = this.clone({
+      ...this.state,
+      select: `count(distinct.${String(column)})`,
+    });
+    return query as unknown as QueryBuilder<{ count: number }>;
+  }
+
+  // HIGH PRIORITY: Additional ordering methods
+  addOrderBy<K extends keyof T>(column: K | string, direction: 'asc' | 'desc' = 'asc', nulls?: 'first' | 'last'): QueryBuilder<T> {
+    const orderValue = nulls ? `${String(column)}.${direction}.nulls${nulls}` : `${String(column)}.${direction}`;
+    
+    // Add to existing rawOrder or create new one
+    const existingRawOrder = this.state.rawOrder;
+    const newRawOrder = existingRawOrder ? `${existingRawOrder},${orderValue}` : orderValue;
+    
+    return this.clone({
+      ...this.state,
+      rawOrder: newRawOrder,
+    });
+  }
+
+  orderByAsc<K extends keyof T>(column: K | string, nulls?: 'first' | 'last'): QueryBuilder<T> {
+    return this.addOrderBy(column, 'asc', nulls);
+  }
+
+  orderByDesc<K extends keyof T>(column: K | string, nulls?: 'first' | 'last'): QueryBuilder<T> {
+    return this.addOrderBy(column, 'desc', nulls);
+  }
+
   // Filter methods - range operations
   overlaps<K extends keyof T>(column: K | string, range: string): QueryBuilder<T> {
     return this.addFilter(column, 'ov', range);
