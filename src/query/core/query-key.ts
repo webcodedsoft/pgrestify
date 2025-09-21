@@ -1,6 +1,6 @@
 /**
  * Query Key Management System
- * TanStack Query-inspired query key factory and utilities
+ * React Query-inspired query key factory and utilities
  */
 
 import type { QueryKey } from './types';

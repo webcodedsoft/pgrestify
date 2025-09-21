@@ -446,11 +446,11 @@ import {
 
 // Basic data fetching
 function UsersList() {
-  const { data: users, loading, error, refetch } = usePGRestify(
+  const { data: users, isLoading, error, refetch } = usePGRestify(
     client => client.from('users').select('*').eq('active', true)
   );
 
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   
   return (
@@ -480,7 +480,7 @@ function UserPosts({ userId }: { userId: string }) {
 
 // Mutations
 function CreatePostForm() {
-  const { mutate: createPost, loading } = usePGRestifyMutation(
+  const { mutate: createPost, isLoading } = usePGRestifyMutation(
     client => (data: any) => client.from('posts').insert(data).select().single()
   );
 
@@ -496,14 +496,14 @@ function CreatePostForm() {
 
 // Authentication hook
 function LoginForm() {
-  const { signIn, signOut, user, loading } = useAuth();
+  const { signIn, signOut, user, isLoading } = useAuth();
 
   const handleLogin = async (email: string, password: string) => {
     const { error } = await signIn({ email, password });
     if (error) console.error('Login failed:', error);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   if (user) return <div>Welcome, {user.name}! <button onClick={signOut}>Logout</button></div>;
   
   return <LoginForm onSubmit={handleLogin} />;

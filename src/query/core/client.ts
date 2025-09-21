@@ -1,6 +1,6 @@
 /**
  * PGRestifyClient - Core Query Client
- * TanStack Query-inspired client with PostgREST integration
+ * React Query-inspired client with PostgREST integration
  */
 
 import type {

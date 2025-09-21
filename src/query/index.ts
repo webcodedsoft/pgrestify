@@ -1,7 +1,55 @@
 /**
  * PGRestify Query System - Main Exports
- * TanStack Query-like implementation for PostgREST
+ * V2 Fluent API - Modern fluent query builder interface
  */
+
+// ===================
+// V2 FLUENT API (DEFAULT)
+// ===================
+
+// V2 Core - Fluent Factories
+export { query, mutation, setGlobalClient } from './v2/core/fluent-factory';
+
+// V2 Core Classes
+export { MutationBuilder, RawExpression, ParameterExpression, SubqueryBuilder } from './v2/core/mutation-builder';
+
+// V2 Hooks (Fluent API)
+export {
+  useQuery,
+  useInfiniteQuery,
+} from './v2/hooks/useQuery';
+
+export {
+  useMutation,
+} from './v2/hooks/useMutation';
+
+// V2 Hook Types
+export type {
+  UseQueryOptions,
+  UseQueryResult,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+} from './v2/hooks/useQuery';
+
+export type {
+  UseMutationOptions,
+  UseMutationResult,
+} from './v2/hooks/useMutation';
+
+// Re-export QueryBuilder from core for advanced usage
+export { QueryBuilder } from '../core/query-builder';
+
+// ===================
+// V1 LEGACY API ACCESS
+// ===================
+
+// Import all v1 exports under a namespace for explicit access
+import * as v1 from './v1';
+export { v1 };
+
+// ===================
+// SHARED CORE EXPORTS
+// ===================
 
 // Core imports
 import type { PGRestifyClientConfig } from './core/types';
@@ -20,7 +68,7 @@ export {
   matchesQueryKey,
 } from './core/query-key';
 
-// React exports
+// React Provider exports (shared between v1 and v2)
 export {
   PGRestifyProvider,
   usePGRestifyClient,
@@ -32,27 +80,7 @@ export {
   usePGRestifyDevtools,
 } from './react/provider';
 
-// React Hooks
-export {
-  useQuery,
-  useTableQuery,
-  useSingleQuery,
-  useRPC,
-} from './react/hooks/useQuery';
-
-export {
-  useMutation,
-  useInsert,
-  useUpdate,
-  useDelete,
-  useUpsert,
-} from './react/hooks/useMutation';
-
-export {
-  useInfiniteQuery,
-  useInfiniteTableQuery,
-} from './react/hooks/useInfiniteQuery';
-
+// Utility Hook exports (shared between v1 and v2)
 export {
   useIsFetching,
   useIsMutating,
@@ -142,30 +170,67 @@ export type {
   Register,
 } from './core/types';
 
-// React-specific type exports
+// React-specific type exports (shared)
 export type {
   PGRestifyProviderProps,
 } from './react/provider';
 
-// React Hook types
+// Common types re-exported from v2 (avoiding duplicates)
 export type {
-  UseQueryOptions,
-  UseQueryResult,
-} from './react/hooks/useQuery';
-
-export type {
-  UseMutationOptions,
-  UseMutationResult,
-} from './react/hooks/useMutation';
-
-export type {
-  UseInfiniteQueryResult,
-} from './react/hooks/useInfiniteQuery';
+  QueryKey as V2QueryKey,
+  MutationFunction as V2MutationFunction,
+  MutateOptions as V2MutateOptions,
+} from './v2';
 
 // Version information
-export const version = '1.0.0';
+export const version = '2.0.0';
 
 // Default client factory
 export function createPGRestifyClient(config: PGRestifyClientConfig = {}) {
   return new PGRestifyClient(config);
 }
+
+// ===================
+// MIGRATION GUIDE
+// ===================
+
+/**
+ * MIGRATION FROM V1 TO V2
+ * 
+ * V1 (Object-based API):
+ * ```typescript
+ * import { useQuery } from '@webcoded/pgrestify';
+ * 
+ * const { data } = useQuery({
+ *   from: 'products',
+ *   select: ['id', 'name'],
+ *   filter: { active: true },
+ *   order: { created_at: 'desc' }
+ * });
+ * ```
+ * 
+ * V2 (Fluent API - Default):
+ * ```typescript
+ * import { useQuery, query } from '@webcoded/pgrestify';
+ * 
+ * const { data } = useQuery(
+ *   ['products', 'active'],
+ *   query()
+ *     .from('products')
+ *     .select(['id', 'name'])
+ *     .eq('active', true)
+ *     .orderBy('created_at', 'desc')
+ * );
+ * ```
+ * 
+ * Continue using V1 (Explicit import):
+ * ```typescript
+ * import { v1 } from '@webcoded/pgrestify';
+ * 
+ * const { data } = v1.useQuery({
+ *   from: 'products',
+ *   select: ['id', 'name'],
+ *   filter: { active: true }
+ * });
+ * ```
+ */

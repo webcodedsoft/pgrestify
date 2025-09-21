@@ -573,7 +573,7 @@ export const getCachedPosts = unstable_cache(
 ### Streaming SSR
 
 ```typescript
-// app/dashboard/loading.tsx
+// app/dashboard/isLoading.tsx
 export default function Loading() {
   return (
     <div>

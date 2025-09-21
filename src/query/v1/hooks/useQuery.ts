@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
 import { QueryObserver } from '../../core/query-observer';
-import { usePGRestifyClient } from '../provider';
+import { usePGRestifyClient } from '../../react/provider';
 import { 
   normalizeQueryOptions, 
   extractData, 

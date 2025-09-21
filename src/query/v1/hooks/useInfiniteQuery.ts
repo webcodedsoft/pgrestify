@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
-import { usePGRestifyClient } from '../provider';
+import { usePGRestifyClient } from '../../react/provider';
 import { 
   extractDataArray 
 } from './types';

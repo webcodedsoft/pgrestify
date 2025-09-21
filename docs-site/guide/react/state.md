@@ -735,7 +735,7 @@ interface AppState {
   user: User | null;
   posts: Post[];
   ui: {
-    loading: boolean;
+    isLoading: boolean;
     error: string | null;
   };
 }

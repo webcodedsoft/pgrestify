@@ -6,6 +6,95 @@ Master relationship querying in PGRestify with one-to-one, one-to-many, and many
 
 PGRestify leverages PostgREST's powerful relationship querying capabilities to fetch related data in a single request. Instead of multiple round trips to the database, you can retrieve complex nested data structures efficiently through foreign key relationships.
 
+## Query Syntax Options
+
+PGRestify supports two main approaches for relationship querying:
+
+### 1. PostgREST Native Syntax
+The traditional string-based select syntax with embedded resources:
+
+```typescript
+const users = await client
+  .from('users')
+  .select(`
+    id,
+    name,
+    profile:user_profiles(bio, avatar_url)
+  `)
+  .execute();
+```
+
+### 2. Relations Array Syntax
+A more declarative approach using the `relations` array:
+
+```typescript
+// Simple relation
+const users = await client
+  .from('users')
+  .select(['id', 'name', 'profile.bio', 'profile.avatar_url'])
+  .relations(['profile'])
+  .execute();
+
+// Multiple relations
+const users = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'comments.content'])
+  .relations(['posts', 'comments'])
+  .execute();
+
+// Nested relations
+const users = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.comments.content'])
+  .relations(['posts.comments'])
+  .execute();
+```
+
+### Relations Array Advanced Usage
+
+```typescript
+// Relations with filtering
+const activeUsersWithPosts = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.created_at'])
+  .relations(['posts'])
+  .eq('active', true)
+  .gte('posts.created_at', '2024-01-01')
+  .execute();
+
+// Relations with ordering
+const usersWithSortedPosts = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.upvotes'])
+  .relations(['posts'])
+  .order('posts.upvotes', { ascending: false })
+  .execute();
+
+// Complex nested relations
+const fullUserProfile = await client
+  .from('users')
+  .select([
+    'id', 'name', 'email',
+    'profile.bio', 'profile.avatar_url',
+    'posts.title', 'posts.content',
+    'posts.comments.content', 'posts.comments.author.name'
+  ])
+  .relations(['profile', 'posts.comments.author'])
+  .execute();
+
+// Relations with aliasing in select
+const usersWithAliases = await client
+  .from('users')
+  .select([
+    'id', 
+    'name', 
+    'profile.bio AS userBio',
+    'posts.title AS postTitle'
+  ])
+  .relations(['profile', 'posts'])
+  .execute();
+```
+
 ## Relationship Types
 
 ### One-to-One Relationships

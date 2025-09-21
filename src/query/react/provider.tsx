@@ -54,7 +54,7 @@ export function PGRestifyProvider({
   resetErrorBoundaryOnPropsChange = true,
   resetKeys,
   devtools,
-}: PGRestifyProviderProps) {
+}: Readonly<PGRestifyProviderProps>) {
   const clientRef = useRef(client);
   const [isHydrating, setIsHydrating] = useState(
     // Check if we're in a hydration environment
@@ -92,18 +92,9 @@ export function PGRestifyProvider({
   // Setup devtools in development
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && devtools?.enabled !== false) {
-      // Setup React Query Devtools if available
-      try {
-        const { setupDevtools } = require('@tanstack/react-query-devtools');
-        if (setupDevtools) {
-          setupDevtools({
-            client,
-            initialIsOpen: devtools?.initialIsOpen ?? false,
-          });
-        }
-      } catch {
-        // Devtools not available, ignore
-      }
+      // PGRestify devtools will be implemented here
+      // For now, devtools are disabled
+      console.log('PGRestify devtools will be available in a future release');
     }
   }, [client, devtools]);
 

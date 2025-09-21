@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useRef, useSyncExternalStore } from 'react';
-import { usePGRestifyClient } from '../provider';
+import { usePGRestifyClient } from '../../react/provider';
 import { 
   extractData, 
 } from './types';

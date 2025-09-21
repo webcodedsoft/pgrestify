@@ -4,7 +4,7 @@
  */
 
 import { useSyncExternalStore, useCallback } from 'react';
-import { usePGRestifyClient } from '../provider';
+import { usePGRestifyClient } from '../../react/provider';
 import type { QueryKey, MutationKey } from '../../core/types';
 
 /**

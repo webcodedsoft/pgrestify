@@ -4,6 +4,8 @@ PGRestify provides powerful and intuitive table joining capabilities, leveraging
 
 ## Basic Joins
 
+### PostgREST Native Syntax
+
 ```typescript
 import { createClient } from '@webcoded/pgrestify';
 
@@ -18,6 +20,63 @@ const usersWithPosts = await client
     email,
     posts:posts(id, title, content)
   `)
+  .find();
+```
+
+### Relations Array Syntax
+
+For a more declarative approach, you can use the `relations` array to specify which tables to join:
+
+```typescript
+// Simple relation join
+const usersWithProfile = await client
+  .from('users')
+  .select(['id', 'name', 'email', 'profile.bio', 'profile.avatar_url'])
+  .relations(['profile'])
+  .find();
+
+// Multiple relations
+const usersWithPostsAndComments = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.content', 'comments.text'])
+  .relations(['posts', 'comments'])
+  .find();
+
+// Nested relations
+const usersWithPostComments = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.comments.text'])
+  .relations(['posts.comments'])
+  .find();
+```
+
+### Advanced Relations Usage
+
+```typescript
+// Relations with filtering
+const activeUsersWithRecentPosts = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.created_at'])
+  .relations(['posts'])
+  .eq('active', true)
+  .gte('posts.created_at', '2024-01-01')
+  .find();
+
+// Relations with custom select and ordering
+const usersWithTopPosts = await client
+  .from('users')
+  .select(['id', 'name', 'posts.title', 'posts.upvotes'])
+  .relations(['posts'])
+  .order('posts.upvotes', { ascending: false })
+  .limit(10)
+  .find();
+
+// Relations with aggregation
+const usersWithPostCount = await client
+  .from('users')
+  .select(['id', 'name'])
+  .relations(['posts'])
+  .aggregate('posts', 'count')
   .find();
 ```
 
