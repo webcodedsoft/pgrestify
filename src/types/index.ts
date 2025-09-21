@@ -99,6 +99,12 @@ export interface RelationConfig {
   columns: string[] | '*';
 }
 
+export interface SubqueryOperation {
+  type: 'whereIn' | 'whereNotIn';
+  column: string;
+  subquery: any; // QueryBuilder instance
+}
+
 export interface QueryState<T = Record<string, unknown>> {
   select?: string;
   filters: Filter<T>[];
@@ -111,6 +117,7 @@ export interface QueryState<T = Record<string, unknown>> {
   role?: string;
   joins?: JoinConfig[];
   relations?: RelationConfig[];
+  subqueries?: SubqueryOperation[];
   // Raw PostgREST integration fields
   rawParams?: Record<string, string>;
   rawFilters?: Record<string, string>;
@@ -130,7 +137,7 @@ export type FilterOperator =
   // Backward compatibility - string literals
   | 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
   | 'like' | 'ilike' | 'match' | 'imatch'
-  | 'in' | 'cs' | 'cd'
+  | 'in' | 'not.in' | 'cs' | 'cd'
   | 'ov' | 'sl' | 'sr' | 'nxl' | 'nxr' | 'adj'
   | 'and' | 'or' | 'not'
   | 'is'
