@@ -243,6 +243,9 @@ export class QueryBuilder<T = Record<string, unknown>> {
     if (Array.isArray(valuesOrSubquery)) {
       return this.in(column, valuesOrSubquery);
     }
+    
+    // Handle subquery case with two-step execution
+    return this.addSubqueryFilter(column, 'in', valuesOrSubquery);
   }
 
   /**
@@ -261,6 +264,9 @@ export class QueryBuilder<T = Record<string, unknown>> {
       }
       return this.addFilter(column, 'not.in', `(${valuesOrSubquery.map(v => this.formatValue(v)).join(',')})`);
     }
+    
+    // Handle subquery case with two-step execution
+    return this.addSubqueryFilter(column, 'not.in', valuesOrSubquery);
   }
 
   whereBetween<K extends keyof T>(column: K | string, min: T[K] | unknown, max: T[K] | unknown): QueryBuilder<T> {
@@ -1302,7 +1308,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     }
 
     try {
-      const url = this.buildUrl();
+      const url = await this.buildUrl();
       const headers = await this.buildHeaders(options);
       
       const response = await this.httpClient.get<T[]>(url, headers);
@@ -1810,6 +1816,28 @@ export class QueryBuilder<T = Record<string, unknown>> {
     });
   }
 
+  /**
+   * Add a subquery filter that will be resolved at execution time
+   * Uses two-step execution: first execute subquery, then use results in main query
+   */
+  private addSubqueryFilter<K extends keyof T>(
+    column: K | string,
+    operator: 'in' | 'not.in',
+    subquery: QueryBuilder<any>
+  ): QueryBuilder<T> {
+    // Store the subquery for later execution
+    const subqueryFilter: Filter<T> = {
+      column,
+      operator,
+      value: subquery, // Store the QueryBuilder instance
+    };
+
+    return this.clone({
+      ...this.state,
+      filters: [...this.state.filters, subqueryFilter],
+    });
+  }
+
   private clone<U = T>(newState?: QueryState<U>): QueryBuilder<U> {
     return new QueryBuilder<U>(
       this.tableName,
@@ -1829,7 +1857,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     return shouldTransformColumns(this.config.transformColumns, this.queryOptions.transformColumns);
   }
 
-  private buildUrl(): string {
+  private async buildUrl(): Promise<string> {
     const parts: string[] = [];
 
     // Add select with embedded resources (JOINs) or raw select
@@ -1838,10 +1866,43 @@ export class QueryBuilder<T = Record<string, unknown>> {
       parts.push(`select=${encodeURIComponent(selectClause)}`);
     }
 
-    // Add filters
-    this.state.filters.forEach(filter => {
+    // Add filters - handle subqueries by executing them first
+    for (const filter of this.state.filters) {
       if (filter.operator === 'and' || filter.operator === 'or') {
         parts.push(`${filter.operator}=${encodeURIComponent(String(filter.value))}`);
+      } else if (filter.operator === 'in' || filter.operator === 'not.in') {
+        // Check if this is a subquery filter
+        if (filter.value instanceof QueryBuilder) {
+          // Execute the subquery to get the values
+          const subqueryResult = await filter.value.execute();
+          if (subqueryResult.error) {
+            throw new Error(`Subquery failed: ${subqueryResult.error.message}`);
+          }
+          
+          // Extract values from subquery result
+          const subqueryData = subqueryResult.data;
+          if (!Array.isArray(subqueryData) || subqueryData.length === 0) {
+            // If subquery returns no results, use a condition that will never match
+            const columnName = this.isColumnTransformEnabled() 
+              ? transformColumnName(String(filter.column), true)
+              : String(filter.column);
+            parts.push(`${columnName}=${filter.operator}.(null)`);
+          } else {
+            // Use the subquery results as values
+            const values = subqueryData.map(item => this.formatValue(item));
+            const columnName = this.isColumnTransformEnabled() 
+              ? transformColumnName(String(filter.column), true)
+              : String(filter.column);
+            parts.push(`${columnName}=${filter.operator}.(${values.join(',')})`);
+          }
+        } else {
+          // Regular filter with direct values
+          const value = this.formatValue(filter.value);
+          const columnName = this.isColumnTransformEnabled() 
+            ? transformColumnName(String(filter.column), true)
+            : String(filter.column);
+          parts.push(`${columnName}=${filter.operator}.${encodeURIComponent(value)}`);
+        }
       } else {
         const value = this.formatValue(filter.value);
         const columnName = this.isColumnTransformEnabled() 
@@ -1849,7 +1910,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
           : String(filter.column);
         parts.push(`${columnName}=${filter.operator}.${encodeURIComponent(value)}`);
       }
-    });
+    }
 
     // Add raw filters
     if (this.state.rawFilters) {

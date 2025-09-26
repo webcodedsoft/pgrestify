@@ -130,7 +130,7 @@ export type FilterOperator =
   // Backward compatibility - string literals
   | 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
   | 'like' | 'ilike' | 'match' | 'imatch'
-  | 'in' | 'cs' | 'cd'
+  | 'in' | 'not.in' | 'cs' | 'cd'
   | 'ov' | 'sl' | 'sr' | 'nxl' | 'nxr' | 'adj'
   | 'and' | 'or' | 'not'
   | 'is'
