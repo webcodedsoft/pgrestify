@@ -30,7 +30,6 @@ import App from './App';
 const client = createClient({ 
   url: 'http://localhost:3000',
   // Optional configuration
-  apikey: 'your-api-key',
   schema: 'public'
 });
 
@@ -87,16 +86,28 @@ Modern query hook with object configuration:
 import { useQuery } from '@webcoded/pgrestify/react';
 
 function UserList() {
-  const { data: users, loading, error, refetch } = useQuery<User>({
+  const { 
+    data: users, 
+    isLoading, 
+    isFetching,
+    isError,
+    isSuccess,
+    error, 
+    refetch 
+  } = useQuery<User>({
+    queryKey: ['users', 'active'],
     from: 'users',
     select: ['id', 'name', 'email'],
     filter: { active: true },
     order: { column: 'name', ascending: true },
-    limit: 10
+    limit: 10,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,   // 10 minutes
+    refetchInterval: 30000     // 30 seconds
   });
 
-  if (loading) return <div>Loading users...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div>Loading users...</div>;
+  if (isError) return <div>Error: {error.message}</div>;
 
   return (
     <div>
@@ -112,18 +123,152 @@ function UserList() {
 }
 ```
 
+#### Query States
+
+The `useQuery` hook provides several state indicators:
+
+```tsx
+function QueryStatesExample() {
+  const {
+    data,
+    isLoading,    // Initial load
+    isFetching,   // Background refetch
+    isError,      // Error occurred
+    isSuccess,    // Query succeeded
+    isPending,    // Query in progress
+    isRefetching, // Manual refetch
+    isStale,      // Data is stale
+    error
+  } = useQuery({
+    queryKey: ['users'],
+    from: 'users',
+    select: '*'
+  });
+
+  if (isPending) return <div>Loading...</div>;
+  if (isError) return <div>Error: {error.message}</div>;
+  if (isSuccess && isFetching) return <div>Updating... {data?.length} users</div>;
+  
+  return <div>{data?.length} users loaded</div>;
+}
+```
+
+#### Query Options
+
+```tsx
+function QueryOptionsExample() {
+  const { data } = useQuery({
+    queryKey: ['users'],
+    from: 'users',
+    select: '*',
+    
+    // Caching options
+    staleTime: 5 * 60 * 1000,     // Fresh for 5 minutes
+    gcTime: 10 * 60 * 1000,       // Cache for 10 minutes
+    
+    // Refetch options
+    refetchInterval: 30000,        // Auto-refetch every 30s
+    refetchOnWindowFocus: true,    // Refetch on focus
+    
+    // Error handling
+    retry: 3,                      // Retry 3 times
+    throwOnError: false,           // Don't throw errors
+    
+    // Suspense mode
+    suspense: true                 // Use with React Suspense
+  });
+}
+```
+
+**Advanced Query Features with Relations, Aliases, and Multiple Sorting:**
+
+```tsx
+// Relations - Join with related tables
+function UsersWithProfiles() {
+  const { data: users } = useQuery<User>({
+    queryKey: ['users', 'profiles'],
+    from: 'users',
+    select: [
+      'id',
+      'name AS user_name',
+      'email AS contact_email',
+      'profile.bio AS user_bio',
+      'profile.avatar_url AS profile_image'
+    ],
+    relations: ['profile'],
+    filter: { active: true },
+    order: [
+      { column: 'name', ascending: true },           // Primary sort: alphabetical
+      { column: 'profile.created_at', ascending: false } // Secondary sort: newest profiles first
+    ]
+  });
+
+  return (
+    <div>
+      {users?.map(user => (
+        <div key={user.id} className="user-card">
+          <img src={user.profile_image} alt="Avatar" />
+          <div>
+            <h3>{user.user_name}</h3>
+            <p>{user.contact_email}</p>
+            <p>{user.user_bio}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Multiple relations with complex sorting
+function BlogPostsWithAuthors() {
+  const { data: posts } = useQuery<Post>({
+    queryKey: ['posts', 'authors', 'categories'],
+    from: 'posts',
+    select: [
+      'id AS post_id',
+      'title AS post_title',
+      'created_at AS published_date',
+      'author.name AS author_name',
+      'author.email AS author_contact',
+      'category.name AS category_name'
+    ],
+    relations: ['author', 'category'],
+    filter: { published: true },
+    order: [
+      { column: 'category.name', ascending: true },      // Group by category
+      { column: 'created_at', ascending: false },        // Latest posts first
+      { column: 'author.name', ascending: true }         // Alphabetical by author
+    ],
+    limit: 20
+  });
+
+  return (
+    <div>
+      {posts?.map(post => (
+        <article key={post.post_id}>
+          <h2>{post.post_title}</h2>
+          <p>By {post.author_name} in {post.category_name}</p>
+          <time>{new Date(post.published_date).toLocaleDateString()}</time>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
 #### useSingleQuery
 Query for a single record:
 
 ```tsx
 function UserProfile({ userId }: { userId: string }) {
-  const { data: user, loading, error } = useSingleQuery<User>({
+  const { data: user, isLoading, error } = useSingleQuery<User>({
+    queryKey: ['user', userId],
     from: 'users',
     select: '*',
     filter: { id: userId }
   });
 
-  if (loading) return <div>Loading user...</div>;
+  if (isLoading) return <div>Loading user...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!user) return <div>User not found</div>;
 
@@ -144,16 +289,36 @@ For infinite scrolling and pagination:
 function InfinitePostList() {
   const {
     data,
-    loading,
+    isLoading,
     error,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage
   } = useInfiniteQuery<Post>({
+    queryKey: ['posts', 'infinite'],
     from: 'posts',
     select: ['id', 'title', 'content', 'created_at'],
     order: { column: 'created_at', ascending: false },
-    limit: 10
+    limit: 10,
+    
+    // Pagination configuration
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === 10 ? allPages.length : undefined;
+    },
+    getPreviousPageParam: (firstPage, allPages) => {
+      return allPages.length > 1 ? allPages.length - 2 : undefined;
+    },
+    
+    // Caching options
+    staleTime: 5 * 60 * 1000,      // 5 minutes fresh
+    gcTime: 10 * 60 * 1000,        // 10 minutes in cache
+    
+    // Auto-refetch options
+    refetchInterval: 60000,         // Refetch every minute
+    
+    // Error handling
+    suspense: false,                // Disable suspense mode
+    throwOnError: false             // Handle errors gracefully
   });
 
   const allPosts = data?.pages.flatMap(page => page) ?? [];
@@ -183,6 +348,127 @@ function InfinitePostList() {
 }
 ```
 
+**Infinite Query with Relations and Aliases:**
+
+```tsx
+// E-commerce product listing with infinite scroll
+function InfiniteProductCatalog() {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteQuery<Product>({
+    queryKey: ['products', 'catalog'],
+    from: 'products',
+    select: [
+      'id AS product_id',
+      'name AS product_name',
+      'price AS current_price',
+      'category.name AS category_name',
+      'category.slug AS category_slug',
+      'reviews.rating AS avg_rating',
+      'reviews.count AS review_count'
+    ],
+    relations: ['category', 'reviews'],
+    filter: { active: true },
+    order: [
+      { column: 'category.sort_order', ascending: true },    // Category priority
+      { column: 'reviews.rating', ascending: false },       // Best rated first
+      { column: 'price', ascending: true }                  // Cheapest first within rating
+    ],
+    limit: 20
+  });
+
+  const allProducts = data?.pages.flatMap(page => page) ?? [];
+
+  return (
+    <div className="product-grid">
+      {allProducts.map(product => (
+        <div key={product.product_id} className="product-card">
+          <h3>{product.product_name}</h3>
+          <p className="price">${product.current_price}</p>
+          <p className="category">{product.category_name}</p>
+          <div className="rating">
+            ⭐ {product.avg_rating} ({product.review_count} reviews)
+          </div>
+        </div>
+      ))}
+      
+      {hasNextPage && (
+        <button 
+          onClick={() => fetchNextPage()}
+          disabled={isFetchingNextPage}
+          className="load-more-btn"
+        >
+          {isFetchingNextPage ? 'Loading more products...' : 'Load More Products'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Social media feed with complex relations
+function InfiniteSocialFeed() {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage
+  } = useInfiniteQuery<Post>({
+    queryKey: ['posts', 'social-feed'],
+    from: 'posts',
+    select: [
+      'id AS post_id',
+      'content AS post_content',
+      'created_at AS posted_at',
+      'author.name AS author_name',
+      'author.avatar_url AS author_avatar',
+      'author.verified AS is_verified',
+      'likes.count AS like_count',
+      'comments.count AS comment_count'
+    ],
+    relations: ['author', 'likes', 'comments'],
+    filter: { published: true },
+    order: [
+      { column: 'created_at', ascending: false },           // Latest first
+      { column: 'likes.count', ascending: false },          // Popular posts prioritized
+      { column: 'author.follower_count', ascending: false } // Influential authors first
+    ],
+    limit: 15
+  });
+
+  const allPosts = data?.pages.flatMap(page => page) ?? [];
+
+  return (
+    <div className="social-feed">
+      {allPosts.map(post => (
+        <div key={post.post_id} className="post-card">
+          <div className="post-header">
+            <img src={post.author_avatar} alt="Avatar" />
+            <div>
+              <span className="author-name">{post.author_name}</span>
+              {post.is_verified && <span className="verified">✓</span>}
+            </div>
+            <time>{new Date(post.posted_at).toLocaleDateString()}</time>
+          </div>
+          <p className="post-content">{post.post_content}</p>
+          <div className="post-stats">
+            <span>❤️ {post.like_count}</span>
+            <span>💬 {post.comment_count}</span>
+          </div>
+        </div>
+      ))}
+      
+      {hasNextPage && (
+        <button onClick={() => fetchNextPage()}>
+          Load More Posts
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
 ### Mutation Hooks
 
 #### useMutation
@@ -192,7 +478,7 @@ Generic mutation hook with operation specification:
 import { useMutation, MutationOperation } from '@webcoded/pgrestify/react';
 
 function CreateUser() {
-  const { mutate: createUser, loading, error } = useMutation<User>('users', {
+  const { mutate: createUser, isLoading, error } = useMutation<User>('users', {
     operation: MutationOperation.INSERT,
     onSuccess: (user) => {
       console.log('User created:', user);
@@ -214,8 +500,8 @@ function CreateUser() {
     <form onSubmit={handleSubmit}>
       <input name="name" placeholder="Name" required />
       <input name="email" type="email" placeholder="Email" required />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Creating...' : 'Create User'}
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create User'}
       </button>
       {error && <div>Error: {error.message}</div>}
     </form>
@@ -228,7 +514,7 @@ Specialized hook for inserts:
 
 ```tsx
 function PostForm() {
-  const { mutate: createPost, loading, error } = useInsert<Post>('posts', {
+  const { mutate: createPost, isLoading, error } = useInsert<Post>('posts', {
     onSuccess: (post) => {
       console.log('Post created:', post);
       // Navigate or show success message
@@ -251,8 +537,8 @@ function PostForm() {
     <form onSubmit={handleSubmit}>
       <input name="title" placeholder="Post Title" required />
       <textarea name="content" placeholder="Post Content" required />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Creating...' : 'Create Post'}
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create Post'}
       </button>
       {error && <div>Error: {error.message}</div>}
     </form>
@@ -265,7 +551,7 @@ For updating existing records:
 
 ```tsx
 function EditProfile({ profileId }: { profileId: string }) {
-  const { mutate: updateProfile, loading } = useUpdate<Profile>('profiles', {
+  const { mutate: updateProfile, isLoading } = useUpdate<Profile>('profiles', {
     onSuccess: () => {
       alert('Profile updated successfully!');
     }
@@ -286,9 +572,9 @@ function EditProfile({ profileId }: { profileId: string }) {
       />
       <button 
         onClick={() => handleSave({ bio: 'Updated bio' })}
-        disabled={loading}
+        disabled={isLoading}
       >
-        {loading ? 'Saving...' : 'Save Profile'}
+        {isLoading ? 'Saving...' : 'Save Profile'}
       </button>
     </div>
   );
@@ -300,7 +586,7 @@ For deleting records:
 
 ```tsx
 function DeleteButton({ userId }: { userId: string }) {
-  const { mutate: deleteUser, loading } = useDelete('users', {
+  const { mutate: deleteUser, isLoading } = useDelete('users', {
     onSuccess: () => {
       alert('User deleted successfully');
     }
@@ -315,10 +601,10 @@ function DeleteButton({ userId }: { userId: string }) {
   return (
     <button 
       onClick={handleDelete}
-      disabled={loading}
+      disabled={isLoading}
       className="danger-button"
     >
-      {loading ? 'Deleting...' : 'Delete User'}
+      {isLoading ? 'Deleting...' : 'Delete User'}
     </button>
   );
 }
@@ -329,7 +615,7 @@ For insert-or-update operations:
 
 ```tsx
 function UserSettings({ userId }: { userId: string }) {
-  const { mutate: saveSettings, loading } = useUpsert<Profile>('profiles', {
+  const { mutate: saveSettings, isLoading } = useUpsert<Profile>('profiles', {
     onSuccess: () => {
       console.log('Settings saved');
     }
@@ -352,8 +638,8 @@ function UserSettings({ userId }: { userId: string }) {
         onChange={(e) => handleSave({ website: e.target.value })}
         placeholder="Website URL"
       />
-      <button onClick={() => handleSave({})} disabled={loading}>
-        {loading ? 'Saving...' : 'Save Settings'}
+      <button onClick={() => handleSave({})} disabled={isLoading}>
+        {isLoading ? 'Saving...' : 'Save Settings'}
       </button>
     </div>
   );
@@ -369,9 +655,9 @@ Authentication state management:
 import { useAuth } from '@webcoded/pgrestify/react';
 
 function AuthStatus() {
-  const { user, loading, signIn, signOut, session } = useAuth();
+  const { user, isLoading, signIn, signOut, session } = useAuth();
 
-  if (loading) return <div>Checking authentication...</div>;
+  if (isLoading) return <div>Checking authentication...</div>;
 
   if (!user) {
     return (
@@ -399,6 +685,7 @@ Real-time data updates:
 ```tsx
 function RealtimePostList() {
   const { data: posts } = useQuery<Post>({
+    queryKey: ['posts'],
     from: 'posts',
     select: '*',
     order: { column: 'created_at', ascending: false }
@@ -438,7 +725,7 @@ For complex custom queries:
 
 ```tsx
 function UserStats({ userId }: { userId: string }) {
-  const { data: stats, loading } = useRawQuery(
+  const { data: stats, isLoading } = useRawQuery(
     `/rpc/get_user_stats?user_id=${userId}`,
     {
       enabled: !!userId,
@@ -446,7 +733,7 @@ function UserStats({ userId }: { userId: string }) {
     }
   );
 
-  if (loading) return <div>Loading stats...</div>;
+  if (isLoading) return <div>Loading stats...</div>;
 
   return (
     <div>
@@ -460,15 +747,25 @@ function UserStats({ userId }: { userId: string }) {
 ```
 
 #### useQueryBuilder
-Direct access to query builder:
+Direct access to query builder for dynamic queries:
 
 ```tsx
 function AdvancedSearch() {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('');
   
-  const { data: posts, loading, refetch } = useQueryBuilder<Post>({
+  const { 
+    data: posts, 
+    isLoading, 
+    isFetching,
+    isError,
+    error,
+    refetch 
+  } = useQueryBuilder<Post>({
+    queryKey: ['posts', 'search', searchTerm, category],
     enabled: false, // Manual triggering
+    
+    // Query builder function
     queryFn: (client) => {
       let query = client.from<Post>('posts').select('*');
       
@@ -503,7 +800,7 @@ function AdvancedSearch() {
         <option value="tech">Technology</option>
         <option value="design">Design</option>
       </select>
-      <button onClick={handleSearch} disabled={loading}>
+      <button onClick={handleSearch} disabled={isLoading}>
         Search
       </button>
       
@@ -606,6 +903,7 @@ Override global settings per hook:
 ```tsx
 function CriticalData() {
   const { data } = useQuery<User>({
+    queryKey: ['users', 'critical'],
     from: 'users',
     select: '*',
     // Override global settings
@@ -635,6 +933,7 @@ interface DatabaseUser {
 
 // Use them in hooks for type safety
 const { data: users } = useQuery<DatabaseUser>({
+  queryKey: ['users'],
   from: 'users',
   select: ['id', 'name', 'email']
 });
@@ -646,6 +945,7 @@ const { data: users } = useQuery<DatabaseUser>({
 function UserPosts({ userId }: { userId: string }) {
   // Good: Only refetch when userId changes
   const { data: posts } = useQuery<Post>({
+    queryKey: ['posts', 'user', userId],
     from: 'posts',
     filter: { author_id: userId },
     enabled: !!userId // Don't run if userId is empty
@@ -659,12 +959,13 @@ function UserPosts({ userId }: { userId: string }) {
 
 ```tsx
 function LoadingExample() {
-  const { data: users, loading, error } = useQuery<User>({
+  const { data: users, isLoading, error } = useQuery<User>({
+    queryKey: ['users'],
     from: 'users',
     select: '*'
   });
 
-  if (loading) {
+  if (isLoading) {
     return <div className="spinner">Loading users...</div>;
   }
 
@@ -714,7 +1015,7 @@ function PostList({ categoryId }: { categoryId: string }) {
 
 ```tsx
 function RobustComponent() {
-  const { data, loading, error, refetch } = useQuery<User>({
+  const { data, isLoading, error, refetch } = useQuery<User>({
     from: 'users',
     select: '*',
     retry: 3,

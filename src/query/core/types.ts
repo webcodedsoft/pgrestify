@@ -1,13 +1,13 @@
 /**
  * Core types for PGRestify Query System
- * TanStack Query-inspired types with PostgREST specifics
+ * React Query-inspired types with PostgREST specifics
  */
 
 import type { QueryBuilder } from '../../core/query-builder';
 import type { RPCBuilder } from '../../core/rpc-builder';
 import type { PostgRESTError } from '../../types/errors';
 
-// Global type registration (similar to TanStack Query v5)
+// Global type registration (similar to React Query v5)
 export interface Register {
   queryMeta: Record<string, unknown>;
   mutationMeta: Record<string, unknown>;

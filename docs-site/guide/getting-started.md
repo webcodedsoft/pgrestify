@@ -390,7 +390,7 @@ interface Post {
 
 export function BlogPosts() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -418,7 +418,7 @@ export function BlogPosts() {
     fetchPosts();
   }, []);
 
-  if (loading) return <div>Loading posts...</div>;
+  if (isLoading) return <div>Loading posts...</div>;
 
   return (
     <div className="blog-posts">

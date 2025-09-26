@@ -1,7 +1,7 @@
 /**
  * useInfiniteQuery Hook
- * TanStack Query-inspired infinite query hook for PGRestify
- * Supports both standard TanStack Query API and table-based convenience API
+ * Infinite query hook for PGRestify with automatic pagination
+ * Supports multiple API styles for maximum flexibility
  */
 
 import { useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
@@ -22,15 +22,18 @@ import type {
 } from '../../core/types';
 import { QueryBuilder } from '@/core/query-builder';
 
-// New TanStack Query-like infinite query options interface
-export interface UseTanStackInfiniteQueryOptions<
+// PGRestify infinite query options interface
+export interface UsePGRestifyInfiniteQueryOptions<
   TData extends Record<string, unknown> = Record<string, unknown>,
   TError = Error
 > {
   // Brand property to help TypeScript distinguish this interface
-  readonly __brand?: 'tanstack-infinite-query-options';
+  readonly __brand?: 'pgrestify-infinite-query-options';
   
-  // Query configuration (TanStack Query style)
+  // Table name (required)
+  from: string; // The table to query from
+  
+  // Query configuration
   select?: string | string[]; // Supports arrays with aliases like ['id', 'name AS display_name']
   relations?: string[]; // PostgREST embed syntax like ['author', 'category']
   filters?: Partial<TData> | Record<string, unknown>; // Filter conditions
@@ -49,7 +52,7 @@ export interface UseTanStackInfiniteQueryOptions<
   // Custom query builder (optional)
   queryBuilder?: (builder: QueryBuilder<TData>, pageParam?: unknown) => QueryBuilder<TData>;
   
-  // TanStack Query options
+  // Query options
   queryKey?: QueryKey;
   getNextPageParam?: (lastPage: TData[], allPages: TData[][], lastPageParam?: unknown, allPageParams?: unknown[]) => unknown;
   getPreviousPageParam?: (firstPage: TData[], allPages: TData[][], firstPageParam?: unknown, allPageParams?: unknown[]) => unknown;
@@ -81,7 +84,7 @@ export interface UseTableInfiniteQueryOptions<
   // Custom query builder (optional)
   queryBuilder?: (builder: QueryBuilder<TData>, pageParam?: unknown) => QueryBuilder<TData>;
   
-  // TanStack Query options
+  // Query options
   queryKey?: QueryKey;
   getNextPageParam?: (lastPage: TData[], allPages: TData[][], lastPageParam?: unknown, allPageParams?: unknown[]) => unknown;
   getPreviousPageParam?: (firstPage: TData[], allPages: TData[][], firstPageParam?: unknown, allPageParams?: unknown[]) => unknown;
@@ -96,7 +99,7 @@ export interface UseTableInfiniteQueryOptions<
   throwOnError?: boolean | ((error: TError) => boolean);
 }
 
-// Standard infinite query options (TanStack Query compatible)
+// Standard infinite query options
 export interface UseStandardInfiniteQueryOptions<
   TData = unknown,
   TError = Error,
@@ -171,13 +174,13 @@ function buildSelectWithRelations(
 }
 
 /**
- * Helper function to create TanStack Query-like infinite query options
+ * Helper function to create PGRestify infinite query options
  */
-function createTanStackInfiniteQueryOptions<TData extends Record<string, unknown>, TError = Error>(
+function createPGRestifyInfiniteQueryOptions<TData extends Record<string, unknown>, TError = Error>(
   client: PGRestifyClient,
-  tableName: string,
-  options: UseTanStackInfiniteQueryOptions<TData, TError>
+  options: UsePGRestifyInfiniteQueryOptions<TData, TError>
 ): UseStandardInfiniteQueryOptions<TData[], TError> {
+  const tableName = options.from; // Get table name from options
   const pageSize = options.limit || options.pageSize || 20;
   const paginationType = options.paginationType || 'offset';
 
@@ -653,10 +656,18 @@ class InfiniteQueryObserver<TData = unknown, TError = Error> {
 
 /**
  * Primary useInfiniteQuery hook with overloads
- * Supports multiple API styles: TanStack Query standard, table-based convenience, and new TanStack Query-like API
+ * Supports multiple API styles for maximum flexibility
  */
 
-// Overload 1: Standard TanStack Query style (object options)
+// Overload 1: New PGRestify style with from inside config
+export function useInfiniteQuery<
+  TData extends Record<string, unknown> = Record<string, unknown>,
+  TError = Error
+>(
+  options: UsePGRestifyInfiniteQueryOptions<TData, TError>
+): UseInfiniteQueryResult<InfiniteData<TData[]>, TError>;
+
+// Overload 2: Standard object options
 export function useInfiniteQuery<
   TData = unknown,
   TError = Error,
@@ -665,7 +676,7 @@ export function useInfiniteQuery<
   options: UseStandardInfiniteQueryOptions<TData, TError, TSelect>
 ): UseInfiniteQueryResult<TSelect, TError>;
 
-// Overload 2: Standard TanStack Query style (separate params) 
+// Overload 3: Standard separate params 
 export function useInfiniteQuery<
   TData = unknown,
   TError = Error,
@@ -676,30 +687,13 @@ export function useInfiniteQuery<
   options?: Omit<UseStandardInfiniteQueryOptions<TData, TError, TSelect>, 'queryKey' | 'queryFn'>
 ): UseInfiniteQueryResult<TSelect, TError>;
 
-// Overload 3: New TanStack Query-like API (tableName + comprehensive options)
+// Overload 4: Legacy table-based convenience style (for backward compatibility)
 export function useInfiniteQuery<
   TData extends Record<string, unknown> = Record<string, unknown>,
   TError = Error
 >(
   tableName: string,
-  options: UseTanStackInfiniteQueryOptions<TData, TError>
-): UseInfiniteQueryResult<InfiniteData<TData[]>, TError>;
-
-// Overload 4: TanStack Query-like API (tableName only, no options)
-export function useInfiniteQuery<
-  TData extends Record<string, unknown> = Record<string, unknown>,
-  TError = Error
->(
-  tableName: string
-): UseInfiniteQueryResult<InfiniteData<TData[]>, TError>;
-
-// Overload 5: Legacy table-based convenience style (for backward compatibility)
-export function useInfiniteQuery<
-  TData extends Record<string, unknown> = Record<string, unknown>,
-  TError = Error
->(
-  tableName: string,
-  options: UseTableInfiniteQueryOptions<TData, TError>
+  options?: UseTableInfiniteQueryOptions<TData, TError>
 ): UseInfiniteQueryResult<InfiniteData<TData[]>, TError>;
 
 // Implementation
@@ -708,45 +702,42 @@ export function useInfiniteQuery<
   TError = Error,
   TSelect = InfiniteData<TData>
 >(
-  arg1: UseStandardInfiniteQueryOptions<TData, TError, TSelect> | QueryKey | string,
-  arg2?: QueryFunction<TData> | UseTanStackInfiniteQueryOptions<TData & Record<string, unknown>, TError> | UseTableInfiniteQueryOptions<TData & Record<string, unknown>, TError>,
+  arg1: UsePGRestifyInfiniteQueryOptions<TData & Record<string, unknown>, TError> | UseStandardInfiniteQueryOptions<TData, TError, TSelect> | QueryKey | string,
+  arg2?: QueryFunction<TData> | UseTableInfiniteQueryOptions<TData & Record<string, unknown>, TError>,
   arg3?: Omit<UseStandardInfiniteQueryOptions<TData, TError, TSelect>, 'queryKey' | 'queryFn'>
 ): UseInfiniteQueryResult<TSelect, TError> {
   const client = usePGRestifyClient();
   
   // Determine which API style is being used and normalize options
   const options = useMemo(() => {
-    // Case 1: Table-based API with string tableName
-    if (typeof arg1 === 'string' && (typeof arg2 === 'object' || arg2 === undefined)) {
-      const tableName = arg1;
-      const tableOptions = arg2 as UseTanStackInfiniteQueryOptions<TData & Record<string, unknown>, TError> | UseTableInfiniteQueryOptions<TData & Record<string, unknown>, TError> || {};
-      
-      // Detect if it's the new TanStack Query-like API or legacy API
-      const hasNewAPIFeatures = 'relations' in tableOptions || 'order' in tableOptions || 'limit' in tableOptions;
-      
-      if (hasNewAPIFeatures) {
-        // New TanStack Query-like API
-        return createTanStackInfiniteQueryOptions<TData & Record<string, unknown>, TError>(
-          client, 
-          tableName, 
-          tableOptions as UseTanStackInfiniteQueryOptions<TData & Record<string, unknown>, TError>
-        ) as unknown as UseStandardInfiniteQueryOptions<TData, TError, TSelect>;
-      } else {
-        // Legacy table-based API
-        return createTableInfiniteQueryOptions<TData & Record<string, unknown>, TError>(
-          client, 
-          tableName, 
-          tableOptions as UseTableInfiniteQueryOptions<TData & Record<string, unknown>, TError>
-        ) as unknown as UseStandardInfiniteQueryOptions<TData, TError, TSelect>;
-      }
+    // Case 1: New PGRestify style with 'from' inside config
+    if (typeof arg1 === 'object' && !Array.isArray(arg1) && 'from' in arg1) {
+      const pgRestifyOptions = arg1 as UsePGRestifyInfiniteQueryOptions<TData & Record<string, unknown>, TError>;
+      return createPGRestifyInfiniteQueryOptions<TData & Record<string, unknown>, TError>(
+        client,
+        pgRestifyOptions
+      ) as unknown as UseStandardInfiniteQueryOptions<TData, TError, TSelect>;
     }
     
-    // Case 2: Standard object API
+    // Case 2: Legacy table-based API with string tableName
+    if (typeof arg1 === 'string' && (typeof arg2 === 'object' || arg2 === undefined)) {
+      const tableName = arg1;
+      const tableOptions = (arg2 as UseTableInfiniteQueryOptions<TData & Record<string, unknown>, TError>) || {};
+      
+      // Legacy table-based API
+      return createTableInfiniteQueryOptions<TData & Record<string, unknown>, TError>(
+        client, 
+        tableName, 
+        tableOptions
+      ) as unknown as UseStandardInfiniteQueryOptions<TData, TError, TSelect>;
+    }
+    
+    // Case 3: Standard object API (without 'from')
     if (typeof arg1 === 'object' && !Array.isArray(arg1)) {
       return arg1 as UseStandardInfiniteQueryOptions<TData, TError, TSelect>;
     }
     
-    // Case 3: Standard separate params API
+    // Case 4: Standard separate params API
     if (Array.isArray(arg1) || (typeof arg1 === 'string' && typeof arg2 === 'function')) {
       return {
         queryKey: arg1 as QueryKey,

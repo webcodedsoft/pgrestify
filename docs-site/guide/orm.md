@@ -415,6 +415,8 @@ pgrestify schema:sync --entities "src/entities/**/*.ts" --confirm
 
 ## Entity Relations
 
+For comprehensive information on defining and working with relationships, see the [Relationships Guide](./orm/relationships.md).
+
 Define relationships between entities:
 
 ```typescript

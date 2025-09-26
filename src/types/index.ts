@@ -130,7 +130,7 @@ export type FilterOperator =
   // Backward compatibility - string literals
   | 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
   | 'like' | 'ilike' | 'match' | 'imatch'
-  | 'in' | 'cs' | 'cd'
+  | 'in' | 'not.in' | 'cs' | 'cd'
   | 'ov' | 'sl' | 'sr' | 'nxl' | 'nxr' | 'adj'
   | 'and' | 'or' | 'not'
   | 'is'
@@ -326,7 +326,7 @@ export interface PaginationResult<T> {
   };
 }
 
-// TypeORM-style find options interfaces
+// ORM-style find options interfaces
 export type FindOptionsSelect<T> = {
   [K in keyof T]?: boolean | FindOptionsSelect<T[K]>;
 }
@@ -348,8 +348,8 @@ export interface FindManyOptions<T> {
   order?: FindOptionsOrder<T>;
   take?: number; // limit
   skip?: number; // offset
-  // Relations/Joins support (TypeORM-style + PostgREST)
-  relations?: string[] | Record<string, boolean>; // TypeORM-style: ['user', 'user.profile']
+  // Relations/Joins support (ORM-style + PostgREST)
+  relations?: string[] | Record<string, boolean>; // ORM-style: ['user', 'user.profile']
   joins?: JoinConfig<any>[]; // PostgREST-style: detailed join configuration
   // PostgREST specific
   single?: boolean;
@@ -691,7 +691,7 @@ export interface QueryBuilder<T = Record<string, unknown>> extends JoinBuilder<T
   single(): QueryBuilder<T>;
   maybeSingle(): QueryBuilder<T>;
   
-  // TypeORM-style convenience methods
+  // ORM-style convenience methods
   find(options?: FindManyOptions<T>): Promise<QueryResponse<T>>;
   findBy(where: FindOptionsWhere<T>): Promise<QueryResponse<T>>;
   findBy(options: { where: FindOptionsWhere<T>; select?: (keyof T)[] | string | string[] }): Promise<QueryResponse<T>>;

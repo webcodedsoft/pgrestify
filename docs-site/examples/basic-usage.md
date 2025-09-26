@@ -70,18 +70,45 @@ PGRestify supports two query approaches - choose what feels natural:
 ### 🎯 PostgREST Native Syntax
 
 ```typescript
-// Get all users
+// Get users with array syntax (recommended)
 const { data: users, error } = await client
   .from('users')
-  .select('*')
+  .select(['id', 'name', 'email', 'active', 'created_at'])
   .execute();
 
-// Filter and order
+// Query with aliases using array syntax
+const { data: usersWithAliases } = await client
+  .from('users')
+  .select([
+    'id AS user_id',
+    'name AS full_name', 
+    'email AS contact_email',
+    'created_at AS signup_date'
+  ])
+  .execute();
+
+// Filter with multiple sort orders
 const { data: activeUsers } = await client
   .from('users')
-  .select('id, name, email')
+  .select(['id', 'name', 'email', 'role'])
   .eq('active', true)
-  .order('name', { ascending: true })
+  .order('role')                           // Primary sort: by role
+  .order('name', { ascending: true })      // Secondary sort: alphabetical
+  .execute();
+
+// Relations example with aliases and sorting
+const { data: usersWithPosts } = await client
+  .from('users')
+  .select([
+    'id',
+    'name AS user_name',
+    'posts.title AS post_title',
+    'posts.created_at AS post_date'
+  ])
+  .relations(['posts'])
+  .eq('active', true)
+  .order('name')
+  .order('posts.created_at', { ascending: false })
   .execute();
 ```
 
@@ -96,10 +123,38 @@ const users = await userRepo.find();
 const activeUsers = await userRepo.findBy({ active: true });
 const user = await userRepo.findOne({ id: 1 });
 
-// Advanced query builder
-const users = await userRepo
+// Query builder with aliases
+const usersWithAliases = await userRepo
   .createQueryBuilder()
-  .select(['id', 'name', 'email'])
+  .select([
+    'id AS user_id',
+    'name AS full_name',
+    'email AS contact_email'
+  ])
+  .where('active = :active', { active: true })
+  .orderBy('name', 'ASC')
+  .getMany();
+
+// Multiple sort orders with repository pattern
+const sortedUsers = await userRepo
+  .createQueryBuilder()
+  .select(['id', 'name', 'email', 'role', 'created_at'])
+  .where('active = :active', { active: true })
+  .orderBy('role', 'ASC')              // Primary sort
+  .addOrderBy('created_at', 'DESC')    // Secondary sort
+  .addOrderBy('name', 'ASC')           // Tertiary sort
+  .getMany();
+
+// Relations with repository pattern  
+const usersWithRelations = await userRepo
+  .createQueryBuilder()
+  .select([
+    'id',
+    'name AS user_name',
+    'posts.title AS post_title',
+    'posts.published'
+  ])
+  .relations(['posts'])
   .where('active = :active', { active: true })
   .orderBy('name', 'ASC')
   .getMany();
@@ -460,6 +515,99 @@ const newUser = await userService.createUser({
   role: 'user',
   active: true
 });
+```
+
+## Advanced Examples: Combining All Features
+
+Here are practical examples that combine relations, aliases, and multiple sort orders:
+
+```typescript
+// E-commerce: Products with categories and reviews
+const getProductCatalog = async () => {
+  return client
+    .from('products')
+    .select([
+      'id AS product_id',
+      'name AS product_name',
+      'price AS current_price',
+      'category.name AS category_name',
+      'reviews.rating AS review_rating',
+      'reviews.count AS review_count'
+    ])
+    .relations(['category', 'reviews'])
+    .eq('active', true)
+    .order('category.name')                    // Group by category
+    .order('reviews.rating', { ascending: false })  // Best rated first
+    .order('price')                            // Cheapest first
+    .execute();
+};
+
+// Blog: Posts with authors and comments
+const getBlogPosts = async () => {
+  return client
+    .from('posts')
+    .select([
+      'id AS post_id',
+      'title AS post_title',
+      'created_at AS published_date',
+      'author.name AS author_name',
+      'author.email AS author_contact',
+      'comments.content AS comment_text',
+      'comments.created_at AS comment_date'
+    ])
+    .relations(['author', 'comments'])
+    .eq('published', true)
+    .order('created_at', { ascending: false })     // Latest posts first
+    .order('comments.created_at', { ascending: false })  // Latest comments first
+    .execute();
+};
+
+// User Management: Users with profiles and recent activity
+const getUserDashboard = async () => {
+  return client
+    .from('users')
+    .select([
+      'id AS user_id',
+      'name AS display_name',
+      'email AS contact_email',
+      'created_at AS joined_date',
+      'profile.bio AS user_bio',
+      'profile.avatar_url AS profile_image',
+      'activity.action AS recent_action',
+      'activity.created_at AS activity_date'
+    ])
+    .relations(['profile', 'activity'])
+    .eq('active', true)
+    .order('activity.created_at', { ascending: false })  // Recent activity first
+    .order('created_at', { ascending: false })     // Newest users first
+    .order('name')                                 // Alphabetical fallback
+    .limit(50)
+    .execute();
+};
+
+// Repository Pattern: Complex business queries
+const userRepo = client.getRepository<User>('users');
+
+const getTeamDirectory = async () => {
+  return userRepo
+    .createQueryBuilder()
+    .select([
+      'id AS employee_id',
+      'first_name AS firstName',
+      'last_name AS lastName',
+      'email AS workEmail',
+      'department.name AS dept_name',
+      'manager.first_name AS manager_firstName',
+      'manager.last_name AS manager_lastName'
+    ])
+    .relations(['department', 'manager'])
+    .where('active = :active', { active: true })
+    .orderBy('department.name', 'ASC')             // Group by department
+    .addOrderBy('manager.last_name', 'ASC')        // Then by manager
+    .addOrderBy('last_name', 'ASC')                // Then alphabetical
+    .addOrderBy('first_name', 'ASC')               // Finally by first name
+    .getMany();
+};
 ```
 
 ## Best Practices

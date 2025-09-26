@@ -21,7 +21,7 @@ interface User {
 function CreateUserForm() {
   const { 
     mutate: createUser, 
-    loading, 
+    isLoading, 
     error, 
     data: createdUser 
   } = useMutation<User>('users', {
@@ -49,8 +49,8 @@ function CreateUserForm() {
     }}>
       <input name="name" placeholder="Name" required />
       <input name="email" type="email" placeholder="Email" required />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Creating...' : 'Create User'}
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create User'}
       </button>
       {error && <div className="error">Error: {error.message}</div>}
       {createdUser && <div className="success">User created successfully!</div>}
@@ -76,7 +76,7 @@ interface Post {
 function CreatePostForm({ authorId }: { authorId: string }) {
   const [isDraft, setIsDraft] = useState(true);
   
-  const { mutate: createPost, loading, error } = useInsert<Post>('posts', {
+  const { mutate: createPost, isLoading, error } = useInsert<Post>('posts', {
     onSuccess: (post) => {
       alert(`Post ${post.published ? 'published' : 'saved as draft'}!`);
       // Redirect to post page
@@ -126,8 +126,8 @@ function CreatePostForm({ authorId }: { authorId: string }) {
           Save as Draft
         </label>
         
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : isDraft ? 'Save Draft' : 'Publish'}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Saving...' : isDraft ? 'Save Draft' : 'Publish'}
         </button>
       </div>
       
@@ -161,7 +161,7 @@ function EditProfileForm({ profile }: { profile: Profile }) {
     website: profile.website || ''
   });
 
-  const { mutate: updateProfile, loading, error } = useUpdate<Profile>('profiles', {
+  const { mutate: updateProfile, isLoading, error } = useUpdate<Profile>('profiles', {
     onSuccess: (updatedProfile) => {
       console.log('Profile updated:', updatedProfile);
       alert('Profile updated successfully!');
@@ -215,8 +215,8 @@ function EditProfileForm({ profile }: { profile: Profile }) {
       </div>
       
       <div className="form-actions">
-        <button onClick={handleSave} disabled={loading}>
-          {loading ? 'Saving...' : 'Save Changes'}
+        <button onClick={handleSave} disabled={isLoading}>
+          {isLoading ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
       
@@ -238,7 +238,7 @@ Use `useDelete` for removing records:
 function DeleteUserButton({ user }: { user: User }) {
   const [showConfirm, setShowConfirm] = useState(false);
   
-  const { mutate: deleteUser, loading } = useDelete('users', {
+  const { mutate: deleteUser, isLoading } = useDelete('users', {
     onSuccess: () => {
       alert('User deleted successfully');
       // Navigate away or update parent component
@@ -262,10 +262,10 @@ function DeleteUserButton({ user }: { user: User }) {
         <div className="confirmation-actions">
           <button 
             onClick={handleDelete}
-            disabled={loading}
+            disabled={isLoading}
             className="danger-button"
           >
-            {loading ? 'Deleting...' : 'Yes, Delete'}
+            {isLoading ? 'Deleting...' : 'Yes, Delete'}
           </button>
           <button 
             onClick={() => setShowConfirm(false)}
@@ -309,7 +309,7 @@ function UserSettings({ userId }: { userId: string }) {
     language: 'en'
   });
 
-  const { mutate: savePreferences, loading, error } = useUpsert<UserPreference>('user_preferences', {
+  const { mutate: savePreferences, isLoading, error } = useUpsert<UserPreference>('user_preferences', {
     onSuccess: (savedPrefs) => {
       console.log('Preferences saved:', savedPrefs);
       // Show success toast
@@ -373,8 +373,8 @@ function UserSettings({ userId }: { userId: string }) {
         </select>
       </div>
       
-      <button onClick={handleSave} disabled={loading}>
-        {loading ? 'Saving...' : 'Save Settings'}
+      <button onClick={handleSave} disabled={isLoading}>
+        {isLoading ? 'Saving...' : 'Save Settings'}
       </button>
       
       {error && (
@@ -399,7 +399,7 @@ function OptimisticLikeButton({ postId, initialLikes }: {
   const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
 
-  const { mutate: toggleLike, loading } = useMutation('post_likes', {
+  const { mutate: toggleLike, isLoading } = useMutation('post_likes', {
     operation: MutationOperation.INSERT,
     onMutate: (variables) => {
       // Optimistic update
@@ -436,10 +436,10 @@ function OptimisticLikeButton({ postId, initialLikes }: {
   return (
     <button 
       onClick={handleToggleLike}
-      disabled={loading}
+      disabled={isLoading}
       className={`like-button ${isLiked ? 'liked' : ''}`}
     >
-      ❤️ {likes} {loading && '⟳'}
+      ❤️ {likes} {isLoading && '⟳'}
     </button>
   );
 }
@@ -451,7 +451,7 @@ function OptimisticLikeButton({ postId, initialLikes }: {
 function BulkUserActions({ userIds }: { userIds: string[] }) {
   const [selectedAction, setSelectedAction] = useState<'activate' | 'deactivate' | 'delete'>('activate');
   
-  const { mutate: bulkUpdate, loading, error } = useUpdate<User>('users', {
+  const { mutate: bulkUpdate, isLoading, error } = useUpdate<User>('users', {
     onSuccess: (result) => {
       console.log(`Successfully updated ${userIds.length} users`);
       // Refresh user list or navigate
@@ -498,10 +498,10 @@ function BulkUserActions({ userIds }: { userIds: string[] }) {
         
         <button 
           onClick={handleBulkAction}
-          disabled={loading || userIds.length === 0}
+          disabled={isLoading || userIds.length === 0}
           className={selectedAction === 'delete' ? 'danger-button' : ''}
         >
-          {loading ? 'Processing...' : `${selectedAction} ${userIds.length} Users`}
+          {isLoading ? 'Processing...' : `${selectedAction} ${userIds.length} Users`}
         </button>
       </div>
       
@@ -522,7 +522,7 @@ function AvatarUpload({ userId }: { userId: string }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
 
-  const { mutate: uploadAvatar, loading, error } = useUpdate<Profile>('profiles', {
+  const { mutate: uploadAvatar, isLoading, error } = useUpdate<Profile>('profiles', {
     onSuccess: (profile) => {
       console.log('Avatar updated:', profile.avatar_url);
       setSelectedFile(null);
@@ -583,9 +583,9 @@ function AvatarUpload({ userId }: { userId: string }) {
       <div className="upload-actions">
         <button 
           onClick={handleUpload}
-          disabled={!selectedFile || loading}
+          disabled={!selectedFile || isLoading}
         >
-          {loading ? 'Uploading...' : 'Upload Avatar'}
+          {isLoading ? 'UpisLoading...' : 'Upload Avatar'}
         </button>
         
         {selectedFile && (
@@ -693,7 +693,7 @@ function UserForm({ user, onSuccess }: {
     }
   };
 
-  const loading = createMutation.loading || updateMutation.loading;
+  const isLoading = createMutation.isLoading || updateMutation.isLoading;
   const error = createMutation.error || updateMutation.error;
 
   return (
@@ -736,9 +736,9 @@ function UserForm({ user, onSuccess }: {
       <div className="form-actions">
         <button 
           type="submit" 
-          disabled={loading || !isDirty}
+          disabled={isLoading || !isDirty}
         >
-          {loading 
+          {isLoading 
             ? 'Saving...' 
             : isEditing 
               ? 'Update User' 
@@ -750,7 +750,7 @@ function UserForm({ user, onSuccess }: {
           <button 
             type="button" 
             onClick={() => reset()}
-            disabled={loading}
+            disabled={isLoading}
           >
             Reset
           </button>
@@ -785,7 +785,7 @@ function PostForm({ post, onSuccess }: {
 }) {
   const isEditing = !!post;
 
-  const { mutate: savePost, loading, error } = useMutation<Post>('posts', {
+  const { mutate: savePost, isLoading, error } = useMutation<Post>('posts', {
     operation: isEditing ? MutationOperation.UPDATE : MutationOperation.INSERT,
     onSuccess: (savedPost) => {
       console.log('Post saved:', savedPost);
@@ -831,9 +831,9 @@ function PostForm({ post, onSuccess }: {
 
           <button 
             type="submit" 
-            disabled={loading || isSubmitting || !dirty}
+            disabled={isLoading || isSubmitting || !dirty}
           >
-            {loading ? 'Saving...' : isEditing ? 'Update Post' : 'Create Post'}
+            {isLoading ? 'Saving...' : isEditing ? 'Update Post' : 'Create Post'}
           </button>
 
           {error && (
@@ -854,7 +854,7 @@ function PostForm({ post, onSuccess }: {
 
 ```tsx
 function ReliableMutation() {
-  const { mutate, loading, error, retry } = useMutation<User>('users', {
+  const { mutate, isLoading, error, retry } = useMutation<User>('users', {
     operation: MutationOperation.INSERT,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
@@ -869,7 +869,7 @@ function ReliableMutation() {
         Create User
       </button>
       
-      {loading && <div>Creating user...</div>}
+      {isLoading && <div>Creating user...</div>}
       
       {error && (
         <div className="error">
@@ -938,7 +938,7 @@ function useMutationState() {
     setMutations(prev => new Map(prev.set(key, state)));
   };
   
-  const isAnyLoading = Array.from(mutations.values()).some(m => m.loading);
+  const isAnyLoading = Array.from(mutations.values()).some(m => m.isLoading);
   
   return { mutations, registerMutation, isAnyLoading };
 }
@@ -951,7 +951,7 @@ function useMutationState() {
 function EditForm({ initialData }: { initialData: User }) {
   const [formData, setFormData] = useState(initialData);
   
-  const { mutate, loading, error } = useUpdate<User>('users', {
+  const { mutate, isLoading, error } = useUpdate<User>('users', {
     onSuccess: (updatedUser) => {
       setFormData(updatedUser); // Sync with server response
     }

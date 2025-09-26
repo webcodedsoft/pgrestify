@@ -69,36 +69,27 @@ styles/
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
 import { PGRestifyProvider } from '@webcoded/pgrestify/nextjs';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useState } from 'react';
+import { createClient } from '@webcoded/pgrestify';
 import '../styles/globals.css';
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000, // 1 minute
-        cacheTime: 5 * 60 * 1000, // 5 minutes
-      },
+  const client = createClient({
+    url: process.env.NEXT_PUBLIC_POSTGREST_URL!,
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true
     },
-  }));
+    cache: {
+      enabled: true,
+      staleTime: 60 * 1000, // 1 minute
+      gcTime: 5 * 60 * 1000, // 5 minutes
+    }
+  });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <PGRestifyProvider
-        config={{
-          url: process.env.NEXT_PUBLIC_POSTGREST_URL!,
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true
-          }
-        }}
-      >
-        <Component {...pageProps} />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </PGRestifyProvider>
-    </QueryClientProvider>
+    <PGRestifyProvider client={client}>
+      <Component {...pageProps} />
+    </PGRestifyProvider>
   );
 }
 

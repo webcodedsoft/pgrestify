@@ -23,7 +23,7 @@ PGRestify is a comprehensive TypeScript library and CLI tool that provides type-
 
 #### Framework Integrations
 - **React Hooks**: Custom hooks for data fetching with automatic type inference
-- **TanStack Query**: Full integration with type safety and caching
+- **React Query**: Full integration with type safety and caching
 - **Next.js Support**: Optimized for both App Router and Pages Router
 - **Server-Side Rendering**: Built-in SSR/SSG support with hydration
 
@@ -60,7 +60,7 @@ PGRestify is a comprehensive TypeScript library and CLI tool that provides type-
 
 - `@webcoded/pgrestify` - Main library with client and types
 - `@webcoded/pgrestify/react` - React hooks and components
-- `@webcoded/pgrestify/tanstack-query` - TanStack Query integration
+- `@webcoded/pgrestify/react-query` - React Query integration
 - `@webcoded/pgrestify/nextjs` - Next.js utilities and middleware
 
 ### 🛠️ CLI Commands

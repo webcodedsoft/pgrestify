@@ -430,7 +430,7 @@ export interface InfiniteQueryConfig<T extends Record<string, unknown> = Record<
    */
   transformColumns?: boolean;
   
-  // TanStack Query options
+  // React Query options
   enabled?: boolean;
   staleTime?: number;
   gcTime?: number;
@@ -471,7 +471,7 @@ export function useInfiniteQuery<T extends Record<string, unknown> = Record<stri
   } = memoizedConfig;
   
   // Note: staleTime and gcTime are not used in this implementation
-  // They would be used in a full TanStack Query integration
+  // They would be used in a full React Query integration
 
   // Use pageSize if provided, otherwise use limit, otherwise default to 20
   const actualPageSize = useMemo(() => pageSize || limit || 20, [pageSize, limit]);
@@ -921,7 +921,7 @@ export function useInfiniteQuery<T extends Record<string, unknown> = Record<stri
     isFetchingNextPage,
     isFetchingPreviousPage,
     refetch,
-    // Additional TanStack Query compatible properties
+    // Additional React Query compatible properties
     isInitialLoading: isLoading && pages.length === 0,
     isSuccess: !error && pages.length > 0,
     status: error ? 'error' : pages.length > 0 ? 'success' : isLoading ? 'loading' : 'idle',

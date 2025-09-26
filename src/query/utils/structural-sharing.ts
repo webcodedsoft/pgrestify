@@ -1,7 +1,7 @@
 /**
  * Structural Sharing Utilities
  * Maintains reference equality for unchanged data to prevent unnecessary re-renders
- * Based on TanStack Query's structural sharing implementation
+ * Based on React Query's structural sharing implementation
  */
 
 /**

@@ -232,26 +232,150 @@ async function sortingMethods() {
   
   // Single column sorting
   const sortedByDate = await queryBuilder
+    .select(['id', 'first_name', 'last_name', 'created_at'])
     .order('created_at', { ascending: false })  // Newest first
     .execute();
   
-  // Multiple column sorting
+  // Multiple column sorting - chaining order calls
   const multipleSorted = await queryBuilder
-    .order('role', { ascending: true })      // Role ascending
-    .order('last_name', { ascending: true }) // Then last name ascending
-    .order('first_name', { ascending: true }) // Then first name ascending
+    .select(['id', 'first_name', 'last_name', 'role', 'is_active'])
+    .order('is_active', { ascending: false })  // Active users first
+    .order('role', { ascending: true })        // Then by role
+    .order('last_name', { ascending: true })   // Then last name
+    .order('first_name', { ascending: true })  // Finally first name
     .execute();
   
-  // Complex sorting with nulls handling
-  const nullsHandled = await queryBuilder
-    .order('updated_at', { ascending: false, nullsFirst: false })
+  // Complex business logic sorting
+  const businessSorted = await queryBuilder
+    .select(['id', 'name', 'subscription_tier', 'last_login', 'created_at'])
+    .order('subscription_tier', { ascending: false })  // Premium first
+    .order('last_login', { ascending: false, nullsFirst: false })  // Recent activity (nulls last)
+    .order('created_at', { ascending: false })  // Then by registration date
     .execute();
+  
+  // Dynamic multiple sorting
+  const sortCriteria = [
+    { column: 'department', ascending: true },
+    { column: 'salary', ascending: false },
+    { column: 'hire_date', ascending: true }
+  ];
+  
+  let dynamicQuery = userRepository.getQueryBuilder();
+  sortCriteria.forEach(sort => {
+    dynamicQuery = dynamicQuery.order(sort.column, { ascending: sort.ascending });
+  });
+  
+  const dynamicSorted = await dynamicQuery.execute();
   
   console.log('Sorted results:', {
     byDate: sortedByDate.data?.length,
     multiple: multipleSorted.data?.length,
-    nullsHandled: nullsHandled.data?.length
+    business: businessSorted.data?.length,
+    dynamic: dynamicSorted.data?.length
   });
+}
+```
+
+### Repository Pattern Sorting
+
+For TypeORM-style repositories, use `.orderBy()` and `.addOrderBy()`:
+
+```tsx
+async function repositoryStyleSorting() {
+  const userRepo = dataManager.getRepository<User>('users');
+  
+  // Single column sort
+  const usersByName = await userRepo
+    .createQueryBuilder()
+    .orderBy('last_name', 'ASC')
+    .getMany();
+  
+  // Multiple column sort using addOrderBy
+  const complexSort = await userRepo
+    .createQueryBuilder()
+    .orderBy('is_active', 'DESC')        // Primary sort
+    .addOrderBy('created_at', 'DESC')    // Secondary sort
+    .addOrderBy('last_name', 'ASC')      // Tertiary sort
+    .addOrderBy('first_name', 'ASC')     // Quaternary sort
+    .getMany();
+  
+  // Mixed with filtering and selection
+  const filteredAndSorted = await userRepo
+    .createQueryBuilder()
+    .select(['id', 'first_name', 'last_name', 'email', 'role'])
+    .where('active = :active', { active: true })
+    .andWhere('role IN (:...roles)', { roles: ['admin', 'moderator'] })
+    .orderBy('role', 'ASC')
+    .addOrderBy('last_name', 'ASC')
+    .getMany();
+  
+  console.log('Repository style sorting:', {
+    byName: usersByName.length,
+    complex: complexSort.length,
+    filtered: filteredAndSorted.length
+  });
+}
+```
+
+### Advanced Multi-Column Sorting Patterns
+
+```tsx
+// E-commerce product sorting
+async function productSorting() {
+  const productRepo = dataManager.getRepository<Product>('products');
+  
+  const sortedProducts = await productRepo
+    .createQueryBuilder()
+    .select([
+      'id', 'name', 'category', 'featured', 
+      'in_stock', 'rating', 'price'
+    ])
+    .orderBy('featured', 'DESC')           // Featured products first
+    .addOrderBy('in_stock', 'DESC')        // In-stock items next
+    .addOrderBy('category', 'ASC')         // Group by category
+    .addOrderBy('rating', 'DESC')          // Best rated within category
+    .addOrderBy('price', 'ASC')            // Cheapest within rating tier
+    .addOrderBy('name', 'ASC')             // Alphabetical for identical products
+    .getMany();
+  
+  return sortedProducts;
+}
+
+// Task management sorting
+async function taskSorting() {
+  const taskRepo = dataManager.getRepository<Task>('tasks');
+  
+  const prioritizedTasks = await taskRepo
+    .createQueryBuilder()
+    .orderBy('status', 'ASC')             // Open tasks first
+    .addOrderBy(`
+      CASE priority 
+        WHEN 'high' THEN 1 
+        WHEN 'medium' THEN 2 
+        WHEN 'low' THEN 3 
+        ELSE 4 
+      END
+    `, 'ASC')                             // Custom priority order
+    .addOrderBy('due_date', 'ASC')        // Earliest due date
+    .addOrderBy('created_at', 'ASC')      // Oldest tasks first
+    .getMany();
+  
+  return prioritizedTasks;
+}
+
+// Customer relationship sorting
+async function customerSorting() {
+  const customerRepo = dataManager.getRepository<Customer>('customers');
+  
+  const sortedCustomers = await customerRepo
+    .createQueryBuilder()
+    .orderBy('tier', 'DESC')              // VIP customers first
+    .addOrderBy('last_order_date', 'DESC') // Recent purchasers
+    .addOrderBy('total_spent', 'DESC')    // High value customers
+    .addOrderBy('created_at', 'ASC')      // Oldest customers (loyalty)
+    .getMany();
+  
+  return sortedCustomers;
 }
 ```
 
@@ -453,22 +577,55 @@ async function existenceChecks() {
 
 ```tsx
 async function columnSelection() {
-  // Select specific columns to reduce data transfer
+  // Array syntax for column selection (recommended)
   const minimalUsers = await userRepository
     .getQueryBuilder()
-    .select('id, email, first_name, last_name')
+    .select(['id', 'email', 'first_name', 'last_name'])
     .eq('active', true)
     .execute();
   
-  // Column aliases
+  // Array syntax with aliases using AS keyword
   const aliasedUsers = await userRepository
+    .getQueryBuilder()
+    .select([
+      'id',
+      'email', 
+      'first_name AS firstName',
+      'last_name AS lastName',
+      'created_at AS createdAt'
+    ])
+    .limit(10)
+    .execute();
+
+  // String syntax with aliases
+  const stringAliasedUsers = await userRepository
     .getQueryBuilder()
     .select('id, email, first_name as firstName, last_name as lastName, created_at as createdAt')
     .limit(10)
     .execute();
   
-  // Computed columns (if supported by your database)
+  // Dynamic column selection with array
+  const columns = ['id', 'email', 'first_name AS name', 'active'];
+  const dynamicUsers = await userRepository
+    .getQueryBuilder()
+    .select(columns)
+    .execute();
+
+  // Computed columns with array syntax
   const computedUsers = await userRepository
+    .getQueryBuilder()
+    .select([
+      'id',
+      'email',
+      'first_name',
+      'last_name',
+      "first_name || ' ' || last_name AS full_name",
+      'extract(year from created_at) AS created_year'
+    ])
+    .execute();
+
+  // String syntax for complex computed columns
+  const complexComputedUsers = await userRepository
     .getQueryBuilder()
     .select(`
       id, 
@@ -483,6 +640,7 @@ async function columnSelection() {
   console.log('Column selection results:', {
     minimal: minimalUsers.data?.length,
     aliased: aliasedUsers.data?.length,
+    dynamic: dynamicUsers.data?.length,
     computed: computedUsers.data?.length
   });
 }
@@ -490,7 +648,9 @@ async function columnSelection() {
 
 ## Relationship Queries
 
-### Joining Related Data
+### Relations Array Syntax
+
+PGRestify supports a declarative approach to relationship isLoading using the `relations` array:
 
 ```tsx
 interface Post {
@@ -504,7 +664,59 @@ interface Post {
 async function relationshipQueries() {
   const postRepository = dataManager.getRepository<Post>('posts');
   
-  // Posts with author information
+  // Posts with author using relations array
+  const postsWithAuthors = await postRepository
+    .getQueryBuilder()
+    .select([
+      'id', 
+      'title', 
+      'content', 
+      'created_at',
+      'author.id',
+      'author.first_name', 
+      'author.last_name',
+      'author.email'
+    ])
+    .relations(['author'])
+    .where('published = :published', { published: true })
+    .orderBy('created_at', 'DESC')
+    .limit(20)
+    .execute();
+
+  // Multiple relations
+  const postsWithAuthorsAndComments = await postRepository
+    .getQueryBuilder()
+    .select([
+      'id', 
+      'title',
+      'author.first_name',
+      'author.last_name',
+      'comments.content',
+      'comments.author.name'
+    ])
+    .relations(['author', 'comments.author'])
+    .execute();
+
+  // Relations with filtering
+  const activePostsWithAuthors = await postRepository
+    .getQueryBuilder()
+    .select(['id', 'title', 'author.first_name', 'author.email'])
+    .relations(['author'])
+    .where('published = :published', { published: true })
+    .andWhere('author.active = :active', { active: true })
+    .execute();
+}
+```
+
+### PostgREST Embedded Resources
+
+Traditional PostgREST syntax for maximum control:
+
+```tsx
+async function embeddedResourceQueries() {
+  const postRepository = dataManager.getRepository<Post>('posts');
+  
+  // Posts with author information using embedded resources
   const postsWithAuthors = await postRepository
     .getQueryBuilder()
     .select(`

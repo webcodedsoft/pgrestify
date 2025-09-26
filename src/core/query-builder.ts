@@ -1,5 +1,5 @@
 /**
- * TypeORM-inspired query builder for PostgREST
+ * ORM-style query builder for PostgREST
  */
 
 import { 
@@ -35,7 +35,7 @@ import {
 } from '../utils/column-transform';
 
 /**
- * TypeORM-like query builder implementation
+ * ORM-style query builder implementation
  */
 export class QueryBuilder<T = Record<string, unknown>> {
   private readonly state: QueryState<T>;
@@ -229,6 +229,156 @@ export class QueryBuilder<T = Record<string, unknown>> {
     return this.addFilter(column, 'cd', `{${values.map(v => this.formatValue(v)).join(',')}}`);
   }
 
+  // WHERE-style method aliases for FunctionBasedQueryBuilder compatibility
+  /**
+   * Filter where column value is in the provided array
+   * PostgREST fully supports: ?column=in.(value1,value2,value3)
+   * For subqueries: Uses a two-step execution workaround
+   * @param column The column to filter
+   * @param values Array of values OR a subquery (automatically handles two-step execution)
+   */
+  whereIn<K extends keyof T>(column: K | string, values: T[K][]): QueryBuilder<T>;
+  whereIn<K extends keyof T>(column: K | string, subquery: QueryBuilder<any>): QueryBuilder<T>;
+  whereIn<K extends keyof T>(column: K | string, valuesOrSubquery: T[K][] | QueryBuilder<any>): QueryBuilder<T> {
+    if (Array.isArray(valuesOrSubquery)) {
+      return this.in(column, valuesOrSubquery);
+    }
+    
+    // Handle subquery case with two-step execution
+    return this.addSubqueryFilter(column, 'in', valuesOrSubquery);
+  }
+
+  /**
+   * Filter where column value is NOT in the provided array
+   * PostgREST fully supports: ?column=not.in.(value1,value2,value3)
+   * For subqueries: Uses a two-step execution workaround
+   * @param column The column to filter
+   * @param values Array of values OR a subquery (automatically handles two-step execution)
+   */
+  whereNotIn<K extends keyof T>(column: K | string, values: T[K][]): QueryBuilder<T>;
+  whereNotIn<K extends keyof T>(column: K | string, subquery: QueryBuilder<any>): QueryBuilder<T>;
+  whereNotIn<K extends keyof T>(column: K | string, valuesOrSubquery: T[K][] | QueryBuilder<any>): QueryBuilder<T> {
+    if (Array.isArray(valuesOrSubquery)) {
+      if (!Array.isArray(valuesOrSubquery) || valuesOrSubquery.length === 0) {
+        throw new Error('Values must be a non-empty array');
+      }
+      return this.addFilter(column, 'not.in', `(${valuesOrSubquery.map(v => this.formatValue(v)).join(',')})`);
+    }
+    
+    // Handle subquery case with two-step execution
+    return this.addSubqueryFilter(column, 'not.in', valuesOrSubquery);
+  }
+
+  whereBetween<K extends keyof T>(column: K | string, min: T[K] | unknown, max: T[K] | unknown): QueryBuilder<T> {
+    // PostgREST doesn't have a native BETWEEN operator, so we use AND with gte and lte
+    return this.gte(column, min).lte(column, max);
+  }
+
+  whereNotBetween<K extends keyof T>(column: K | string, min: T[K] | unknown, max: T[K] | unknown): QueryBuilder<T> {
+    // NOT BETWEEN is OR of (< min OR > max)
+    return this.or(`${String(column)}.lt.${this.formatValue(min)},${String(column)}.gt.${this.formatValue(max)}`);
+  }
+
+
+  // Text search operations (FunctionBasedQueryBuilder compatibility)
+  whereContains<K extends keyof T>(column: K | string, value: string, caseSensitive: boolean = true): QueryBuilder<T> {
+    return caseSensitive ? this.like(column, `%${value}%`) : this.ilike(column, `%${value}%`);
+  }
+
+  whereStartsWith<K extends keyof T>(column: K | string, value: string, caseSensitive: boolean = true): QueryBuilder<T> {
+    return caseSensitive ? this.like(column, `${value}%`) : this.ilike(column, `${value}%`);
+  }
+
+  whereEndsWith<K extends keyof T>(column: K | string, value: string, caseSensitive: boolean = true): QueryBuilder<T> {
+    return caseSensitive ? this.like(column, `%${value}`) : this.ilike(column, `%${value}`);
+  }
+
+  whereMatches<K extends keyof T>(column: K | string, pattern: string): QueryBuilder<T> {
+    return this.match(column, pattern);
+  }
+
+  whereFullText<K extends keyof T>(column: K | string, query: string, config?: string): QueryBuilder<T> {
+    return this.fts(column, query, config);
+  }
+
+  // HIGH PRIORITY: Additional selection methods
+  addSelect<K extends keyof T>(...columns: K[]): QueryBuilder<T>;
+  addSelect(query: string): QueryBuilder<T>;
+  addSelect(columns: string[]): QueryBuilder<T>;
+  addSelect<K extends keyof T>(...args: K[] | [string] | [string[]]): QueryBuilder<T> {
+    let newColumns: string;
+    
+    if (args.length === 1) {
+      const firstArg = args[0];
+      
+      if (typeof firstArg === 'string') {
+        // String query case
+        if (!firstArg) {
+          throw new Error('Select query must be a non-empty string');
+        }
+        newColumns = firstArg;
+      } else if (Array.isArray(firstArg)) {
+        // Array of strings
+        if (firstArg.length === 0) {
+          throw new Error('At least one column must be selected');
+        }
+        newColumns = firstArg.join(', ');
+      } else {
+        throw new Error('Invalid argument type for addSelect');
+      }
+    } else {
+      // Typed columns array case
+      const columns = args as K[];
+      if (columns.length === 0) {
+        throw new Error('At least one column must be selected');
+      }
+      
+      // Validate column names
+      columns.forEach(col => validateColumnName(String(col)));
+      newColumns = columns.map(String).join(', ');
+    }
+    
+    // Add to existing selection or create new one
+    const currentSelect = this.state.select || '*';
+    const combinedSelect = currentSelect === '*' ? newColumns : `${currentSelect}, ${newColumns}`;
+    
+    return this.clone({
+      ...this.state,
+      select: combinedSelect,
+    });
+  }
+
+  // HIGH PRIORITY: Additional aggregation methods
+  countDistinct<K extends keyof T>(column: K | string): QueryBuilder<{ count: number }> {
+    const query = this.clone({
+      ...this.state,
+      select: `count(distinct.${String(column)})`,
+    });
+    return query as unknown as QueryBuilder<{ count: number }>;
+  }
+
+  // HIGH PRIORITY: Additional ordering methods
+  addOrderBy<K extends keyof T>(column: K | string, direction: 'asc' | 'desc' = 'asc', nulls?: 'first' | 'last'): QueryBuilder<T> {
+    const orderValue = nulls ? `${String(column)}.${direction}.nulls${nulls}` : `${String(column)}.${direction}`;
+    
+    // Add to existing rawOrder or create new one
+    const existingRawOrder = this.state.rawOrder;
+    const newRawOrder = existingRawOrder ? `${existingRawOrder},${orderValue}` : orderValue;
+    
+    return this.clone({
+      ...this.state,
+      rawOrder: newRawOrder,
+    });
+  }
+
+  orderByAsc<K extends keyof T>(column: K | string, nulls?: 'first' | 'last'): QueryBuilder<T> {
+    return this.addOrderBy(column, 'asc', nulls);
+  }
+
+  orderByDesc<K extends keyof T>(column: K | string, nulls?: 'first' | 'last'): QueryBuilder<T> {
+    return this.addOrderBy(column, 'desc', nulls);
+  }
+
   // Filter methods - range operations
   overlaps<K extends keyof T>(column: K | string, range: string): QueryBuilder<T> {
     return this.addFilter(column, 'ov', range);
@@ -308,7 +458,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     return this.addFilter(column, 'not', `${String(operator)}.${this.formatValue(value)}`);
   }
 
-  // TypeORM-like where methods
+  // ORM-style where methods
   where<K extends keyof T>(column: K | string, operator: FilterOperator, value: T[K] | unknown): QueryBuilder<T> {
     return this.addFilter(column, operator, value);
   }
@@ -626,7 +776,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     });
   }
 
-  // TypeORM-style convenience methods
+  // ORM-style convenience methods
   async find(options?: import('../types').FindManyOptions<T>): Promise<QueryResponse<T>> {
     let query = this.clone();
     
@@ -671,7 +821,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
         query = query.offset(options.skip);
       }
       
-      // Apply relations (TypeORM-style)
+      // Apply relations (ORM-style)
       if (options.relations) {
         const relations: string[] = Array.isArray(options.relations) 
           ? options.relations 
@@ -679,7 +829,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
               .filter(([_, enabled]) => enabled)
               .map(([key]) => key);
         
-        // Convert TypeORM-style relations to PostgREST joins
+        // Convert ORM-style relations to PostgREST joins
         for (const relation of relations) {
           // Handle nested relations like 'user.profile'
           const parts = relation.split('.');
@@ -857,7 +1007,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
         }
       }
       
-      // Apply relations (TypeORM-style)
+      // Apply relations (ORM-style)
       if (options.relations) {
         const relations: string[] = Array.isArray(options.relations) 
           ? options.relations 
@@ -865,7 +1015,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
               .filter(([_, enabled]) => enabled)
               .map(([key]) => key);
         
-        // Convert TypeORM-style relations to PostgREST joins
+        // Convert ORM-style relations to PostgREST joins
         for (const relation of relations) {
           // Handle nested relations like 'user.profile'
           const parts = relation.split('.');
@@ -1158,7 +1308,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     }
 
     try {
-      const url = this.buildUrl();
+      const url = await this.buildUrl();
       const headers = await this.buildHeaders(options);
       
       const response = await this.httpClient.get<T[]>(url, headers);
@@ -1666,6 +1816,28 @@ export class QueryBuilder<T = Record<string, unknown>> {
     });
   }
 
+  /**
+   * Add a subquery filter that will be resolved at execution time
+   * Uses two-step execution: first execute subquery, then use results in main query
+   */
+  private addSubqueryFilter<K extends keyof T>(
+    column: K | string,
+    operator: 'in' | 'not.in',
+    subquery: QueryBuilder<any>
+  ): QueryBuilder<T> {
+    // Store the subquery for later execution
+    const subqueryFilter: Filter<T> = {
+      column,
+      operator,
+      value: subquery, // Store the QueryBuilder instance
+    };
+
+    return this.clone({
+      ...this.state,
+      filters: [...this.state.filters, subqueryFilter],
+    });
+  }
+
   private clone<U = T>(newState?: QueryState<U>): QueryBuilder<U> {
     return new QueryBuilder<U>(
       this.tableName,
@@ -1685,7 +1857,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
     return shouldTransformColumns(this.config.transformColumns, this.queryOptions.transformColumns);
   }
 
-  private buildUrl(): string {
+  private async buildUrl(): Promise<string> {
     const parts: string[] = [];
 
     // Add select with embedded resources (JOINs) or raw select
@@ -1694,10 +1866,43 @@ export class QueryBuilder<T = Record<string, unknown>> {
       parts.push(`select=${encodeURIComponent(selectClause)}`);
     }
 
-    // Add filters
-    this.state.filters.forEach(filter => {
+    // Add filters - handle subqueries by executing them first
+    for (const filter of this.state.filters) {
       if (filter.operator === 'and' || filter.operator === 'or') {
         parts.push(`${filter.operator}=${encodeURIComponent(String(filter.value))}`);
+      } else if (filter.operator === 'in' || filter.operator === 'not.in') {
+        // Check if this is a subquery filter
+        if (filter.value instanceof QueryBuilder) {
+          // Execute the subquery to get the values
+          const subqueryResult = await filter.value.execute();
+          if (subqueryResult.error) {
+            throw new Error(`Subquery failed: ${subqueryResult.error.message}`);
+          }
+          
+          // Extract values from subquery result
+          const subqueryData = subqueryResult.data;
+          if (!Array.isArray(subqueryData) || subqueryData.length === 0) {
+            // If subquery returns no results, use a condition that will never match
+            const columnName = this.isColumnTransformEnabled() 
+              ? transformColumnName(String(filter.column), true)
+              : String(filter.column);
+            parts.push(`${columnName}=${filter.operator}.(null)`);
+          } else {
+            // Use the subquery results as values
+            const values = subqueryData.map(item => this.formatValue(item));
+            const columnName = this.isColumnTransformEnabled() 
+              ? transformColumnName(String(filter.column), true)
+              : String(filter.column);
+            parts.push(`${columnName}=${filter.operator}.(${values.join(',')})`);
+          }
+        } else {
+          // Regular filter with direct values
+          const value = this.formatValue(filter.value);
+          const columnName = this.isColumnTransformEnabled() 
+            ? transformColumnName(String(filter.column), true)
+            : String(filter.column);
+          parts.push(`${columnName}=${filter.operator}.${encodeURIComponent(value)}`);
+        }
       } else {
         const value = this.formatValue(filter.value);
         const columnName = this.isColumnTransformEnabled() 
@@ -1705,7 +1910,7 @@ export class QueryBuilder<T = Record<string, unknown>> {
           : String(filter.column);
         parts.push(`${columnName}=${filter.operator}.${encodeURIComponent(value)}`);
       }
-    });
+    }
 
     // Add raw filters
     if (this.state.rawFilters) {

@@ -30,34 +30,101 @@ console.log(users.data); // Array of user objects
 
 ### Selecting Specific Columns
 
-Control exactly which columns to return:
+Control exactly which columns to return using multiple syntax options:
 
 ```typescript
-// Select specific columns
+// Array syntax (recommended)
+const users = await client
+  .from('users')
+  .select(['id', 'name', 'email', 'created_at'])
+  .execute();
+
+// String syntax
 const users = await client
   .from('users')
   .select('id, name, email, created_at')
   .execute();
 
-// Type-safe column selection
+// Dynamic column selection
+const columns = ['id', 'name', 'email'];
 const users = await client
   .from('users')
-  .select('id', 'name', 'email', 'created_at')
+  .select(columns)
   .execute();
 ```
 
 ### Column Aliases
 
-Create aliases for columns in your results:
+Create aliases for columns in your results using multiple syntax options:
 
 ```typescript
+// Array syntax with AS keyword (recommended)
 const users = await client
+  .from('users')
+  .select([
+    'id',
+    'name AS full_name',
+    'email AS email_address', 
+    'created_at AS registration_date'
+  ])
+  .execute();
+
+// PostgREST colon syntax
+const usersWithColon = await client
   .from('users')
   .select('id, name:full_name, email:email_address, created_at:registration_date')
   .execute();
 
+// String syntax with AS keyword
+const usersWithAS = await client
+  .from('users')
+  .select('id, name AS full_name, email AS email_address, created_at AS registration_date')
+  .execute();
+
+// Mixed aliases and regular columns
+const mixedSelection = await client
+  .from('users')
+  .select([
+    'id',
+    'name AS full_name',
+    'email',  // No alias
+    'created_at AS signup_date',
+    'active'  // No alias
+  ])
+  .execute();
+
 // Result structure:
 // { id: 1, full_name: "John Doe", email_address: "john@example.com", registration_date: "2024-01-01" }
+```
+
+### Advanced Aliasing with Relations
+
+```typescript
+// Aliases with relations using array syntax
+const usersWithProfile = await client
+  .from('users')
+  .select([
+    'id AS user_id',
+    'name AS full_name',
+    'profile.bio AS user_bio',
+    'profile.avatar_url AS profile_image'
+  ])
+  .relations(['profile'])
+  .execute();
+
+// Complex field selection with aliases
+const complexSelection = await client
+  .from('orders')
+  .select([
+    'id AS order_id',
+    'total AS order_total',
+    'customer.name AS customer_name',
+    'customer.email AS customer_email',
+    'items.product.name AS product_name',
+    'items.quantity AS item_quantity'
+  ])
+  .relations(['customer', 'items.product'])
+  .execute();
 ```
 
 ## Query Building Methods
@@ -303,14 +370,80 @@ const newestPosts = await client
   .select('*')
   .order('created_at', { ascending: false })
   .execute();
+```
 
-// Multiple sort criteria
+### Multiple Sort Criteria
+
+Chain multiple `.order()` calls to create complex sorting logic:
+
+```typescript
+// Sort by last name, then first name
 const sortedUsers = await client
   .from('users')
   .select('*')
   .order('last_name')
   .order('first_name')
   .execute();
+
+// Sort by status (active first), then by creation date (newest first), then alphabetically
+const prioritizedUsers = await client
+  .from('users')
+  .select('*')
+  .order('is_active', { ascending: false })
+  .order('created_at', { ascending: false })
+  .order('name')
+  .execute();
+
+// Complex product sorting: category, then featured status, then price
+const organizedProducts = await client
+  .from('products')
+  .select('*')
+  .order('category')
+  .order('featured', { ascending: false })
+  .order('price', { ascending: false })
+  .execute();
+
+// E-commerce order sorting: priority, then due date, then ID
+const processedOrders = await client
+  .from('orders')
+  .select('*')
+  .order('priority', { ascending: false })
+  .order('due_date')
+  .order('id')
+  .execute();
+```
+
+### Dynamic Multiple Sorting
+
+Build sorts dynamically based on user preferences:
+
+```typescript
+interface SortCriteria {
+  column: string;
+  direction: 'asc' | 'desc';
+}
+
+const buildSortedQuery = (sortCriteria: SortCriteria[]) => {
+  let query = client
+    .from('products')
+    .select('*');
+
+  sortCriteria.forEach(sort => {
+    query = query.order(sort.column, { 
+      ascending: sort.direction === 'asc' 
+    });
+  });
+
+  return query;
+};
+
+// Usage
+const multiSortedProducts = await buildSortedQuery([
+  { column: 'category', direction: 'asc' },
+  { column: 'rating', direction: 'desc' },
+  { column: 'price', direction: 'asc' },
+  { column: 'name', direction: 'asc' }
+]).execute();
 ```
 
 ### Advanced Ordering

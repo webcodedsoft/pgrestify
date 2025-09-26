@@ -270,7 +270,7 @@ export async function GET(request: Request) {
 
 ```typescript
 // hooks/useProducts.ts
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@webcoded/pgrestify/react'
 import { client } from '../lib/client'
 
 export function useProducts(category?: string) {

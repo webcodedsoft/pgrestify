@@ -1,6 +1,6 @@
 /**
  * Query and Mutation Cache Implementation
- * TanStack Query-inspired cache system for PGRestify
+ * React Query-inspired cache system for PGRestify
  */
 
 import type {
