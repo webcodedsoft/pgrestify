@@ -1,6 +1,6 @@
 {
   "name": "@webcoded/pgrestify",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A comprehensive TypeScript client library for PostgREST APIs with type safety and framework integrations",
   "keywords": [
     "postgrest",
